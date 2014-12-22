@@ -10,18 +10,27 @@ inherit
 	ARGUMENTS
 	SOCKET_RESOURCES
 	STORABLE
+
 create
 	make
 
+
+-- register 188.63.191.24 8888 40011
+-- connect 188.63.191.24 40002
 feature {NONE} -- Initialization
 
 	make
 			-- Run application.
 		local
 			soc1: detachable NETWORK_STREAM_SOCKET
+			server_soc: detachable NETWORK_STREAM_SOCKET
+			in_soc: detachable NETWORK_STREAM_SOCKET
+			out_soc: detachable NETWORK_STREAM_SOCKET
 			addr: detachable NETWORK_SOCKET_ADDRESS
 			user_command: STRING
 			command_parser: COMMAND_PARSER
+			connector: CONNECT_THREAD
+			listenor: LISTEN_THREAD
 		do
 			print ("Hello Eiffel World!%N")
 			create packet_processor.make
@@ -39,6 +48,41 @@ feature {NONE} -- Initialization
 				if
 					command_parser.method.is_case_insensitive_equal ("register")
 				then
+
+--					create connector.make_by_address (command_parser.params.at (0), command_parser.params.at (1).to_integer_32, my_local_port)
+--					connector.launch
+--					connector.join
+--					soc1 := connector.socket
+--					process(soc1, command_parser)
+
+--					if attached soc1 as socket then
+--						socket.cleanup
+--						socket.dispose
+--					end
+
+
+--					create soc1.make_client_by_port (command_parser.params.at (1).to_integer_32, command_parser.params.at (0))
+--					my_local_port := command_parser.params.at (2).to_integer_32
+--					create addr.make_any_local (my_local_port)
+--					if
+--						soc1 /= Void
+--					then
+--						soc1.set_address (addr)
+--						soc1.set_reuse_address
+--						soc1.bind
+
+--						create connector.make_by_socket (soc1)
+--						connector.launch
+
+--						connector.join
+
+--						process(soc1, command_parser)
+--						soc1.cleanup
+--						soc1.dispose
+--					end
+
+
+
 					create soc1.make_client_by_port (command_parser.params.at (1).to_integer_32, command_parser.params.at (0))
 					my_local_port := command_parser.params.at (2).to_integer_32
 					create addr.make_any_local (my_local_port)
@@ -49,13 +93,6 @@ feature {NONE} -- Initialization
 						soc1.set_reuse_address
 						soc1.bind
 						soc1.connect
---						addr := soc1.address
---						if
---							addr /= Void
---						then
---							my_local_port := soc1.port
---							print("Local port is " + my_local_port.out + ".%N")
---						end
 
 						process(soc1, command_parser)
 						soc1.cleanup
@@ -70,7 +107,7 @@ feature {NONE} -- Initialization
 					then
 						soc1.connect
 						process(soc1, command_parser)
-						soc1.close
+						soc1.cleanup
 					end
 				elseif
 					command_parser.method.is_case_insensitive_equal ("listen")
@@ -82,28 +119,63 @@ feature {NONE} -- Initialization
 						if
 							soc1 /= Void
 						then
-							soc1.cleanup
---							soc1.set_reuse_address
-							create soc1.make_server_by_port (my_local_port)
-							server_listen(soc1)
+							send_sync
+
+							create server_soc.make_server_by_port (my_local_port)
+							server_listen(server_soc)
 							soc1.close
 						end
 					end
 				elseif
 					command_parser.method.is_case_insensitive_equal ("connect")
 				then
-					print("Going to connect!%N")
-					create soc1.make_client_by_port (command_parser.params.at (1).to_integer_32, command_parser.params.at (0))
-					print("Connecting!%N")
-					soc1.connect
-					client_process(soc1)
-					soc1.close
+--					print("Going to connect!%N")
+--					create soc1.make_client_by_port (command_parser.params.at (1).to_integer_32, command_parser.params.at (0))
 
+--					print("Connecting!%N")
+--					soc1.connect
+--					client_process(soc1)
+--					soc1.close
+					my_local_port := 40011
+					print("creating out socket!%N")
+					create out_soc.make_client_by_port (command_parser.params.at (1).to_integer_32, command_parser.params.at (0))
+
+					create addr.make_any_local (my_local_port)
+
+					out_soc.set_address (addr)
+					out_soc.set_reuse_address
+					out_soc.bind
+
+					create connector.make_by_socket (out_soc)
+
+					print("creating in socket!%N")
+					create in_soc.make
+					in_soc.set_address (addr)
+					in_soc.set_reuse_address
+					in_soc.bind
+
+					create listenor.make_by_socket (in_soc)
+
+
+					print("launch listener %N")
+					listenor.launch
+
+					print("launch connector %N")
+					connector.launch
+
+
+
+
+					connector.join_all
+					in_soc.cleanup
+					out_soc.cleanup
 				end
-
+				print("----------------------------------------------------------------------")
+				print("%N")
 				user_command := get_user_command
 
 				create command_parser.make_from_command (user_command)
+
 			end
 --			create soc1.make_client_by_port (8888, "localhost")
 --			create addr.make_any_local (9999)
@@ -368,19 +440,55 @@ feature {NONE} -- Initialization
 				i := i + 1
 			end
 		end
+
+
+
+	send_sync
+		local
+			sync_socket: detachable NETWORK_STREAM_SOCKET
+			xs: NETWORK_STREAM_SOCKET
+			addr: detachable NETWORK_SOCKET_ADDRESS
+		do
+
+			create sync_socket.make_client_by_port (40001, "188.63.191.24")
+			create addr.make_any_local (my_local_port)
+
+			sync_socket.set_address (addr)
+			sync_socket.set_reuse_address
+			sync_socket.bind
+
+
+
+			sync_socket.set_connect_timeout (10)
+			sync_socket.connect
+
+			sync_socket.cleanup
+			sync_socket.dispose
+			print("sync sent %N")
+		rescue
+			if sync_socket /= Void then
+				sync_socket.cleanup
+				sync_socket.dispose
+			end
+
+		end
+
+
 	server_listen(socket: detachable NETWORK_STREAM_SOCKET)
 		require
 			socket_not_void: socket /= Void
 		local
 			count: INTEGER
+
 		do
-			socket.listen (1)
+
+			socket.listen (10)
 			from
 				count := 0
 			until
 				count = 5
 			loop
-				print("Start listening.%N")
+				print("Start listening on port " + socket.port.out + "%N")
 				server_process(socket)
 			end
 			socket.cleanup
