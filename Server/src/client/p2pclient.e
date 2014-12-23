@@ -31,10 +31,15 @@ feature {NONE} -- Initialization
 			command_parser: COMMAND_PARSER
 			connector: CONNECT_THREAD
 			listenor: LISTEN_THREAD
+
+			my_port: INTEGER
+			server_port: INTEGER
+			server_ip: STRING
 		do
 			print ("Hello Eiffel World!%N")
 			create packet_processor.make
 			create message_processor.make
+			create conn_manag.make
 			state := 0
 			create id.make_empty
 			create key.make_empty
@@ -48,127 +53,42 @@ feature {NONE} -- Initialization
 				if
 					command_parser.method.is_case_insensitive_equal ("register")
 				then
+					my_port := command_parser.params.at (2).to_integer_32
+					server_port := command_parser.params.at (1).to_integer_32
+					server_ip := command_parser.params.at (0)
 
---					create connector.make_by_address (command_parser.params.at (0), command_parser.params.at (1).to_integer_32, my_local_port)
---					connector.launch
---					connector.join
---					soc1 := connector.socket
---					process(soc1, command_parser)
-
---					if attached soc1 as socket then
---						socket.cleanup
---						socket.dispose
---					end
-
-
---					create soc1.make_client_by_port (command_parser.params.at (1).to_integer_32, command_parser.params.at (0))
---					my_local_port := command_parser.params.at (2).to_integer_32
---					create addr.make_any_local (my_local_port)
---					if
---						soc1 /= Void
---					then
---						soc1.set_address (addr)
---						soc1.set_reuse_address
---						soc1.bind
-
---						create connector.make_by_socket (soc1)
---						connector.launch
-
---						connector.join
-
---						process(soc1, command_parser)
---						soc1.cleanup
---						soc1.dispose
---					end
-
-
-
-					create soc1.make_client_by_port (command_parser.params.at (1).to_integer_32, command_parser.params.at (0))
-					my_local_port := command_parser.params.at (2).to_integer_32
-					create addr.make_any_local (my_local_port)
 					if
-						soc1 /= Void
+						conn_manag.connect_to_server (server_ip, server_port, my_port)
 					then
-						soc1.set_address (addr)
-						soc1.set_reuse_address
-						soc1.bind
-						soc1.connect
-
-						process(soc1, command_parser)
-						soc1.cleanup
-						soc1.dispose
+						process(conn_manag.main_soc, command_parser)
+						conn_manag.cleanup_connection
 					end
+
 				elseif
 					command_parser.method.is_case_insensitive_equal ("query")
 				then
-					create soc1.make_client_by_port (command_parser.params.at (1).to_integer_32, command_parser.params.at (0))
+					server_port := command_parser.params.at (1).to_integer_32
+					server_ip := command_parser.params.at (0)
 					if
-						soc1 /= Void
+						conn_manag.connect_to_server_any_port (server_ip, server_port)
 					then
-						soc1.connect
-						process(soc1, command_parser)
-						soc1.cleanup
+						process(conn_manag.main_soc, command_parser)
+						conn_manag.cleanup_connection
 					end
-				elseif
-					command_parser.method.is_case_insensitive_equal ("listen")
-				then
-					if
-						my_local_port /= -1
-					then
 
-						if
-							soc1 /= Void
-						then
-							send_sync
-
-							create server_soc.make_server_by_port (my_local_port)
-							server_listen(server_soc)
-							soc1.close
-						end
-					end
 				elseif
 					command_parser.method.is_case_insensitive_equal ("connect")
 				then
---					print("Going to connect!%N")
---					create soc1.make_client_by_port (command_parser.params.at (1).to_integer_32, command_parser.params.at (0))
+					my_port := command_parser.params.at (2).to_integer_32
+					server_port := command_parser.params.at (1).to_integer_32 -- actually it is the peer port
+					server_ip := command_parser.params.at (0)	-- actually it is the peer ip
 
---					print("Connecting!%N")
---					soc1.connect
---					client_process(soc1)
---					soc1.close
-					my_local_port := 40011
-					print("creating out socket!%N")
-					create out_soc.make_client_by_port (command_parser.params.at (1).to_integer_32, command_parser.params.at (0))
+					if conn_manag.tcp_hole_punch (server_ip, server_port, my_port)
+					 then
 
-					create addr.make_any_local (my_local_port)
-
-					out_soc.set_address (addr)
-					out_soc.set_reuse_address
-					out_soc.bind
-
-					create connector.make_by_socket (out_soc)
-
-					print("creating in socket!%N")
-					create in_soc.make
-					in_soc.set_address (addr)
-					in_soc.set_reuse_address
-					in_soc.bind
-
-					create listenor.make_by_socket (in_soc)
+					end
 
 
-					print("launch listener %N")
-					listenor.launch
-
-					print("launch connector %N")
-					connector.launch
-
-
-
-
-					connector.join_all
-					in_soc.cleanup
-					out_soc.cleanup
 				end
 				print("----------------------------------------------------------------------")
 				print("%N")
@@ -195,8 +115,12 @@ feature {NONE} -- Initialization
             end
 		end
 	process(soc1: detachable NETWORK_STREAM_SOCKET command: COMMAND_PARSER)
+
+
 		require
 			socket_not_void: soc1 /= Void
+
+
 		local
 			pkt: MY_PACKET
 			msg: MESSAGE
@@ -212,7 +136,16 @@ feature {NONE} -- Initialization
 			comprehension_optional_attributes: ARRAY [MY_ATTRIBUTE]
 			feedback: FEEDBACK
 			addr: detachable NETWORK_SOCKET_ADDRESS
+
+
+			soc_d: detachable NETWORK_DATAGRAM_SOCKET
+
+			data_pac: DATAGRAM_PACKET
+			pac:  PACKET
 		do
+
+
+
 			magic_cookie := generate_magic_cookie
 			transaction_id := generate_transaction_id
 			create comprehension_required_attributes.make_empty
@@ -229,6 +162,9 @@ feature {NONE} -- Initialization
 				create msg.make (3, 2, 0, magic_cookie, transaction_id, comprehension_required_attributes, comprehension_optional_attributes)
 				pkt := msg.generate_packet
 				pkt.independent_store (soc1)
+
+
+
 				print("Register request sent with id = " + convert_id_to_string(identification) + " .%N")
 				if attached {MY_PACKET} pkt.retrieved (soc1) as packet then
 					print("A packet received!")
@@ -261,6 +197,9 @@ feature {NONE} -- Initialization
 				create msg.make (3, 4, 0, magic_cookie, transaction_id, comprehension_required_attributes, comprehension_optional_attributes)
 				pkt := msg.generate_packet
 				pkt.independent_store (soc1)
+
+
+
 				if attached {MY_PACKET} pkt.retrieved (soc1) as packet then
 					print("A packet received!")
 					protocol_handler := packet_processor.process_packet(packet)
@@ -289,6 +228,8 @@ feature {NONE} -- Initialization
 	id: ARRAY[NATURAL_8]
 	key: ARRAY[NATURAL_8]
 	my_local_port: INTEGER
+
+	conn_manag: CONNECTION_MANAGER
 
 	get_user_command: STRING
 		local

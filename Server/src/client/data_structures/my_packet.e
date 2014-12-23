@@ -16,6 +16,7 @@ inherit
             is_equal, copy
         end
 
+
 create
 
     make_from_array, make_filled, make_empty
