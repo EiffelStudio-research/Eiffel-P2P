@@ -53,6 +53,8 @@ feature
 
 					current.sleep (1000000000)
 
+					i := i + 1
+
 				end
 
 			end

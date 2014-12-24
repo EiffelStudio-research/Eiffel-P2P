@@ -47,6 +47,8 @@ feature
 				loop
 					pac := soc.received (8, 0)
 					print("Received: " + pac.at (1).out + "%N")
+
+					i := i + 1
 				end
 			end
 		end
