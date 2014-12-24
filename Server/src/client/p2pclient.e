@@ -83,11 +83,11 @@ feature {NONE} -- Initialization
 					server_port := command_parser.params.at (1).to_integer_32 -- actually it is the peer port
 					server_ip := command_parser.params.at (0)	-- actually it is the peer ip
 
-					if conn_manag.tcp_hole_punch (server_ip, server_port, my_port)
-					 then
+					if conn_manag.tcp_hole_punch (server_ip, server_port, my_port) then
 
 					end
 
+					conn_manag.cleanup_connection
 
 				end
 				print("----------------------------------------------------------------------")
@@ -119,7 +119,6 @@ feature {NONE} -- Initialization
 
 		require
 			socket_not_void: soc1 /= Void
-
 
 		local
 			pkt: MY_PACKET
@@ -383,36 +382,6 @@ feature {NONE} -- Initialization
 		end
 
 
-
-	send_sync
-		local
-			sync_socket: detachable NETWORK_STREAM_SOCKET
-			xs: NETWORK_STREAM_SOCKET
-			addr: detachable NETWORK_SOCKET_ADDRESS
-		do
-
-			create sync_socket.make_client_by_port (40001, "188.63.191.24")
-			create addr.make_any_local (my_local_port)
-
-			sync_socket.set_address (addr)
-			sync_socket.set_reuse_address
-			sync_socket.bind
-
-
-
-			sync_socket.set_connect_timeout (10)
-			sync_socket.connect
-
-			sync_socket.cleanup
-			sync_socket.dispose
-			print("sync sent %N")
-		rescue
-			if sync_socket /= Void then
-				sync_socket.cleanup
-				sync_socket.dispose
-			end
-
-		end
 
 
 	server_listen(socket: detachable NETWORK_STREAM_SOCKET)
