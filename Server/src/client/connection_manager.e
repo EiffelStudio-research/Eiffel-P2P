@@ -142,24 +142,18 @@ feature
 			receiver: UDP_RECEIVE_THREAD
 		do
 
-			create addr.make_any_local (my_local_port)
+			create addr.make_from_hostname_and_port (peer_ip_address, peer_port)
 
 			print("creating out socket!%N")
-			create out_soc.make_targeted (peer_ip_address, peer_port)
-			out_soc.set_address (addr)
+			create out_soc.make_bound (my_local_port)
+			out_soc.set_peer_address (addr)
 			out_soc.set_reuse_address
-			out_soc.bind
+
 
 			create sender.make_by_socket (out_soc)
 
-			print("creating in socket!%N")
-			create in_soc.make_targeted (peer_ip_address, peer_port)
-			in_soc.set_address (addr)
-			in_soc.set_reuse_address
-			in_soc.bind
 
-
-			create receiver.make_by_socket (in_soc)
+			create receiver.make_by_socket (out_soc)
 
 
 			print("launching receiver!%N")
@@ -169,7 +163,7 @@ feature
 			sender.launch
 
 
-			timed_out := receiver.join_with_timeout (20000)
+			timed_out := sender.join_with_timeout (20000)
 
 			if attached in_soc as soc then
 				soc.cleanup
