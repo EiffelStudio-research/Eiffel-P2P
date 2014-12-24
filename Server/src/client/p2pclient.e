@@ -22,19 +22,15 @@ feature {NONE} -- Initialization
 	make
 			-- Run application.
 		local
-			soc1: detachable NETWORK_STREAM_SOCKET
-			server_soc: detachable NETWORK_STREAM_SOCKET
-			in_soc: detachable NETWORK_STREAM_SOCKET
-			out_soc: detachable NETWORK_STREAM_SOCKET
-			addr: detachable NETWORK_SOCKET_ADDRESS
+
 			user_command: STRING
 			command_parser: COMMAND_PARSER
-			connector: CONNECT_THREAD
-			listenor: LISTEN_THREAD
+
 
 			my_port: INTEGER
 			server_port: INTEGER
 			server_ip: STRING
+
 		do
 			print ("Hello Eiffel World!%N")
 			create packet_processor.make
@@ -60,7 +56,7 @@ feature {NONE} -- Initialization
 					if
 						conn_manag.connect_to_server (server_ip, server_port, my_port)
 					then
-						process(conn_manag.main_soc, command_parser)
+						process(conn_manag.main_tcp_soc, command_parser)
 						conn_manag.cleanup_connection
 					end
 
@@ -72,7 +68,7 @@ feature {NONE} -- Initialization
 					if
 						conn_manag.connect_to_server_any_port (server_ip, server_port)
 					then
-						process(conn_manag.main_soc, command_parser)
+						process(conn_manag.main_tcp_soc, command_parser)
 						conn_manag.cleanup_connection
 					end
 
@@ -83,9 +79,12 @@ feature {NONE} -- Initialization
 					server_port := command_parser.params.at (1).to_integer_32 -- actually it is the peer port
 					server_ip := command_parser.params.at (0)	-- actually it is the peer ip
 
-					if conn_manag.tcp_hole_punch (server_ip, server_port, my_port) then
+					conn_manag.udp_hole_punch (server_ip, server_port, my_port)
 
-					end
+					
+--					if conn_manag.tcp_hole_punch (server_ip, server_port, my_port) then
+
+--					end
 
 					conn_manag.cleanup_connection
 
@@ -97,23 +96,8 @@ feature {NONE} -- Initialization
 				create command_parser.make_from_command (user_command)
 
 			end
---			create soc1.make_client_by_port (8888, "localhost")
---			create addr.make_any_local (9999)
---			soc1.set_address (addr)
---			soc1.bind
---			soc1.connect
---			process(soc1)
-
-
---			soc1.cleanup
-
-
-		rescue
-			print ("Exception catched!%N")
-            if soc1 /= Void then
-                soc1.cleanup
-            end
 		end
+
 	process(soc1: detachable NETWORK_STREAM_SOCKET command: COMMAND_PARSER)
 
 
@@ -136,11 +120,6 @@ feature {NONE} -- Initialization
 			feedback: FEEDBACK
 			addr: detachable NETWORK_SOCKET_ADDRESS
 
-
-			soc_d: detachable NETWORK_DATAGRAM_SOCKET
-
-			data_pac: DATAGRAM_PACKET
-			pac:  PACKET
 		do
 
 
