@@ -164,6 +164,7 @@ feature
 
 
 			timed_out := sender.join_with_timeout (20000)
+			timed_out := receiver.join_with_timeout (20000)
 
 			if attached in_soc as soc then
 				soc.cleanup

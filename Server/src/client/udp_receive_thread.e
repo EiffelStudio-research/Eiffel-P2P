@@ -45,7 +45,7 @@ feature
 				until
 					i = 5
 				loop
-					pac := soc.received (8, 0)
+					pac := soc.received (24, 0)
 					print("Received: " + pac.at (1).out + "%N")
 
 					i := i + 1
