@@ -38,8 +38,10 @@ feature
 		local
 			pac: DATAGRAM_PACKET
 			i: INTEGER
+			t: TIME
 		do
 			create pac.make (8)
+
 
 			if attached socket as soc then
 				from
@@ -47,11 +49,13 @@ feature
 				until
 					i = 5
 				loop
+					create t.make_now
 					create pac.make (8)
 					pac.put_element (i.to_character_8, 1)
 					soc.send (pac, 0)
 
-					current.sleep (1000000000)
+					print("Sent packet " + i.out  + " " + t.out + "%N")
+					current.sleep (2000000000)
 
 					i := i + 1
 
