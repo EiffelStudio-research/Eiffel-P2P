@@ -46,7 +46,8 @@ feature
 				until
 					i = 5
 				loop
-					pac := soc.received (24, 0)
+
+					pac :=  soc.received (24, 0)
 					--soc.read_stream (10)
 
 					--s := soc.laststring
