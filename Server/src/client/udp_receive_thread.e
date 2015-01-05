@@ -36,7 +36,7 @@ feature
 
 		local
 			pac: PACKET
-			i: INTEGER
+			i, j: INTEGER
 			--s: STRING
 		do
 			if attached socket as soc then
@@ -50,7 +50,17 @@ feature
 					--soc.read_stream (10)
 
 					--s := soc.laststring
-					print("Received: " + pac.at (1).out + "%N")
+					print("Received: ")
+
+					from
+						j := 0
+					until
+						j = pac.count
+					loop
+						print(j.out + ": " + pac.at (j).out + "%T")
+						j := j + 1
+					end
+					print("%N")
 
 					i := i + 1
 				end

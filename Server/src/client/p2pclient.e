@@ -79,12 +79,13 @@ feature {NONE} -- Initialization
 					server_port := command_parser.params.at (1).to_integer_32 -- actually it is the peer port
 					server_ip := command_parser.params.at (0)	-- actually it is the peer ip
 
+
 					conn_manag.udp_hole_punch (server_ip, server_port, my_port)
 
-					
+
 --					if conn_manag.tcp_hole_punch (server_ip, server_port, my_port) then
 
---					end
+--				end
 
 					conn_manag.cleanup_connection
 
