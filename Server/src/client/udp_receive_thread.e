@@ -57,7 +57,7 @@ feature
 					until
 						j = pac.count
 					loop
-						print(j.out + ": " + pac.at (j).out + "%T")
+						print(j.out + ": " + pac.element (j).out + "%T")
 						j := j + 1
 					end
 					print("%N")
