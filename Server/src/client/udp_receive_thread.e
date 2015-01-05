@@ -58,7 +58,13 @@ feature
 					until
 						j = pac.count
 					loop
-						print(j.out + ": " + pac.element (j).code.out + "%T")
+						if  pac.count > 0 then
+							print(j.out + ": " + pac.element (j).code.out + "%T")
+						else
+							print(" empty packet")
+						end
+
+
 						j := j + 1
 					end
 					print("%N")
