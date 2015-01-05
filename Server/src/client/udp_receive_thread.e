@@ -53,7 +53,7 @@ feature
 					print("Received: ")
 
 					from
-						j := 0
+						j := 1
 					until
 						j = pac.count
 					loop
