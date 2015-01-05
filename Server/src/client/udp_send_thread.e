@@ -37,7 +37,7 @@ feature
 			socket_not_void: socket /= Void
 
 		local
-			pac: DATAGRAM_PACKET
+			pac: PACKET
 			i: INTEGER
 			t: TIME
 		do
@@ -53,8 +53,9 @@ feature
 				loop
 					create t.make_now
 					create pac.make (8)
+
 					pac.put_element (i.to_character_8, 1)
-				
+
 					soc.send (pac, 0)
 				--	soc.independent_store (pac)
 
