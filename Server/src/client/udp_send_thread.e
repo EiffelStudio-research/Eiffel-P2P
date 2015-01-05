@@ -44,7 +44,10 @@ feature
 			create pac.make (8)
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> c5b79f8a68debb6079b49de7f854055e0b64d394
 			if attached socket as soc then
 				from
 					i:= 1
@@ -57,7 +60,11 @@ feature
 					soc.send (pac, 0)
 				--	soc.independent_store (pac)
 
+<<<<<<< HEAD
 					print("Sent packet " + i.out + t.out + "%N")
+=======
+					print("Sent packet " + i.out  + " " + t.out + "%N")
+>>>>>>> c5b79f8a68debb6079b49de7f854055e0b64d394
 					current.sleep (2000000000)
 
 					i := i + 1

@@ -37,6 +37,7 @@ feature
 		local
 			pac: PACKET
 			i: INTEGER
+			--s: STRING
 		do
 			if attached socket as soc then
 				soc.set_timeout (10)
@@ -46,6 +47,9 @@ feature
 					i = 5
 				loop
 					pac := soc.received (24, 0)
+					--soc.read_stream (10)
+
+					--s := soc.laststring
 					print("Received: " + pac.at (1).out + "%N")
 
 					i := i + 1
