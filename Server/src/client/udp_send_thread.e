@@ -54,6 +54,7 @@ feature
 					create t.make_now
 					create pac.make (8)
 					pac.put_element (i.to_character_8, 1)
+					pac.element (1)
 					soc.send (pac, 0)
 				--	soc.independent_store (pac)
 
