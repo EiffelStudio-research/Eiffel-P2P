@@ -81,7 +81,7 @@ feature {NONE} -- Initialization
 
 					conn_manag.udp_hole_punch (server_ip, server_port, my_port)
 
-					
+
 --					if conn_manag.tcp_hole_punch (server_ip, server_port, my_port) then
 
 --					end
