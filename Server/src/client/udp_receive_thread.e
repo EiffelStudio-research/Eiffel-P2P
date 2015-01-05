@@ -53,20 +53,19 @@ feature
 					--s := soc.laststring
 					print("Received: ")
 
-					from
-						j := 1
-					until
-						j = pac.count
-					loop
-						if  pac.count > 0 then
+					if  pac.count > 0 then
+						from
+							j := 1
+						until
+							j = pac.count
+						loop
 							print(j.out + ": " + pac.element (j).code.out + "%T")
-						else
-							print(" empty packet")
+							j := j + 1
 						end
-
-
-						j := j + 1
+					else
+						print(" empty packet")
 					end
+
 					print("%N")
 
 					i := i + 1
