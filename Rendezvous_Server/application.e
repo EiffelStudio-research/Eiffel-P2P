@@ -46,7 +46,7 @@ feature -- networking
 				from  i := 1;received_string := ""
 				until i > pac.count
 				loop
-					received_string.append_character (pac.at (i))
+					received_string.append_character (pac.at (i-1))
 					i := i + 1
 				end
 
