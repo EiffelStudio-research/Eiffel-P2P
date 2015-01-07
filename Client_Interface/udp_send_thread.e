@@ -19,7 +19,7 @@ feature
 
 	socket: detachable NETWORK_DATAGRAM_SOCKET
 
-	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET, a_utils:UTILS)
+	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET a_utils:UTILS)
 		do
 			make
 			socket := ref_socket
@@ -56,7 +56,7 @@ feature -- Execute
 					create pac.make (8)
 
 
-					
+
 					pac.put_element (i.to_character_8, 1)
 
 					soc.send (pac, 0)

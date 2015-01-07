@@ -9,8 +9,9 @@ class
 
 
 inherit
-	LINKED_QUEUE
+	LINKED_QUEUE [G]
 redefine put, extend, force, make, item
+
 
 feature -- create
 	make
