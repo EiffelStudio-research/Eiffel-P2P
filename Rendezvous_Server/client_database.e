@@ -30,6 +30,16 @@ feature -- access
 			end
 		end
 
+	query_address(client_name: STRING) : detachable NETWORK_SOCKET_ADDRESS
+		do
+			RESULT := database.at (client_name)
+		end
+
+	is_client_registered(client_name: STRING) : BOOLEAN
+		do
+			RESULT := database.has (client_name)
+		end
+
 feature {NONE}
 	database:  HASH_TABLE[NETWORK_SOCKET_ADDRESS, STRING]
 
