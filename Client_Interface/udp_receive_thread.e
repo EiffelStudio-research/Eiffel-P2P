@@ -17,11 +17,9 @@ feature
 
 	socket: detachable NETWORK_DATAGRAM_SOCKET
 
-<<<<<<< HEAD
+
 	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET a_utils:UTILS)
-=======
-	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET; a_utils:UTILS)
->>>>>>> cbb57d5a609bdf23713f8d9da61fe49971c26f3d
+
 		do
 			make
 			socket := ref_socket
