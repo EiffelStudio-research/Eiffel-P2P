@@ -41,6 +41,8 @@ feature {NONE} -- Initialization
 			key: JSON_STRING
 			value: JSON_VALUE
 
+			type: STRING_32
+
 
 		do
 			--| Add your code here
@@ -52,9 +54,10 @@ feature {NONE} -- Initialization
 --			print ("Packet sent")
 
 			create send_json.make
-			create key.make_from_string ("type")
+			create type.make_from_string ("type")
+			create key.make_from_string_32 (type)
 
-			send_json.put_integer (1, key)
+			send_json.put_string ("hallo", key)
 
 			print("Picked up a JSON Object to send")
 			send_string := send_json.representation
@@ -64,7 +67,8 @@ feature {NONE} -- Initialization
 			from i := 1
 			until i > send_string.count
 			loop
-				pac.put_element (send_string.item (i), i)
+				pac.put_element (send_string.item (i), i-1)
+				i := i + 1
 			end
 			print("Finished parsing to char")
 
