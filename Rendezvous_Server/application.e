@@ -53,6 +53,9 @@ feature -- networking
 				if  pac.count > 0 then
 					-- Try to parse the JSON Object
 					create json_parser.make_with_string(received_string)
+
+					
+
 					if json_parser.is_parsed then
 						json_object := json_parser.parsed_json_object
 						if json_object /= Void then
