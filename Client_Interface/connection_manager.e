@@ -18,6 +18,7 @@ feature
 
 	make
 		do
+			create utils.make
 		end
 
 
@@ -44,10 +45,10 @@ feature
 			out_soc.set_reuse_address
 
 
-			create sender.make_by_socket (out_soc)
+			create sender.make_by_socket (out_soc,utils)
 
 
-			create receiver.make_by_socket (out_soc)
+			create receiver.make_by_socket (out_soc,utils)
 
 
 			print("launching receiver!%N")
@@ -77,5 +78,8 @@ feature
 				soc.cleanup
 			end
 		end
+feature --data
+
+	utils:UTILS
 
 end
