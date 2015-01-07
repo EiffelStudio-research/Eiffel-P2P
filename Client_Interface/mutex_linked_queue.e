@@ -8,15 +8,12 @@ class
 	MUTEX_LINKED_QUEUE
 
 
-<<<<<<< HEAD
-inherit
-	LINKED_QUEUE [G]
-redefine put, extend, force, make, item
-=======
+
+
 
 create
 	make
->>>>>>> cbb57d5a609bdf23713f8d9da61fe49971c26f3d
+
 
 
 feature -- create

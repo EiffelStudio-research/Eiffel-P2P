@@ -24,7 +24,8 @@ feature {NONE} -- Initialization
 	test_send
 		local
 			soc: NETWORK_DATAGRAM_SOCKET
-			pac: PACKET
+			pac: detachable PACKET
+
 		do
 			print ("Hello Eiffel World!%N")
 			create soc.make_bound (8887)
@@ -32,6 +33,12 @@ feature {NONE} -- Initialization
 			soc.set_timeout (30)
 
 			pac := soc.received (20, 10)
+
+			if attached {MESSAGE} pac as message then
+
+					print(message.message)
+
+			end
 
 			if(attached soc.peer_address as addr) then
 				print(addr.host_address.host_address + "/" + addr.port.out + "%N")
