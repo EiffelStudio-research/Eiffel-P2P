@@ -5,32 +5,46 @@ note
 	revision: "$Revision$"
 
 class
-	MUTEX_LINKED_QUEUE [G]
+	MUTEX_LINKED_QUEUE
 
 
-inherit
-	LINKED_QUEUE
-redefine put, extend, force, make, item
+
+create
+	make
 
 feature -- create
 	make
 	do
-		mutex.make
-		Precursor
+		create list.make
+		create mutex.make
 	end
 
 feature -- ACCESS
-	put, extend, force (v: G)
+	put(v: JSON_OBJECT)
 	do
 		mutex.lock
-		Precursor
+		list.put(v)
 		mutex.unlock
 	end
 
-	item: G
+	extend(v: JSON_OBJECT)
 	do
 		mutex.lock
-		Precursor
+		list.extend(v)
+		mutex.unlock
+	end
+
+	force(v: JSON_OBJECT)
+	do
+		mutex.lock
+		list.force(v)
+		mutex.unlock
+	end
+
+	item: JSON_OBJECT
+	do
+		mutex.lock
+		Result:=item
 		mutex.unlock
 	end
 
@@ -38,5 +52,7 @@ feature -- ACCESS
 
 feature {NONE} -- Mutex
 	mutex:MUTEX
+feature {NONE} -- List
+	list:LINKED_QUEUE [JSON_OBJECT]
 
 end

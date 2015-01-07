@@ -17,7 +17,7 @@ feature
 
 	socket: detachable NETWORK_DATAGRAM_SOCKET
 
-	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET, a_utils:UTILS)
+	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET; a_utils:UTILS)
 		do
 			make
 			socket := ref_socket
@@ -28,7 +28,13 @@ feature --Execute
 
 	execute
 		do
-			listen
+			from
+			until not utils.receive_thread_running
+			loop
+				listen
+				current.sleep (utils.receive_thread_timeout)
+			end
+
 		end
 
 	listen
@@ -37,44 +43,43 @@ feature --Execute
 
 		local
 			pac: PACKET
-			i, j: INTEGER
-			--s: STRING
+			i: INTEGER
+			received_string: STRING
+			json_parser:JSON_PARSER
+			json_object:detachable JSON_OBJECT
 		do
 			if attached socket as soc then
 				soc.set_timeout (10)
-				from
-					i:= 1
-				until
-					i = 5
-				loop
-
-
-
-					pac :=  soc.received (24, 0)
-					--soc.read_stream (10)
-
+				--HOw to hansle size?
+				pac :=  soc.received (1024, 0)
+				--soc.read_stream (10)
 					--s := soc.laststring
-					print("Received: ")
+				print("Received: ")
 
+				--Parse packet to string
+				from  i := 1;received_string := ""
+				until i > pac.count
+				loop
+					received_string.append_character (pac.at (i))
+				end
 
-
-					if  pac.count > 0 then
-						from
-							j := 1
-						until
-							j = pac.count
-						loop
-							print(j.out + ": " + pac.element (j).code.out + "%T")
-							j := j + 1
+				if  pac.count > 0 then
+					-- Try to parse the JSON Object
+					create json_parser.make_with_string(received_string)
+					if json_parser.is_parsed then
+						json_object := json_parser.parsed_json_object
+						if json_object /= Void then
+							utils.receive_queue.extend (json_object)
+						else
+							print("Not parcable as json object")
 						end
 					else
-						print(" empty packet")
+						print("Error parsing: not parsed")
 					end
-
-					print("%N")
-
-					i := i + 1
+				else
+					print(" empty packet")
 				end
+					print("%N")
 			end
 		end
 feature {NONE} --data
