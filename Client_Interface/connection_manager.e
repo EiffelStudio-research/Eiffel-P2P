@@ -60,8 +60,6 @@ feature
 			sender.launch
 
 
-			sender.exit
-
 			timed_out := sender.join_with_timeout (utils.send_thread_timeout.as_natural_64)
 			timed_out := receiver.join_with_timeout (utils.receive_thread_timeout.as_natural_64)
 
