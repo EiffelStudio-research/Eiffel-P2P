@@ -17,7 +17,7 @@ feature {NONE} -- Initialization
 	make
 			-- Run application.
 		local
-			con:CONNECTION_MANAGER
+
 			json:JSON_OBJECT
 			jsons:JSON_STRING
 			i:INTEGER
@@ -26,6 +26,7 @@ feature {NONE} -- Initialization
 		--	create con.make
 		--	con.udp_hole_punch ("127.0.0.1", 3400, 3400)
 			print ("Hello Eiffel World!%N")
+			test_send
 		end
 
 	test_send
@@ -43,7 +44,7 @@ feature {NONE} -- Initialization
 
 		do
 			--| Add your code here
-<<<<<<< HEAD
+
 			print ("Hello Eiffel World!%N")
 			create soc.make_targeted ("188.63.191.24", 8888)
 --			create pac.make (10)
@@ -72,22 +73,7 @@ feature {NONE} -- Initialization
 		--	soc.independent_store (pac)
 
 			print("Sent packet " + send_string  + " " + t.out + "%N")
-=======
-			create con.make ("192.168.0.1", 5000, 5500)
-			con.start
-			create json.make
-			create jsons.make_from_string_32 ("User")
-			json.put_string ("SImon Peyer",jsons)
-			from
-				i := 0
-			until
-				i>1000
-			loop
-				con.send (json)
-				i := i+1
-			end
-			con.close
->>>>>>> 95fdc646af8514bc0ef0753461a4907110a14450
+
 		end
 
 end
