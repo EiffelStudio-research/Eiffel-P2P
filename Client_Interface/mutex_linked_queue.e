@@ -26,30 +26,35 @@ feature -- create
 feature -- ACCESS
 	put(v: JSON_OBJECT)
 	do
-		mutex.lock
+		--mutex.lock
 		list.put(v)
-		mutex.unlock
+		--mutex.unlock
 	end
 
 	extend(v: JSON_OBJECT)
 	do
-		mutex.lock
+		--mutex.lock
 		list.extend(v)
-		mutex.unlock
+		--mutex.unlock
 	end
 
 	force(v: JSON_OBJECT)
 	do
-		mutex.lock
+		--mutex.lock
 		list.force(v)
-		mutex.unlock
+		--mutex.unlock
 	end
 
 	item: JSON_OBJECT
 	do
-		mutex.lock
-		Result:=item
-		mutex.unlock
+		--mutex.lock
+			Result:=list.item
+		--mutex.unlock
+	end
+
+	readable:BOOLEAN
+	do
+		Result:=list.readable
 	end
 
 

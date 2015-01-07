@@ -10,32 +10,36 @@ class
 create
 	make
 
-feature
+feature -- Extern
 
-	main_tcp_soc: detachable NETWORK_STREAM_SOCKET
-
-feature
-
-	make
+	make(a_peer_ip_address: STRING_8; a_peer_port, a_my_local_port: INTEGER_32)
 		do
 			create utils.make
+			print("Created UTILS %N")
+			create connector.make_new (a_peer_ip_address, a_peer_port, a_my_local_port, utils)
+			print("New Connector: %N")
+			print("PEER_IP_ADDRESS: " + a_peer_ip_address + "%N")
+			print("PEER_PORT: " + a_peer_port.out + "%N")
+			print("LOCAL_PORT: " + a_my_local_port.out + "%N")
 		end
 
 
-
-
-	udp_hole_punch(peer_ip_address: STRING peer_port: INTEGER my_local_port: INTEGER)
-		local
-			in_soc: detachable NETWORK_DATAGRAM_SOCKET
-			out_soc: detachable NETWORK_DATAGRAM_SOCKET
-			addr: detachable NETWORK_SOCKET_ADDRESS
-
-
-
-			timed_out: BOOLEAN
-			sender: UDP_SEND_THREAD
-			receiver: UDP_RECEIVE_THREAD
+		send(a_object: JSON_OBJECT)
 		do
+			Utils.send_queue.extend (a_object)
+			print("Added JSON Object to Sender Queue: " + a_object.representation + "%N")
+		end
+
+		start
+		do
+			connector.launch
+		end
+
+		close
+		local
+			test: BOOLEAN
+		do
+<<<<<<< HEAD
 
 			create addr.make_from_hostname_and_port (peer_ip_address, peer_port)
 
@@ -77,9 +81,18 @@ feature
 			if attached out_soc as soc then
 				soc.cleanup
 			end
+=======
+			--Wait 10 Seconds
+			test := connector.join_with_timeout (10000)
+>>>>>>> 95fdc646af8514bc0ef0753461a4907110a14450
 		end
+
 feature --data
 
 	utils:UTILS
+
+feature {NONE} -- THread
+	connector : CONNECTION_MANAGER_THREAD
+
 
 end

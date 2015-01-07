@@ -55,6 +55,7 @@ feature --Execute
 				--HOw to hansle size?
 				pac :=  soc.received (1024, 0)
 				--soc.read_stream (10)
+
 					--s := soc.laststring
 				print("Received: ")
 
@@ -63,6 +64,7 @@ feature --Execute
 				until i > pac.count
 				loop
 					received_string.append_character (pac.at (i))
+					i:=i+1
 				end
 
 				if  pac.count > 0 then
@@ -73,13 +75,13 @@ feature --Execute
 						if json_object /= Void then
 							utils.receive_queue.extend (json_object)
 						else
-							print("Not parcable as json object")
+							print("Not parcable as json object" + "%N")
 						end
 					else
-						print("Error parsing: not parsed")
+						print("Error parsing: not parsed" + "%N")
 					end
 				else
-					print(" empty packet")
+					print(" empty packet" + "%N")
 				end
 					print("%N")
 			end
