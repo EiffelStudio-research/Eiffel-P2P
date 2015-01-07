@@ -64,23 +64,11 @@ feature -- Execute
 				from i := 1
 				until i > send_string.count
 				loop
-
-					create t.make_now
-					create pac.make (8)
-
-
-
-					pac.put_element (i.to_character_8, 1)
-
-					soc.send (pac, 0)
-				--	soc.independent_store (pac)
-
-
 					pac.put_element (send_string.item (i), i)
 				end
 				print("Finished parsing to char")
 
-
+				create t.make_now
 				soc.send (pac, 0)
 			--	soc.independent_store (pac)
 
