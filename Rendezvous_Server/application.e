@@ -46,13 +46,14 @@ feature -- networking
 				from  i := 1;received_string := ""
 				until i > pac.count
 				loop
-					received_string.append_character (pac.at (i))
+					received_string.append_character (pac.element(i-1))
 					i := i + 1
 				end
 
 				if  pac.count > 0 then
 					-- Try to parse the JSON Object
 					create json_parser.make_with_string(received_string)
+					json_parser.parse_content
 					if json_parser.is_parsed then
 						json_object := json_parser.parsed_json_object
 						if json_object /= Void then
