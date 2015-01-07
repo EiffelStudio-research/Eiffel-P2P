@@ -35,7 +35,9 @@ feature -- Execute
 			until
 				not utils.send_thread_running
 			loop
-				send
+				if  Utils.send_queue.readable then
+					send
+				end
 				current.sleep (utils.send_thread_timeout)
 			end
 		end
@@ -53,10 +55,10 @@ feature -- Execute
 		do
 			if attached socket as soc then
 				create t.make_now
-				send_json := utils.receive_queue.item
-				print("Picked up a JSON Object to send")
+				send_json := utils.send_queue.item
+				print("Picked up a JSON Object to send %N")
 				send_string := send_json.representation
-				print("This is the sens String: " + send_string)
+				print("This is the send String: " + send_string + "%N")
 
 				create pac.make (send_string.count)
 				from i := 1
@@ -64,13 +66,12 @@ feature -- Execute
 				loop
 					pac.put_element (send_string.item (i), i)
 				end
-				print("Finished parsing to char")
+				print("Finished parsing to char" + "%N")
 
 				soc.send (pac, 0)
 			--	soc.independent_store (pac)
 
 				print("Sent packet " + send_string  + " " + t.out + "%N")
-
 			end
 		end
 
