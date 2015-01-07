@@ -56,7 +56,7 @@ feature -- networking
 					if json_parser.is_parsed then
 						json_object := json_parser.parsed_json_object
 						if json_object /= Void then
-							process(json_object)
+							process(json_object) -- TODO: nicer if processing would be done in a worker_thread
 						else
 							print("Not parcable as json object")
 						end
@@ -100,7 +100,12 @@ feature -- message handling
  			value: detachable JSON_VALUE
  		do
  			create key.make_from_string ("type")
+
  			value := json_object.item (key)
+ 			if value /= Void then
+ 			 	print("Received JSON value: " + value.representation)
+ 			end
+
  		end
 
 
