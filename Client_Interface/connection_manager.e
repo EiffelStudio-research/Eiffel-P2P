@@ -44,6 +44,8 @@ feature
 			out_soc.set_peer_address (addr)
 			out_soc.set_reuse_address
 
+			utils.set_send_thread_running(true)
+			utils.set_receive_thread_running (true)
 
 			create sender.make_by_socket (out_soc,utils)
 
@@ -60,8 +62,8 @@ feature
 
 			sender.exit
 
-			timed_out := sender.join_with_timeout (20000)
-			timed_out := receiver.join_with_timeout (20000)
+			timed_out := sender.join_with_timeout (utils.send_thread_timeout.as_natural_64)
+			timed_out := receiver.join_with_timeout (utils.receive_thread_timeout.as_natural_64)
 
 			if attached in_soc as soc then
 				soc.cleanup
