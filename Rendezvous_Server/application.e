@@ -35,11 +35,6 @@ feature {NONE} -- Initialization
 
 			pac := soc.received (20, 10)
 
-			if attached {MESSAGE} pac as message then
-
-					print(message.message)
-
-			end
 
 			if(attached soc.peer_address as addr) then
 				print(addr.host_address.host_address + "/" + addr.port.out + "%N")
