@@ -22,7 +22,7 @@ feature -- access
 
 	register(client_name: STRING address: NETWORK_SOCKET_ADDRESS) : BOOLEAN
 		do
-			if database.has (client_name) then
+			if database.has (client_name) then -- TODO maybe we can nevertheless insert a new client
 				RESULT := False
 			else
 				database.put (address, client_name)
