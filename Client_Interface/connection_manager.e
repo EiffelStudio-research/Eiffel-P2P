@@ -16,17 +16,19 @@ feature -- Extern
 		do
 			create utils.make
 			print("Created UTILS %N")
---			create connector.make_new (a_peer_ip_address, a_peer_port, a_my_local_port, utils)
---			print("New Connector: %N")
 
 
---			print("PEER_IP_ADDRESS: " + a_peer_ip_address + "%N")
---			print("PEER_PORT: " + a_peer_port.out + "%N")
---			print("LOCAL_PORT: " + a_my_local_port.out + "%N")
-
+			utils.set_send_thread_running (True)
 			create socket.make_bound (utils.local_port)
 
-			--create udp_receiver.make_by_socket (ref_socket: NETWORK_DATAGRAM_SOCKET, a_utils: UTILS)
+			create udp_sender.make_by_socket (socket, utils)
+			create udp_receiver.make_by_socket (socket, utils)
+
+
+			udp_sender.launch
+			print("launched sender %N")
+--			udp_receiver.launch
+--			print("launched receiver %N")
 		end
 
 	register(a_name: STRING)
@@ -43,6 +45,13 @@ feature -- Extern
 --			Utils.send_queue.extend (a_object)
 --			print("Added JSON Object to Sender Queue: " + a_object.representation + "%N")
 --		end
+
+	wait_sender_timeout
+		local
+			timed_out: BOOLEAN
+		do
+			timed_out:= udp_sender.join_with_timeout (80000)
+		end
 
 		start
 		do

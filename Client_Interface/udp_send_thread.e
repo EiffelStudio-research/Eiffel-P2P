@@ -37,17 +37,20 @@ feature -- Execute
 			until
 				not utils.send_thread_running
 			loop
+				print("Send_Thread awake: ")
 				if Utils.send_queue.something_to_send then
-
+					print("something to send -> send %N")
 					if  Utils.send_queue.readable then
 						send
 					end
 				else
+					print("nothing to send -> sleep %N")
 					current.sleep (utils.send_thread_timeout)
 				end
 
 
 			end
+			print("Send_Thread finished %N")
 		end
 
 	send
@@ -64,9 +67,10 @@ feature -- Execute
 					print("Picked up a Packet to send %N")
 
 					create t.make_now
-					soc.send_to (target_packet, target_packet.peer_address, 0)
+					soc.set_peer_address (target_packet.peer_address)
+					soc.send (target_packet, 0)
 
-					print("Sent packet "  + t.out + "%N")
+					print("Sent packet to " + target_packet.peer_address.host_address.host_address + ":" + target_packet.peer_address.port.out + " at "  + t.out + "%N")
 				end
 
 			end

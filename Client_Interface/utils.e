@@ -27,7 +27,7 @@ feature -- Thread QUeues
 feature --Timeouts
 	send_thread_timeout:INTEGER
 		do
-			Result := 2000
+			Result := 2000000000
 		end
 	receive_thread_timeout:INTEGER
 		do

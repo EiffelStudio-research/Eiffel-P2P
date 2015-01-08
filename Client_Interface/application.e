@@ -23,10 +23,10 @@ feature {NONE} -- Initialization
 			i:INTEGER
 		do
 
-		--	create con.make
-		--	con.udp_hole_punch ("127.0.0.1", 3400, 3400)
+			create con.make
 			print ("Hello Eiffel World!%N")
-			test_send
+			con.register ("Silvan")
+			con.wait_sender_timeout
 		end
 
 	test_send
