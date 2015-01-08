@@ -17,7 +17,7 @@ feature {NONE} -- Initialization
 	make
 			-- Run application.
 		local
-
+			con: CONNECTION_MANAGER
 			json:JSON_OBJECT
 			jsons:JSON_STRING
 			i:INTEGER

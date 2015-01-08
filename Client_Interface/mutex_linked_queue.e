@@ -57,6 +57,11 @@ feature -- ACCESS
 		Result:=list.readable
 	end
 
+	something_to_send: BOOLEAN
+	do
+		RESULT := not list.is_empty
+	end
+
 
 
 feature {NONE} -- Mutex

@@ -37,10 +37,16 @@ feature -- Execute
 			until
 				not utils.send_thread_running
 			loop
-				if  Utils.send_queue.readable then
-					send
+				if Utils.send_queue.something_to_send then
+
+					if  Utils.send_queue.readable then
+						send
+					end
+				else
+					current.sleep (utils.send_thread_timeout)
 				end
-				current.sleep (utils.send_thread_timeout)
+
+
 			end
 		end
 
@@ -66,13 +72,12 @@ feature -- Execute
 				from i := 1
 				until i > send_string.count
 				loop
-					pac.put_element (send_string.item (i), i)
+					pac.put_element (send_string.item (i), i-1)
 				end
 				print("Finished parsing to char" + "%N")
 
 				create t.make_now
 				soc.send (pac, 0)
-			--	soc.independent_store (pac)
 
 				print("Sent packet " + send_string  + " " + t.out + "%N")
 			end

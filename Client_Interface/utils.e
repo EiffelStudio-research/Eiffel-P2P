@@ -48,4 +48,26 @@ feature -- Thread Control
 		receive_thread_running := v
 	end
 
+feature -- protocol
+
+	register_name_key: STRING = "name"
+
+	name_to_query_key: STRING = "name"
+	queried_ip_key: STRING = "peer_ip_address"
+	queried_port_key: STRING = "peer_ip_port"
+
+	message_type_key: STRING = "type"
+
+
+
+
+
+	register_message: INTEGER = 1
+
+	query_message: INTEGER = 2
+
+	unregister_message: INTEGER = 3
+
+	keep_alive_message: INTEGER = 4
+
 end
