@@ -55,8 +55,7 @@ feature -- Execute
 			socket_not_void: socket /= Void
 
 		local
-			pac: PACKET
-			i: INTEGER
+			t: TIME
 		do
 			if attached socket as soc then
 				create t.make_now

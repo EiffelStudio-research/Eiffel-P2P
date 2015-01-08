@@ -30,10 +30,11 @@ feature -- Extern
 		end
 
 	register(a_name: STRING)
-
+		local
+			t_pac: TARGET_PACKET
 		do
-			-- put the object in the send queue
-			--utils.send_queue.extend (json_object)
+			create t_pac.make_register_packet (a_name)
+			utils.send_queue.extend (t_pac)
 		end
 
 
