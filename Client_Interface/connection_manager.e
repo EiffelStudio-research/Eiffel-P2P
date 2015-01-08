@@ -52,5 +52,6 @@ feature --data
 feature {NONE} -- THread
 	connector : CONNECTION_MANAGER_THREAD
 
-
+	udp_receiver: UDP_RECEIVE_THREAD
+	udp_sender: UDP_SEND_THREAD
 end

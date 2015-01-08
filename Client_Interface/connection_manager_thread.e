@@ -1,3 +1,4 @@
+
 note
 	description: "Summary description for {CONNECTION_MANAGER_THREAD}."
 	author: ""

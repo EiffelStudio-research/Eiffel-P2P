@@ -19,9 +19,10 @@ feature {NONE} -- Initialization
 		do
 			create utils.make
 			create socket.make_bound (utils.server_port)
+			create clients.make
 
 			listen
-			test_send
+
 		end
 
 
@@ -76,27 +77,7 @@ feature -- networking
 		end
 
 
-	test_send
-		local
-			soc: NETWORK_DATAGRAM_SOCKET
-			pac: detachable PACKET
 
-		do
-			print ("Hello Eiffel World!%N")
-			create soc.make_bound (8888)
-
-			soc.set_timeout (30)
-
-
-			pac := soc.received (20, 10)
-
-
-			if(attached soc.peer_address as addr) then
-				print(addr.host_address.host_address + "/" + addr.port.out + "%N")
-			end
-
-			print ("Finished %N")
-		end
 
 feature -- message handling
 
@@ -104,19 +85,83 @@ feature -- message handling
  		local
  			key: JSON_STRING
  			value: detachable JSON_VALUE
+ 			type: INTEGER_64
  		do
  			create key.make_from_string ("type")
 
  			value := json_object.item (key)
- 			if value /= Void then
- 			 	print("Received JSON value: " + value.representation)
+ 			if attached {JSON_NUMBER} value as type_number then
+ 				type := type_number.integer_64_item
+ 			 	print("Received message of type: " + type.out)
+
+ 			 	inspect type
+ 			 	when 1 then
+ 			 		print("register message %N")
+					handle_register(json_object)
+ 			 	when 2 then
+ 			 		print("query message %N")
+					handle_query(json_object)
+ 			 	when 3 then
+ 			 		print("unregister message %N")
+					handle_unregister(json_object)
+ 			 	else
+ 			 		print("invalid type %N")
+
+ 			 	end
+ 			else
+ 				print("invalid message %N")
  			end
 
  		end
 
+feature {NONE} --helpers
+
+	handle_register(json_object: JSON_OBJECT)
+		local
+			client_name: STRING
+			success: BOOLEAN
+
+			key: JSON_STRING
+			value: detachable JSON_VALUE
+		do
+			-- get the name
+			create key.make_from_string (utils.name__key)
+			value := json_object.item (key)
+			if attached {JSON_STRING} value as name then
+				client_name := name.item
+				print("register: " + client_name)
+				if attached socket.peer_address as client_address then
+
+					success := clients.register (client_name, client_address)
+					if success then
+						print(" " + client_address.host_address.host_address + ":" + client_address.port.out + " succeeded")
+					else
+						-- TODO: what to do here ? send back an error message ?!
+						print(" failed")
+					end
+				else
+					print("no valid peer_address")
+				end
+
+			else
+				print("invalid name_key %N")
+			end
+
+		end
+
+	handle_query(json_object: JSON_OBJECT)
+		do
+
+		end
+
+	handle_unregister(json_object: JSON_OBJECT)
+		do
+
+		end
 
 feature {NONE} --data
 	utils: UTILS
 	socket: NETWORK_DATAGRAM_SOCKET
+	clients: CLIENT_DATABASE
 
 end

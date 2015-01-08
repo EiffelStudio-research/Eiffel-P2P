@@ -48,20 +48,19 @@ feature -- Thread Control
 		receive_thread_running := v
 	end
 
-feature -- protocol
+feature -- protocol must be the same as for rendevouz_server
 
-	register_name_key: STRING = "name"
+	maximum_packet_size: INTEGER = 1024
 
-	name_to_query_key: STRING = "name"
-	queried_ip_key: STRING = "peer_ip_address"
-	queried_port_key: STRING = "peer_ip_port"
+	-- json keys
+	name__key: STRING = "name"
+	ip_key: STRING = "ip_address"
+	port_key: STRING = "port"
 
 	message_type_key: STRING = "type"
 
 
-
-
-
+	-- message types
 	register_message: INTEGER = 1
 
 	query_message: INTEGER = 2

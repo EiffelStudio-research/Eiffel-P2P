@@ -73,6 +73,7 @@ feature -- Execute
 				until i > send_string.count
 				loop
 					pac.put_element (send_string.item (i), i-1)
+					i := i+1
 				end
 				print("Finished parsing to char" + "%N")
 
