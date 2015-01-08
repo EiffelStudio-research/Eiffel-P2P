@@ -12,23 +12,36 @@ create
 
 feature -- Extern
 
-	make(a_peer_ip_address: STRING_8; a_peer_port, a_my_local_port: INTEGER_32)
+	make
 		do
 			create utils.make
 			print("Created UTILS %N")
-			create connector.make_new (a_peer_ip_address, a_peer_port, a_my_local_port, utils)
-			print("New Connector: %N")
-			print("PEER_IP_ADDRESS: " + a_peer_ip_address + "%N")
-			print("PEER_PORT: " + a_peer_port.out + "%N")
-			print("LOCAL_PORT: " + a_my_local_port.out + "%N")
+--			create connector.make_new (a_peer_ip_address, a_peer_port, a_my_local_port, utils)
+--			print("New Connector: %N")
+
+
+--			print("PEER_IP_ADDRESS: " + a_peer_ip_address + "%N")
+--			print("PEER_PORT: " + a_peer_port.out + "%N")
+--			print("LOCAL_PORT: " + a_my_local_port.out + "%N")
+
+			create socket.make_bound (utils.local_port)
+
+			--create udp_receiver.make_by_socket (ref_socket: NETWORK_DATAGRAM_SOCKET, a_utils: UTILS)
 		end
 
+	register(a_name: STRING)
 
-		send(a_object: JSON_OBJECT)
 		do
-			Utils.send_queue.extend (a_object)
-			print("Added JSON Object to Sender Queue: " + a_object.representation + "%N")
+			-- put the object in the send queue
+			--utils.send_queue.extend (json_object)
 		end
+
+
+--		send(a_object: JSON_OBJECT)
+--		do
+--			Utils.send_queue.extend (a_object)
+--			print("Added JSON Object to Sender Queue: " + a_object.representation + "%N")
+--		end
 
 		start
 		do
@@ -45,12 +58,18 @@ feature -- Extern
 
 		end
 
+feature {NONE} -- intern
+
+
+
 feature --data
 
 	utils:UTILS
 
 feature {NONE} -- THread
 	connector : CONNECTION_MANAGER_THREAD
+
+	socket: NETWORK_DATAGRAM_SOCKET
 
 	udp_receiver: UDP_RECEIVE_THREAD
 	udp_sender: UDP_SEND_THREAD

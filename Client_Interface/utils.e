@@ -48,6 +48,20 @@ feature -- Thread Control
 		receive_thread_running := v
 	end
 
+feature -- socket constants
+
+	server_ip : STRING_8 =  "188.63.191.24" -- ip of rendevouz server
+	server_port : INTEGER_32 = 8888 -- must be the same as rendevouz server
+
+	server_address : NETWORK_SOCKET_ADDRESS
+	once
+		create Result.make_from_hostname_and_port (server_ip, server_port)
+	end
+
+	local_port : INTEGER_32 = 40001
+
+	application_message: INTEGER = 5
+
 feature -- protocol must be the same as for rendevouz_server
 
 	maximum_packet_size: INTEGER = 1024
@@ -68,5 +82,7 @@ feature -- protocol must be the same as for rendevouz_server
 	unregister_message: INTEGER = 3
 
 	keep_alive_message: INTEGER = 4
+
+
 
 end

@@ -57,33 +57,9 @@ feature --Execute
 				--soc.read_stream (10)
 
 					--s := soc.laststring
-				print("Received: ")
+				print("Received Packet ")
+				utils.receive_queue.force (pac)
 
-				--Parse packet to string
-				from  i := 1;received_string := ""
-				until i > pac.count
-				loop
-					received_string.append_character (pac.at (i-1))
-					i:=i+1
-				end
-
-				if  pac.count > 0 then
-					-- Try to parse the JSON Object
-					create json_parser.make_with_string(received_string)
-					if json_parser.is_parsed then
-						json_object := json_parser.parsed_json_object
-						if json_object /= Void then
-							utils.receive_queue.extend (json_object)
-						else
-							print("Not parcable as json object" + "%N")
-						end
-					else
-						print("Error parsing: not parsed" + "%N")
-					end
-				else
-					print(" empty packet" + "%N")
-				end
-					print("%N")
 			end
 		end
 feature {NONE} --data

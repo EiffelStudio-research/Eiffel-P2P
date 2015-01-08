@@ -24,31 +24,32 @@ feature -- create
 	end
 
 feature -- ACCESS
-	put(v: JSON_OBJECT)
+	put(v: PACKET)
 	do
 		--mutex.lock
 		list.put(v)
 		--mutex.unlock
 	end
 
-	extend(v: JSON_OBJECT)
+	extend(v: PACKET)
 	do
 		--mutex.lock
 		list.extend(v)
 		--mutex.unlock
 	end
 
-	force(v: JSON_OBJECT)
+	force(v: PACKET)
 	do
 		--mutex.lock
 		list.force(v)
 		--mutex.unlock
 	end
 
-	item: JSON_OBJECT
+	item: PACKET
 	do
 		--mutex.lock
 			Result:=list.item
+			list.remove -- TODO: is that true ?
 		--mutex.unlock
 	end
 
@@ -67,6 +68,6 @@ feature -- ACCESS
 feature {NONE} -- Mutex
 	mutex:MUTEX
 feature {NONE} -- List
-	list:LINKED_QUEUE [JSON_OBJECT]
+	list:LINKED_QUEUE [PACKET]
 
 end

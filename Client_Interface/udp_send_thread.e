@@ -57,30 +57,19 @@ feature -- Execute
 		local
 			pac: PACKET
 			i: INTEGER
-			t: TIME
-			send_string : STRING
-			send_json:JSON_OBJECT
 		do
 			if attached socket as soc then
 				create t.make_now
-				send_json := utils.send_queue.item
-				print("Picked up a JSON Object to send %N")
-				send_string := send_json.representation
-				print("This is the send String: " + send_string + "%N")
+				if attached {TARGET_PACKET} utils.send_queue.item as target_packet then
 
-				create pac.make (send_string.count)
-				from i := 1
-				until i > send_string.count
-				loop
-					pac.put_element (send_string.item (i), i-1)
-					i := i+1
+					print("Picked up a Packet to send %N")
+
+					create t.make_now
+					soc.send_to (target_packet, target_packet.peer_address, 0)
+
+					print("Sent packet "  + t.out + "%N")
 				end
-				print("Finished parsing to char" + "%N")
 
-				create t.make_now
-				soc.send (pac, 0)
-
-				print("Sent packet " + send_string  + " " + t.out + "%N")
 			end
 		end
 

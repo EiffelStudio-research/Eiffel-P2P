@@ -18,7 +18,7 @@ feature {NONE} -- Initialization
 			-- Run application.
 		do
 			create utils.make
-			create socket.make_bound (utils.server_port)
+			create socket.make_bound (utils.local_server_port)
 			create clients.make
 
 			listen

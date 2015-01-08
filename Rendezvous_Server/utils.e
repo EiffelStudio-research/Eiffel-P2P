@@ -16,9 +16,9 @@ feature
 	make
 	do end
 
-feature -- constants
+feature -- socket constants
 
-	server_port : INTEGER = 8888
+	local_server_port : INTEGER = 8888
 
 feature -- protocol must be the same as for the client_interface
 
