@@ -45,18 +45,10 @@ feature --Execute
 
 		local
 			pac: PACKET
-			i: INTEGER
-			received_string: STRING
-			json_parser:JSON_PARSER
-			json_object:detachable JSON_OBJECT
 		do
 			if attached socket as soc then
 				soc.set_timeout (10)
-				--HOw to hansle size?
-				pac :=  soc.received (1024, 0)
-				--soc.read_stream (10)
-
-					--s := soc.laststring
+				pac :=  soc.received ({UTILS}.maximum_packet_size, 0)
 				print("Received Packet ")
 				utils.receive_queue.force (pac)
 

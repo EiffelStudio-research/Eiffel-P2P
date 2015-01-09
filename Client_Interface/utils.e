@@ -34,9 +34,12 @@ feature --Timeouts
 			Result := 2000
 		end
 
+	keep_alive_thread_interval: INTEGER_64 = 10000000000
+
 feature -- Thread Control
 	send_thread_running:BOOLEAN
 	receive_thread_running:BOOLEAN
+
 
 	set_send_thread_running(v : BOOLEAN)
 	do
@@ -47,6 +50,8 @@ feature -- Thread Control
 	do
 		receive_thread_running := v
 	end
+
+
 
 feature -- socket constants
 

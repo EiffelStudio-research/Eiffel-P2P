@@ -82,14 +82,10 @@ feature -- INITALIZATION
 			value := create {JSON_NUMBER}.make_integer ({UTILS}.keep_alive_message)
 			json_object.put (value, key)
 
-
-			-- TODO: add other name/value pairs
-
 			-- fill the packet
 			fill(json_object)
 
 			-- set peer_address
-
 			create peer_address.make_from_address_and_port (a_peer_address.host_address, a_peer_address.port)
 
 		end
