@@ -1,0 +1,6 @@
+cm: register, query, udp_hole_punch cm_thread löschen -> Silvan
+cm: send_json, send_string, receive (3x) -> Simon
+cm: start, close -> Silvan
+cm: queues von utils nach cm und send/receive_thread anpassen -> Simon
+
+cm: update library ->Simon
