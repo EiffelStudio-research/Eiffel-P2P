@@ -158,11 +158,10 @@ feature {NONE} --helpers
 			value: JSON_VALUE
 			json_query_answer: JSON_OBJECT
 
-			peer_address: NETWORK_SOCKET_ADDRESS
+
 		do
 			if attached {JSON_STRING} json_object.item ({UTILS}.name__key) as name then
-				if clients.is_client_registered (name) then
-					peer_address:= clients.query_address (name)
+				if clients.is_client_registered (name.item) and then attached {NETWORK_SOCKET_ADDRESS} clients.query_address (name.item) as peer_address  then
 
 					-- generate response
 					create json_query_answer.make
@@ -175,7 +174,7 @@ feature {NONE} --helpers
 					-- put the ip_address
 					create key.make_from_string ({UTILS}.ip_key)
 					value := create {JSON_STRING}.make_from_string (peer_address.host_address.host_address)
-					json_object.put (key, value)
+					json_object.put (value, key)
 
 					--put the port
 					create key.make_from_string ({UTILS}.port_key)
@@ -183,7 +182,13 @@ feature {NONE} --helpers
 					json_object.put (value, key)
 
 					-- generate packet and send back to sender
-					socket.send_to (generat_packet (json_object), socket.peer_address, 0)
+
+					if attached socket.peer_address as address then
+						socket.send_to (generat_packet (json_object), address, 0)
+					else
+						--TODO: probably nothing can be done
+					end
+
 				else
 					-- TODO: maybe generate appropriate error message
 				end
