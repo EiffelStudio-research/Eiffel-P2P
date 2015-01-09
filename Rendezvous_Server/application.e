@@ -169,22 +169,22 @@ feature {NONE} --helpers
 					-- create message type
 					create key.make_from_string ({UTILS}.message_type_key)
 					value := create {JSON_NUMBER}.make_integer ({UTILS}.query_message)
-					json_object.put (value, key)
+					json_query_answer.put (value, key)
 
 					-- put the ip_address
 					create key.make_from_string ({UTILS}.ip_key)
 					value := create {JSON_STRING}.make_from_string (peer_address.host_address.host_address)
-					json_object.put (value, key)
+					json_query_answer.put (value, key)
 
 					--put the port
 					create key.make_from_string ({UTILS}.port_key)
 					value := create {JSON_NUMBER}.make_integer (peer_address.port)
-					json_object.put (value, key)
+					json_query_answer.put (value, key)
 
 					-- generate packet and send back to sender
 
 					if attached socket.peer_address as address then
-						socket.send_to (generat_packet (json_object), address, 0)
+						socket.send_to (generat_packet (json_query_answer), address, 0)
 					else
 						--TODO: probably nothing can be done
 					end
