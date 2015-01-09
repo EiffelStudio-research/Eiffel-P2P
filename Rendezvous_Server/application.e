@@ -30,49 +30,22 @@ feature -- networking
 	listen
 		local
 			pac: PACKET
-			i: INTEGER
-			received_string: STRING
-			json_parser:JSON_PARSER
-			json_object:detachable JSON_OBJECT
+
 
 		do
 			from
 			until
 				False
 			loop
-				pac :=  socket.received (1024, 0)
-				print("Received: ")
-
-				--Parse packet to string
-				from  i := 1;received_string := ""
-				until i > pac.count
-				loop
-
-					received_string.append_character (pac.element(i-1))
-
-					i := i + 1
-				end
-
-				if  pac.count > 0 then
-					-- Try to parse the JSON Object
-					create json_parser.make_with_string(received_string)
-
-					json_parser.parse_content
-
-					if json_parser.is_parsed then
-						json_object := json_parser.parsed_json_object
-						if json_object /= Void then
-							process(json_object) -- TODO: nicer if processing would be done in a worker_thread
-						else
-							print("Not parcable as json object")
-						end
-					else
-						print("Error parsing: not parsed")
-					end
+				pac :=  socket.received ({UTILS}.maximum_packet_size, 0)
+				print("Received packet -> parsing to JSON_OBJECT: ")
+				if attached parse_packet(pac) as json_object then
+					print("succeeded %N")
+					process(json_object) -- TODO: nicer if processing would be done in a worker_thread
 				else
-					print(" empty packet")
+					print("failed %N")
 				end
-					print("%N")
+
 			end
 		end
 
@@ -80,6 +53,35 @@ feature -- networking
 
 
 feature -- message handling
+
+	parse_packet(packet: PACKET): detachable JSON_OBJECT
+	 	local
+	 		i: INTEGER
+			received_string: STRING
+			json_parser:JSON_PARSER
+			json_object:detachable JSON_OBJECT
+	 	do
+			RESULT:= Void
+			--Parse packet to string
+			if attached packet as pac then
+				from  i := 1;received_string := ""
+				until i > pac.count
+				loop
+					received_string.append_character (pac.element(i-1))
+					i := i + 1
+				end
+				if  pac.count > 0 then
+					-- Try to parse the JSON Object
+					create json_parser.make_with_string(received_string)
+					json_parser.parse_content
+
+					if json_parser.is_parsed then
+						json_object := json_parser.parsed_json_object
+						RESULT:= json_object
+					end
+				end
+			end
+		end
 
  	process(json_object: JSON_OBJECT)
  		local
@@ -92,7 +94,7 @@ feature -- message handling
  			value := json_object.item (key)
  			if attached {JSON_NUMBER} value as type_number then
  				type := type_number.integer_64_item
- 			 	print("Received message of type: " + type.out)
+ 			 	print("Message is of type: " + type.out + " which means")
 
  			 	inspect type
  			 	when 1 then
@@ -109,7 +111,7 @@ feature -- message handling
 
  			 	end
  			else
- 				print("invalid message %N")
+ 				print("Message is invalid (no type) %N")
  			end
 
  		end
