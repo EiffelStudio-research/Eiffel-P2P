@@ -89,7 +89,7 @@ feature -- message handling
  			value: detachable JSON_VALUE
  			type: INTEGER_64
  		do
- 			create key.make_from_string ("type")
+ 			create key.make_from_string ({UTILS}.message_type_key)
 
  			value := json_object.item (key)
  			if attached {JSON_NUMBER} value as type_number then
@@ -152,13 +152,63 @@ feature {NONE} --helpers
 		end
 
 	handle_query(json_object: JSON_OBJECT)
+		local
+			key: JSON_STRING
+			value: JSON_VALUE
+			json_query_answer: JSON_OBJECT
+
+			peer_address: NETWORK_SOCKET_ADDRESS
 		do
+			if attached {JSON_STRING} json_object.item ({UTILS}.name__key) as name then
+				if clients.is_client_registered (name) then
+					peer_address:= clients.query_address (name)
+
+					-- generate response
+					create json_query_answer.make
+
+					-- create message type
+					create key.make_from_string ({UTILS}.message_type_key)
+					value := create {JSON_NUMBER}.make_integer ({UTILS}.query_message)
+					json_object.put (value, key)
+
+					-- put the ip_address
+					create key.make_from_string ({UTILS}.ip_key)
+					value := create {JSON_STRING}.make_from_string (peer_address.host_address.host_address)
+					json_object.put (key, value)
+
+					--put the port
+					create key.make_from_string ({UTILS}.port_key)
+					value := create {JSON_NUMBER}.make_integer (peer_address.port)
+					json_object.put (value, key)
+
+				else
+					-- TODO: maybe generate appropriate error message
+				end
+
+			else
+				-- TODO: maybe generate appropriate error message
+			end
 
 		end
 
 	handle_unregister(json_object: JSON_OBJECT)
 		do
 
+		end
+
+	generat_packet(json_object: JSON_OBJECT): PACKET
+		local
+			string_rep:  STRING
+			i: INTEGER
+		do
+			string_rep := json_object.representation
+			create RESULT.make (string_rep.count)
+			from i := 1
+			until i > string_rep.count
+			loop
+				RESULT.put_element (string_rep.item (i), i-1)
+				i := i+1
+			end
 		end
 
 feature {NONE} --data

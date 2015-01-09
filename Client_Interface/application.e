@@ -25,26 +25,12 @@ feature {NONE} -- Initialization
 
 --			create con.make
 			print ("Hello Eiffel World!%N")
-			test_single_char_number
+			
 --			con.register ("Silvan")
 --			con.wait_sender_timeout
 		end
 
-	test_single_char_number
-		local
-			parser: JSON_PARSER
-			s: STRING
-		do
-			s := "{%"type%":1,%"name%":%"Silvan%"}"
-		create parser.make_with_string (s)
-			parser.parse_content
-			if parser.is_valid and then attached parser.parsed_json_object as jo then
-				if attached {JSON_NUMBER} jo.item ("type") as j_type then
-					print ("type is 1" +  (j_type.integer_64_item = 1).out)
 
-				end
-			end
-		end
 
 	test_send
 		local

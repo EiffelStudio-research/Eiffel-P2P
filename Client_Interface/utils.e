@@ -64,7 +64,11 @@ feature -- socket constants
 
 feature -- protocol must be the same as for rendevouz_server
 
+	-- for receive
 	maximum_packet_size: INTEGER = 1024
+
+	--for query
+	maximum_query_retries: INTEGER = 3
 
 	-- json keys
 	name__key: STRING = "name"
@@ -82,6 +86,7 @@ feature -- protocol must be the same as for rendevouz_server
 	unregister_message: INTEGER = 3
 
 	keep_alive_message: INTEGER = 4
+
 
 
 

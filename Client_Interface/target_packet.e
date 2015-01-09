@@ -26,8 +26,8 @@ feature -- INITALIZATION
 			create key.make_from_string ({UTILS}.message_type_key)
 			value := create {JSON_NUMBER}.make_integer ({UTILS}.register_message)
 
-			
 			json_object.put (value, key)
+
 
 			-- create client name
 			create key.make_from_string ({UTILS}.name__key)
@@ -55,7 +55,10 @@ feature -- INITALIZATION
 			value := create {JSON_NUMBER}.make_integer ({UTILS}.query_message)
 			json_object.put (value, key)
 
-			-- TODO: add other name/value pairs
+			-- create peer_name to query
+			create key.make_from_string ({UTILS}.name__key)
+			value := create {JSON_STRING}.make_from_string (peer_name)
+			json_object.put (value, key)
 
 			-- fill the packet
 			fill(json_object)
