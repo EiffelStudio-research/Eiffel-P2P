@@ -7,22 +7,6 @@ note
 class
 	UTILS
 
-create
-	make
-
-feature -- Male
-	make
-	do
-		create send_queue.make
-		create receive_queue.make
-		send_thread_running := false
-		receive_thread_running := false
-	end
-
-feature -- Thread QUeues
-
-	send_queue:MUTEX_LINKED_QUEUE
-	receive_queue:MUTEX_LINKED_QUEUE
 
 feature --Timeouts
 	send_thread_timeout:INTEGER

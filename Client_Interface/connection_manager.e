@@ -14,15 +14,17 @@ feature -- Extern
 
 	make
 		do
-			create utils.make
 			print("Created UTILS %N")
 
 
-			utils.set_send_thread_running (True)
-			create socket.make_bound (utils.local_port)
+			{utils}.set_send_thread_running (True)
+			create socket.make_bound ({utils}.local_port)
 
-			create udp_sender.make_by_socket (socket, utils)
-			create udp_receiver.make_by_socket (socket, utils)
+			create send_queue.make
+			create receive_queue.make
+
+			create udp_sender.make_by_socket (socket, send_queue)
+			create udp_receiver.make_by_socket (socket, receive_queue)
 
 
 			udp_sender.launch
@@ -36,7 +38,7 @@ feature -- Extern
 			t_pac: TARGET_PACKET
 		do
 			create t_pac.make_register_packet (a_name)
-			utils.send_queue.extend (t_pac)
+			send_queue.extend (t_pac)
 		end
 
 
@@ -55,7 +57,7 @@ feature -- Extern
 
 		start
 		do
-			connector.launch
+			--connector.launch
 		end
 
 		close
@@ -64,20 +66,21 @@ feature -- Extern
 		do
 
 			--Wait 10 Seconds
-			test := connector.join_with_timeout (10000)
+			--test := connector.join_with_timeout (10000)
 
 		end
 
 feature {NONE} -- intern
 
 
+feature {NONE} -- Thread QUeues
 
-feature --data
+	send_queue:MUTEX_LINKED_QUEUE
+	receive_queue:MUTEX_LINKED_QUEUE
 
-	utils:UTILS
 
 feature {NONE} -- THread
-	connector : CONNECTION_MANAGER_THREAD
+	--connector : CONNECTION_MANAGER_THREAD
 
 	socket: NETWORK_DATAGRAM_SOCKET
 

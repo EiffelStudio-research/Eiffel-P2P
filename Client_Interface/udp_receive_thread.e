@@ -18,12 +18,12 @@ feature
 	socket: detachable NETWORK_DATAGRAM_SOCKET
 
 
-	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET a_utils:UTILS)
+	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET; a_receive_queue: MUTEX_LINKED_QUEUE)
 
 		do
 			make
 			socket := ref_socket
-			utils:=a_utils
+			receive_queue := a_receive_queue
 		end
 
 feature --Execute
@@ -31,10 +31,10 @@ feature --Execute
 	execute
 		do
 			from
-			until not utils.receive_thread_running
+			until not {utils}.receive_thread_running
 			loop
 				listen
-				current.sleep (utils.receive_thread_timeout)
+				current.sleep ({utils}.receive_thread_timeout)
 			end
 
 		end
@@ -58,11 +58,11 @@ feature --Execute
 
 					--s := soc.laststring
 				print("Received Packet ")
-				utils.receive_queue.force (pac)
+				receive_queue.force (pac)
 
 			end
 		end
-feature {NONE} --data
-	utils:UTILS
+feature {NONE} -- Thread QUeues
 
+	receive_queue:MUTEX_LINKED_QUEUE
 end

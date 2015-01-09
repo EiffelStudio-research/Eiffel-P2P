@@ -20,12 +20,12 @@ feature
 	socket: detachable NETWORK_DATAGRAM_SOCKET
 
 
-	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET a_utils:UTILS)
+	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET;a_send_queue : MUTEX_LINKED_QUEUE)
 
 		do
 			make
 			socket := ref_socket
-			utils:=a_utils
+			send_queue := a_send_queue
 		end
 
 feature -- Execute
@@ -35,17 +35,17 @@ feature -- Execute
 			from
 
 			until
-				not utils.send_thread_running
+				not {utils}.send_thread_running
 			loop
 				print("Send_Thread awake: ")
-				if Utils.send_queue.something_to_send then
+				if send_queue.something_to_send then
 					print("something to send -> send %N")
-					if  Utils.send_queue.readable then
+					if  send_queue.readable then
 						send
 					end
 				else
 					print("nothing to send -> sleep %N")
-					current.sleep (utils.send_thread_timeout)
+					current.sleep ({utils}.send_thread_timeout)
 				end
 
 
@@ -62,7 +62,7 @@ feature -- Execute
 		do
 			if attached socket as soc then
 				create t.make_now
-				if attached {TARGET_PACKET} utils.send_queue.item as target_packet then
+				if attached {TARGET_PACKET} send_queue.item as target_packet then
 
 					print("Picked up a Packet to send %N")
 
@@ -75,8 +75,7 @@ feature -- Execute
 
 			end
 		end
+feature {NONE} -- Thread QUeues
 
-feature {NONE} --data
-	utils:UTILS
-
+	send_queue:MUTEX_LINKED_QUEUE
 end
