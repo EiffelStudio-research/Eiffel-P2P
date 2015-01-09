@@ -40,6 +40,18 @@ feature -- Extern
 			utils.send_queue.extend (t_pac)
 		end
 
+	connect(a_peer_name: STRING)
+		local
+			success: BOOLEAN
+		do
+			success := query(a_peer_name)
+			if success then
+				print("queried address is: " + peer_address.host_address.host_address + ":" + peer_address.port.out + "%N")
+			end
+
+			--udp_hole_punch
+		end
+
 --		send(a_object: JSON_OBJECT)
 --		do
 --			Utils.send_queue.extend (a_object)

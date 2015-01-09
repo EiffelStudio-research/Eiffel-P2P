@@ -94,7 +94,7 @@ feature -- message handling
  			value := json_object.item (key)
  			if attached {JSON_NUMBER} value as type_number then
  				type := type_number.integer_64_item
- 			 	print("Message is of type: " + type.out + " which means")
+ 			 	print("Message is of type: " + type.out + " which means ")
 
  			 	inspect type
  			 	when 1 then
@@ -146,9 +146,10 @@ feature {NONE} --helpers
 				end
 
 			else
-				print("invalid name_key %N")
+				print("invalid name_key")
 			end
 
+			print("%N")
 		end
 
 	handle_query(json_object: JSON_OBJECT)
@@ -181,6 +182,8 @@ feature {NONE} --helpers
 					value := create {JSON_NUMBER}.make_integer (peer_address.port)
 					json_object.put (value, key)
 
+					-- generate packet and send back to sender
+					socket.send_to (generat_packet (json_object), socket.peer_address, 0)
 				else
 					-- TODO: maybe generate appropriate error message
 				end
