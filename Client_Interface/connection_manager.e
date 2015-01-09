@@ -121,7 +121,7 @@ feature {NONE} -- packet / message parsing TODO: call these two functions in rec
  			value := json_object.item (key)
  			if attached {JSON_NUMBER} value as type_number then
  				type := type_number.integer_64_item
- 			 	print("Message is of type: " + type.out + " which means")
+ 			 	print("Message is of type: " + type.out + " which means ")
 
  			 	inspect type
 
