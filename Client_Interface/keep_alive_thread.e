@@ -19,14 +19,22 @@ feature
 	socket: detachable NETWORK_DATAGRAM_SOCKET
 
 
+<<<<<<< HEAD
 	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET a_peer_address: NETWORK_SOCKET_ADDRESS a_send_queue:MUTEX_LINKED_QUEUE)
+=======
+	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET a_peer_address: NETWORK_SOCKET_ADDRESS a_send_queue: MUTEX_LINKED_QUEUE)
+>>>>>>> e1127ad43c4153f3445b6ef98755037ed3d50127
 
 		do
 			make
 			send_queue:=a_send_queue
 			socket := ref_socket
 			peer_address := a_peer_address
+<<<<<<< HEAD
 			
+=======
+			send_queue := a_send_queue
+>>>>>>> e1127ad43c4153f3445b6ef98755037ed3d50127
 		end
 
 feature -- Execute
@@ -50,7 +58,8 @@ feature -- Execute
 
 feature {NONE}
 	peer_address: NETWORK_SOCKET_ADDRESS
-	utils:UTILS
+
+	send_queue: MUTEX_LINKED_QUEUE
 
 feature {CONNECTION_MANAGER} -- Thread Control
 	keep_alive_thread_running:BOOLEAN

@@ -20,7 +20,7 @@ feature
 	socket: detachable NETWORK_DATAGRAM_SOCKET
 
 
-	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET;a_send_queue : MUTEX_LINKED_QUEUE)
+	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET; a_send_queue : MUTEX_LINKED_QUEUE)
 
 		do
 			make
@@ -45,7 +45,11 @@ feature -- Execute
 					end
 				else
 					print("nothing to send -> sleep %N")
+<<<<<<< HEAD
 					current.sleep ({utils}.send_thread_interval)
+=======
+					current.sleep ({UTILS}.send_thread_interval)
+>>>>>>> e1127ad43c4153f3445b6ef98755037ed3d50127
 				end
 
 

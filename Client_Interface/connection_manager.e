@@ -15,7 +15,13 @@ feature -- Extern
 	make
 		do
 			print("Created UTILS %N")
+<<<<<<< HEAD
 			create socket.make_bound (utils.local_port)
+=======
+
+			create socket.make_bound ({utils}.local_port)
+
+>>>>>>> e1127ad43c4153f3445b6ef98755037ed3d50127
 			create send_queue.make
 			create receive_queue.make
 			create udp_sender.make_by_socket (socket, send_queue)
@@ -71,12 +77,7 @@ feature -- Actions
 
 feature -- Thread control
 
-	wait_sender_timeout
-		local
-			timed_out: BOOLEAN
-		do
-			timed_out:= udp_sender.join_with_timeout (80000)
-		end
+
 
 	start
 		do
@@ -86,6 +87,10 @@ feature -- Thread control
 			udp_receiver.set_receive_thread_running (True)
 			udp_receiver.launch
 			print("launched receiver %N")
+<<<<<<< HEAD
+=======
+
+>>>>>>> e1127ad43c4153f3445b6ef98755037ed3d50127
 		end
 
 	stop
@@ -189,7 +194,10 @@ feature {NONE} -- packet / message parsing TODO: call these two functions in rec
 
 feature {NONE} -- intern
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> e1127ad43c4153f3445b6ef98755037ed3d50127
 	query_success: BOOLEAN
 
 	set_query_success(received: BOOLEAN)
@@ -213,7 +221,11 @@ feature {NONE} -- intern
 			until
 				i = {UTILS}.maximum_query_retries or query_success
 			loop
+<<<<<<< HEAD
 				send_queue.extend (query_packet) --TODO: update to local queue
+=======
+				send_queue.extend (query_packet)
+>>>>>>> e1127ad43c4153f3445b6ef98755037ed3d50127
 
 				answer_pac:= socket.received ({UTILS}.maximum_packet_size, 0)	-- TODO: use our received with timeout
 
@@ -252,12 +264,77 @@ feature {NONE} -- intern
 
 		end
 
+<<<<<<< HEAD
 	send_queue:MUTEX_LINKED_QUEUE
 	receive_queue:MUTEX_LINKED_QUEUE
 	peer_address: NETWORK_SOCKET_ADDRESS
 	utils:UTILS
 
 feature {UDP_SEND_THREAD} -- THread
+=======
+--	udp_hole_punch()
+--		local
+--			addr: detachable NETWORK_SOCKET_ADDRESS
+--			timed_out: BOOLEAN
+--		do
+
+--			create addr.make_from_hostname_and_port (a_peer_ip_address, a_peer_port)
+
+--			print("creating out socket!%N")
+--			create out_soc.make_bound (a_my_local_port)
+--			out_soc.set_peer_address (addr)
+--			out_soc.set_reuse_address
+
+--			utils.set_send_thread_running(true)
+--			utils.set_receive_thread_running (true)
+
+--			create sender.make_by_socket (out_soc,utils)
+
+
+--			create receiver.make_by_socket (out_soc,utils)
+
+
+--			print("launching receiver!%N")
+--			receiver.launch
+
+--			print("launching sender!%N")
+--			sender.launch
+
+
+--			--sender.exit
+
+--			sender.join
+--			receiver.join
+
+--			if attached in_soc as soc then
+--				soc.cleanup
+--			end
+--			if attached out_soc as soc then
+--				soc.cleanup
+--			end
+
+--		rescue
+--			if attached in_soc as soc then
+--				soc.cleanup
+--			end
+--			if attached out_soc as soc then
+--				soc.cleanup
+--			end
+--		end
+
+
+
+
+
+	send_queue:MUTEX_LINKED_QUEUE
+	receive_queue:MUTEX_LINKED_QUEUE
+
+
+
+feature {NONE} -- THread
+
+	peer_address: NETWORK_SOCKET_ADDRESS
+>>>>>>> e1127ad43c4153f3445b6ef98755037ed3d50127
 
 	socket: NETWORK_DATAGRAM_SOCKET
 
