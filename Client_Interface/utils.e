@@ -15,8 +15,7 @@ feature -- Male
 	do
 		create send_queue.make
 		create receive_queue.make
-		send_thread_running := false
-		receive_thread_running := false
+
 	end
 
 feature -- Thread QUeues
@@ -24,32 +23,16 @@ feature -- Thread QUeues
 	send_queue:MUTEX_LINKED_QUEUE
 	receive_queue:MUTEX_LINKED_QUEUE
 
-feature --Timeouts
-	send_thread_timeout:INTEGER
-		do
-			Result := 2000000000
-		end
-	receive_thread_timeout:INTEGER
-		do
-			Result := 2000
-		end
+feature -- sleep intervals in ns
+	send_thread_interval:INTEGER_64 = 2000000000
+
+	receive_thread_interval:INTEGER_64 = 2000000000
 
 	keep_alive_thread_interval: INTEGER_64 = 10000000000
 
-feature -- Thread Control
-	send_thread_running:BOOLEAN
-	receive_thread_running:BOOLEAN
+feature --Timeouts in ms
+	thread_join_timeout: NATURAL = 10000
 
-
-	set_send_thread_running(v : BOOLEAN)
-	do
-		send_thread_running := v
-	end
-
-	set_receive_thread_running(v:BOOLEAN)
-	do
-		receive_thread_running := v
-	end
 
 
 

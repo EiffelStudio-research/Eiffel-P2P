@@ -18,16 +18,17 @@ feature {NONE} -- Initialization
 			-- Run application.
 		local
 			con: CONNECTION_MANAGER
-			json:JSON_OBJECT
-			jsons:JSON_STRING
-			i:INTEGER
+
 		do
 
 			print ("Hello Eiffel World!%N")
 			create con.make
-			con.register ("Silvan")
-			con.connect ("Silvan")
-			con.wait_sender_timeout
+--			con.register ("Silvan")
+--			con.connect ("Silvan")
+--			con.wait_sender_timeout
+
+			con.start
+			con.stop
 		end
 
 

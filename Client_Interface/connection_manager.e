@@ -17,19 +17,11 @@ feature -- Extern
 			create utils.make
 			print("Created UTILS %N")
 
-
-
-			utils.set_send_thread_running (True)
 			create socket.make_bound (utils.local_port)
-
 			create udp_sender.make_by_socket (socket, utils)
 			create udp_receiver.make_by_socket (socket, utils)
 
 
-			udp_sender.launch
-			print("launched sender %N")
---			udp_receiver.launch
---			print("launched receiver %N")
 		end
 
 	register(a_name: STRING)
@@ -47,9 +39,16 @@ feature -- Extern
 			success := query(a_peer_name)
 			if success then
 				print("queried address is: " + peer_address.host_address.host_address + ":" + peer_address.port.out + "%N")
+
+				--udp_hole_punch
+
+				create keep_alive_sender.make_by_socket (socket, peer_address, utils)
+				keep_alive_sender.set_keep_alive_thread_running (True)
+				keep_alive_sender.launch
+				print("launched keep_alive_sender %N")
 			end
 
-			--udp_hole_punch
+
 		end
 
 --		send(a_object: JSON_OBJECT)
@@ -65,17 +64,53 @@ feature -- Extern
 			timed_out:= udp_sender.join_with_timeout (80000)
 		end
 
-		start
+	start
 		do
-
+			udp_sender.set_send_thread_running (True)
+			udp_sender.launch
+			print("launched sender %N")
+			udp_receiver.set_receive_thread_running (True)
+			udp_receiver.launch
+			print("launched receiver %N")
 		end
 
-		close
+	stop
 		local
-
+			not_sender_timed_out, not_receiver_timed_out, not_keep_alive_timed_out: BOOLEAN
+			local_address: NETWORK_SOCKET_ADDRESS
+			terminate_packet: PACKET
 		do
+			-- set per default to true
+			not_sender_timed_out := True
+			not_receiver_timed_out := True
+			not_keep_alive_timed_out := True
 
-			--Wait 10 Seconds
+			-- stop keep_alive
+			if attached keep_alive_sender as keep_alive and then not keep_alive.terminated then
+				keep_alive.set_keep_alive_thread_running (False)
+				not_keep_alive_timed_out :=	keep_alive.join_with_timeout ({UTILS}.thread_join_timeout)
+			end
+
+			-- stop sender
+			if not udp_sender.terminated then
+				udp_sender.set_send_thread_running (False)
+				not_sender_timed_out := udp_sender.join_with_timeout ({UTILS}.thread_join_timeout)
+			end
+
+			-- stop receiver
+			if not udp_receiver.terminated then
+				udp_receiver.set_receive_thread_running (False)
+				-- create and send a packet to the socket so the receive_thread awakes from the blocking receive and
+				-- sees the receive_thread_running flag set to false
+				create local_address.make_localhost ({UTILS}.local_port)
+				create terminate_packet.make (0)
+				socket.send_to (terminate_packet, local_address, 0)
+				not_receiver_timed_out := udp_receiver.join_with_timeout ({UTILS}.thread_join_timeout)
+			end
+
+			if not_keep_alive_timed_out and not_receiver_timed_out and not_sender_timed_out then -- otherwise one thread is still running (but should not) and if we close the socket we get a runtime error
+				socket.cleanup
+			end
 
 
 		end
@@ -262,10 +297,12 @@ feature --data
 	peer_address: NETWORK_SOCKET_ADDRESS
 	utils:UTILS
 
-feature {NONE} -- THread
+feature {UDP_SEND_THREAD} -- THread
 
 	socket: NETWORK_DATAGRAM_SOCKET
 
 	udp_receiver: UDP_RECEIVE_THREAD
 	udp_sender: UDP_SEND_THREAD
+
+	keep_alive_sender: KEEP_ALIVE_THREAD
 end

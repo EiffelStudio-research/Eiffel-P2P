@@ -35,7 +35,7 @@ feature -- Execute
 			from
 
 			until
-				not utils.send_thread_running
+				not send_thread_running
 			loop
 				print("Send_Thread awake: ")
 				if Utils.send_queue.something_to_send then
@@ -45,7 +45,7 @@ feature -- Execute
 					end
 				else
 					print("nothing to send -> sleep %N")
-					current.sleep (utils.send_thread_timeout)
+					current.sleep (utils.send_thread_interval)
 				end
 
 
@@ -75,6 +75,16 @@ feature -- Execute
 
 			end
 		end
+
+feature {CONNECTION_MANAGER} -- Thread Control
+	send_thread_running:BOOLEAN
+
+	set_send_thread_running(v : BOOLEAN)
+	do
+		send_thread_running := v
+	end
+
+
 
 feature {NONE} --data
 	utils:UTILS

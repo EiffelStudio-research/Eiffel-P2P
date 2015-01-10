@@ -31,12 +31,14 @@ feature --Execute
 	execute
 		do
 			from
-			until not utils.receive_thread_running
+
+			until
+				not receive_thread_running
 			loop
 				listen
-				current.sleep (utils.receive_thread_timeout)
+				current.sleep (utils.receive_thread_interval)
 			end
-
+			print("Receive_Thread finished %N")
 		end
 
 	listen
@@ -47,13 +49,20 @@ feature --Execute
 			pac: PACKET
 		do
 			if attached socket as soc then
-				soc.set_timeout (10)
 				pac :=  soc.received ({UTILS}.maximum_packet_size, 0)
 				print("Received Packet ")
 				utils.receive_queue.force (pac)
-
 			end
 		end
+
+feature {CONNECTION_MANAGER} -- Thread Control
+	receive_thread_running:BOOLEAN
+
+	set_receive_thread_running(v:BOOLEAN)
+	do
+		receive_thread_running := v
+	end
+
 feature {NONE} --data
 	utils:UTILS
 
