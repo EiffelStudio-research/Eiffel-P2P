@@ -7,25 +7,6 @@ note
 class
 	UTILS
 
-<<<<<<< HEAD
-=======
-create
-	make
-
-feature -- Male
-	make
-	do
-		create send_queue.make
-		create receive_queue.make
-
-	end
-
-feature -- Thread QUeues
-
-	send_queue:MUTEX_LINKED_QUEUE
-	receive_queue:MUTEX_LINKED_QUEUE
->>>>>>> 41c7096bcb2421ed94b0da23442f580e63f32e1f
-
 feature -- sleep intervals in ns
 	send_thread_interval:INTEGER_64 = 2000000000
 

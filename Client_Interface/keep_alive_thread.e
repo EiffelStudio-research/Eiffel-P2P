@@ -19,13 +19,14 @@ feature
 	socket: detachable NETWORK_DATAGRAM_SOCKET
 
 
-	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET a_peer_address: NETWORK_SOCKET_ADDRESS a_utils:UTILS)
+	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET a_peer_address: NETWORK_SOCKET_ADDRESS a_send_queue:MUTEX_LINKED_QUEUE)
 
 		do
 			make
+			send_queue:=a_send_queue
 			socket := ref_socket
 			peer_address := a_peer_address
-			utils:=a_utils
+			
 		end
 
 feature -- Execute
@@ -40,7 +41,7 @@ feature -- Execute
 			until
 				not keep_alive_thread_running
 			loop
-				utils.send_queue.extend (keep_alive_packet)
+				send_queue.extend (keep_alive_packet)
 				Current.sleep ({UTILS}.keep_alive_thread_interval)
 			end
 			print("Keep alive thread finished %N")
@@ -59,5 +60,10 @@ feature {CONNECTION_MANAGER} -- Thread Control
 	do
 		keep_alive_thread_running := v
 	end
+
+
+feature {NONE} -- Thread QUeues
+
+	send_queue:MUTEX_LINKED_QUEUE
 
 end
