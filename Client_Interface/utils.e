@@ -32,7 +32,8 @@ feature -- socket constants
 
 	local_port : INTEGER_32 = 40001
 
-	application_message: INTEGER = 5
+	application_message_string: INTEGER = 5
+	application_message_json: INTEGER = 6
 
 feature -- protocol must be the same as for rendevouz_server
 
@@ -48,7 +49,7 @@ feature -- protocol must be the same as for rendevouz_server
 	port_key: STRING = "port"
 
 	message_type_key: STRING = "type"
-
+	data_type_key: STRING = "data"
 
 	-- message types
 	register_message: INTEGER = 1

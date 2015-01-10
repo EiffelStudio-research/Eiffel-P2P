@@ -1,0 +1,61 @@
+@author: Silvan Egli, SImon Peyer
+
+
+Convention for the Json Objects we send by using the CLient Interface:
+
+action_ID : INTEGER
+	1 = register_message
+	2 = query_message
+	3 = unregister_message
+	4 = keep_alive_message
+	5 = application_message_string
+	6 = aplication_message_json
+
+data : JSON_VALUE
+	Can be anything depending on the action ID
+
+
+{
+	"type" : action_ID
+	"data" : data
+}
+
+In more detail:
+
+register_packet:
+{
+	"type" : 1
+	"name" : "content" :STRING
+}
+
+query_packet
+{
+	"type" : 2
+	"name" : "peer_name":STRING
+}
+
+unregister_packer
+{
+	"type" : 3
+	"name" : "Name to be unregistered":STRING
+}
+
+keep_alive_packet
+{
+	"type" : 4
+}
+
+
+application_packet_string
+{
+	"type" : 5
+	"data" : "Content":STRING
+}
+
+application_packet_string
+{
+	"type" : 6
+	"data" : {....}:JSON_OBJECT
+}
+
+For the user we give back the data section

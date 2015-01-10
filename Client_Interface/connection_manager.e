@@ -23,6 +23,8 @@ feature -- Extern
 
 		end
 
+feature -- Actions
+
 	register(a_name: STRING)
 		local
 			t_pac: TARGET_PACKET
@@ -50,11 +52,24 @@ feature -- Extern
 
 		end
 
---		send(a_object: JSON_OBJECT)
---		do
---			Utils.send_queue.extend (a_object)
---			print("Added JSON Object to Sender Queue: " + a_object.representation + "%N")
---		end
+	send_json(a_json :JSON_OBJECT)
+		local
+			send_packet:TARGET_PACKET
+		do
+			create send_packet.make_application_packet_json (peer_address, a_json)
+			send_queue.extend (send_packet)
+		end
+	send_string(a_string: STRING)
+		local
+			send_packet : TARGET_PACKET
+		do
+			create send_packet.make_application_packet_string (peer_address,a_string)
+			send_queue.extend (send_packet)
+		end
+
+
+
+feature -- Thread control
 
 	wait_sender_timeout
 		local

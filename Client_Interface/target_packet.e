@@ -11,7 +11,7 @@ inherit
 	PACKET
 
 create
-	make_register_packet, make_query_packet, make_keep_alive_packet, make_unregister_packet
+	make_register_packet, make_query_packet, make_keep_alive_packet, make_unregister_packet, make_application_packet_json, make_application_packet_string
 
 feature -- INITALIZATION
 	make_register_packet(my_name: STRING)
@@ -103,8 +103,10 @@ feature -- INITALIZATION
 			value := create {JSON_NUMBER}.make_integer ({UTILS}.unregister_message)
 			json_object.put (value, key)
 
-
-			-- TODO: add other name/value pairs
+			-- create client name
+			create key.make_from_string ({UTILS}.name__key)
+			value := create {JSON_STRING}.make_from_string (my_name)
+			json_object.put (value, key)
 
 			-- fill the packet
 			fill(json_object)
@@ -116,7 +118,7 @@ feature -- INITALIZATION
 		end
 
 
-	make_application_packet(a_peer_address: NETWORK_SOCKET_ADDRESS message: STRING)
+	make_application_packet_string(a_peer_address: NETWORK_SOCKET_ADDRESS message: STRING)
 		local
 			key: JSON_STRING
 			value: JSON_VALUE
@@ -126,11 +128,14 @@ feature -- INITALIZATION
 
 			-- create message type
 			create key.make_from_string ({UTILS}.message_type_key)
-			value := create {JSON_NUMBER}.make_integer ({UTILS}.application_message)
+			value := create {JSON_NUMBER}.make_integer ({UTILS}.application_message_string)
 			json_object.put (value, key)
 
 
-			-- TODO: add other name/value pairs
+			-- create client name
+			create key.make_from_string ({UTILS}.data_type_key)
+			value := create {JSON_STRING}.make_from_string (message)
+			json_object.put (value, key)
 
 			-- fill the packet
 			fill(json_object)
@@ -139,6 +144,34 @@ feature -- INITALIZATION
 
 			create peer_address.make_from_address_and_port (a_peer_address.host_address, a_peer_address.port)
 		end
+
+	make_application_packet_json(a_peer_address: NETWORK_SOCKET_ADDRESS message: JSON_OBJECT)
+		local
+			key: JSON_STRING
+			value: JSON_VALUE
+			json_object: JSON_OBJECT
+		do
+			create json_object.make
+
+			-- create message type
+			create key.make_from_string ({UTILS}.message_type_key)
+			value := create {JSON_NUMBER}.make_integer ({UTILS}.application_message_json)
+			json_object.put (value, key)
+
+
+			-- create client name
+			create key.make_from_string ({UTILS}.data_type_key)
+			value := message
+			json_object.put (value, key)
+
+			-- fill the packet
+			fill(json_object)
+
+			-- set peer_address
+
+			create peer_address.make_from_address_and_port (a_peer_address.host_address, a_peer_address.port)
+		end
+
 
 feature -- helpers
 
