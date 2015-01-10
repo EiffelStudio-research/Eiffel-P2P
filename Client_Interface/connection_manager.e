@@ -16,9 +16,6 @@ feature -- Extern
 		do
 			print("Created UTILS %N")
 
-<<<<<<< HEAD
-
-			{utils}.set_send_thread_running (True)
 			create socket.make_bound ({utils}.local_port)
 
 			create send_queue.make
@@ -26,12 +23,6 @@ feature -- Extern
 
 			create udp_sender.make_by_socket (socket, send_queue)
 			create udp_receiver.make_by_socket (socket, receive_queue)
-=======
-			create socket.make_bound (utils.local_port)
-			create udp_sender.make_by_socket (socket, utils)
-			create udp_receiver.make_by_socket (socket, utils)
->>>>>>> 41c7096bcb2421ed94b0da23442f580e63f32e1f
-
 
 		end
 
@@ -53,7 +44,7 @@ feature -- Extern
 
 				--udp_hole_punch
 
-				create keep_alive_sender.make_by_socket (socket, peer_address, utils)
+				create keep_alive_sender.make_by_socket (socket, peer_address, send_queue)
 				keep_alive_sender.set_keep_alive_thread_running (True)
 				keep_alive_sender.launch
 				print("launched keep_alive_sender %N")
@@ -77,16 +68,13 @@ feature -- Extern
 
 	start
 		do
-<<<<<<< HEAD
-			--connector.launch
-=======
 			udp_sender.set_send_thread_running (True)
 			udp_sender.launch
 			print("launched sender %N")
 			udp_receiver.set_receive_thread_running (True)
 			udp_receiver.launch
 			print("launched receiver %N")
->>>>>>> 41c7096bcb2421ed94b0da23442f580e63f32e1f
+
 		end
 
 	stop
@@ -126,12 +114,6 @@ feature -- Extern
 			if not_keep_alive_timed_out and not_receiver_timed_out and not_sender_timed_out then -- otherwise one thread is still running (but should not) and if we close the socket we get a runtime error
 				socket.cleanup
 			end
-
-<<<<<<< HEAD
-			--Wait 10 Seconds
-			--test := connector.join_with_timeout (10000)
-=======
->>>>>>> 41c7096bcb2421ed94b0da23442f580e63f32e1f
 
 		end
 feature {NONE} -- packet / message parsing TODO: call these two functions in receive, like in rendevouz_server listen
@@ -196,10 +178,6 @@ feature {NONE} -- packet / message parsing TODO: call these two functions in rec
 
 feature {NONE} -- intern
 
-
-<<<<<<< HEAD
-feature {NONE} -- Thread QUeues
-=======
 	query_success: BOOLEAN
 
 	set_query_success(received: BOOLEAN)
@@ -223,7 +201,7 @@ feature {NONE} -- Thread QUeues
 			until
 				i = {UTILS}.maximum_query_retries or query_success
 			loop
-				utils.send_queue.extend (query_packet) --TODO: update to local queue
+				send_queue.extend (query_packet)
 
 				answer_pac:= socket.received ({UTILS}.maximum_packet_size, 0)	-- TODO: use our received with timeout
 
@@ -314,21 +292,16 @@ feature {NONE} -- Thread QUeues
 
 
 
->>>>>>> 41c7096bcb2421ed94b0da23442f580e63f32e1f
+
 
 	send_queue:MUTEX_LINKED_QUEUE
 	receive_queue:MUTEX_LINKED_QUEUE
 
-<<<<<<< HEAD
+
 
 feature {NONE} -- THread
-	--connector : CONNECTION_MANAGER_THREAD
-=======
-	peer_address: NETWORK_SOCKET_ADDRESS
-	utils:UTILS
 
-feature {UDP_SEND_THREAD} -- THread
->>>>>>> 41c7096bcb2421ed94b0da23442f580e63f32e1f
+	peer_address: NETWORK_SOCKET_ADDRESS
 
 	socket: NETWORK_DATAGRAM_SOCKET
 
