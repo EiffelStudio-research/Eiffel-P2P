@@ -7,12 +7,6 @@ note
 class
 	UTILS
 
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> e1127ad43c4153f3445b6ef98755037ed3d50127
 feature -- sleep intervals in ns
 	send_thread_interval:INTEGER_64 = 2000000000
 

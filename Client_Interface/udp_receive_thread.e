@@ -36,10 +36,6 @@ feature --Execute
 				not receive_thread_running
 			loop
 				listen
-<<<<<<< HEAD
-				current.sleep ({utils}.receive_thread_interval)
-=======
->>>>>>> e1127ad43c4153f3445b6ef98755037ed3d50127
 			end
 			print("Receive_Thread finished %N")
 		end
@@ -67,10 +63,7 @@ feature {CONNECTION_MANAGER} -- Thread Control
 		receive_thread_running := v
 	end
 
-<<<<<<< HEAD
-=======
 feature {NONE} --data
->>>>>>> e1127ad43c4153f3445b6ef98755037ed3d50127
 
 	receive_queue:MUTEX_LINKED_QUEUE
 end
