@@ -59,12 +59,7 @@ feature -- Extern
 --			print("Added JSON Object to Sender Queue: " + a_object.representation + "%N")
 --		end
 
-	wait_sender_timeout
-		local
-			timed_out: BOOLEAN
-		do
-			timed_out:= udp_sender.join_with_timeout (80000)
-		end
+
 
 	start
 		do
