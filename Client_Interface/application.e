@@ -18,33 +18,20 @@ feature {NONE} -- Initialization
 			-- Run application.
 		local
 			con: CONNECTION_MANAGER
-			json:JSON_OBJECT
-			jsons:JSON_STRING
-			i:INTEGER
+
 		do
 
---			create con.make
 			print ("Hello Eiffel World!%N")
-			test_single_char_number
+			create con.make
 --			con.register ("Silvan")
+--			con.connect ("Silvan")
 --			con.wait_sender_timeout
+
+			con.start
+			con.stop
 		end
 
-	test_single_char_number
-		local
-			parser: JSON_PARSER
-			s: STRING
-		do
-			s := "{%"type%":1,%"name%":%"Silvan%"}"
-		create parser.make_with_string (s)
-			parser.parse_content
-			if parser.is_valid and then attached parser.parsed_json_object as jo then
-				if attached {JSON_NUMBER} jo.item ("type") as j_type then
-					print ("type is 1" +  (j_type.integer_64_item = 1).out)
 
-				end
-			end
-		end
 
 	test_send
 		local

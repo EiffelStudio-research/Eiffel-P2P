@@ -89,12 +89,12 @@ feature -- message handling
  			value: detachable JSON_VALUE
  			type: INTEGER_64
  		do
- 			create key.make_from_string ("type")
+ 			create key.make_from_string ({UTILS}.message_type_key)
 
  			value := json_object.item (key)
  			if attached {JSON_NUMBER} value as type_number then
  				type := type_number.integer_64_item
- 			 	print("Message is of type: " + type.out + " which means")
+ 			 	print("Message is of type: " + type.out + " which means ")
 
  			 	inspect type
  			 	when 1 then
@@ -146,19 +146,77 @@ feature {NONE} --helpers
 				end
 
 			else
-				print("invalid name_key %N")
+				print("invalid name_key")
 			end
 
+			print("%N")
 		end
 
 	handle_query(json_object: JSON_OBJECT)
+		local
+			key: JSON_STRING
+			value: JSON_VALUE
+			json_query_answer: JSON_OBJECT
+
+
 		do
+			if attached {JSON_STRING} json_object.item ({UTILS}.name__key) as name then
+				if clients.is_client_registered (name.item) and then attached {NETWORK_SOCKET_ADDRESS} clients.query_address (name.item) as peer_address  then
+
+					-- generate response
+					create json_query_answer.make
+
+					-- create message type
+					create key.make_from_string ({UTILS}.message_type_key)
+					value := create {JSON_NUMBER}.make_integer ({UTILS}.query_message)
+					json_query_answer.put (value, key)
+
+					-- put the ip_address
+					create key.make_from_string ({UTILS}.ip_key)
+					value := create {JSON_STRING}.make_from_string (peer_address.host_address.host_address)
+					json_query_answer.put (value, key)
+
+					--put the port
+					create key.make_from_string ({UTILS}.port_key)
+					value := create {JSON_NUMBER}.make_integer (peer_address.port)
+					json_query_answer.put (value, key)
+
+					-- generate packet and send back to sender
+
+					if attached socket.peer_address as address then
+						socket.send_to (generat_packet (json_query_answer), address, 0)
+					else
+						--TODO: probably nothing can be done
+					end
+
+				else
+					-- TODO: maybe generate appropriate error message
+				end
+
+			else
+				-- TODO: maybe generate appropriate error message
+			end
 
 		end
 
 	handle_unregister(json_object: JSON_OBJECT)
 		do
 
+		end
+
+	generat_packet(json_object: JSON_OBJECT): PACKET
+		local
+			string_rep:  STRING
+			i: INTEGER
+		do
+			string_rep := json_object.representation
+			create RESULT.make (string_rep.count)
+			from i := 1
+			until i > string_rep.count
+			loop
+				RESULT.put_element (string_rep.item (i), i-1)
+				i := i+1
+			end
 		end
 
 feature {NONE} --data

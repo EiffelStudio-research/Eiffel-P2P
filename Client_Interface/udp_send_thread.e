@@ -35,7 +35,11 @@ feature -- Execute
 			from
 
 			until
+<<<<<<< HEAD
 				not {utils}.send_thread_running
+=======
+				not send_thread_running
+>>>>>>> 41c7096bcb2421ed94b0da23442f580e63f32e1f
 			loop
 				print("Send_Thread awake: ")
 				if send_queue.something_to_send then
@@ -45,7 +49,11 @@ feature -- Execute
 					end
 				else
 					print("nothing to send -> sleep %N")
+<<<<<<< HEAD
 					current.sleep ({utils}.send_thread_timeout)
+=======
+					current.sleep (utils.send_thread_interval)
+>>>>>>> 41c7096bcb2421ed94b0da23442f580e63f32e1f
 				end
 
 
@@ -77,5 +85,21 @@ feature -- Execute
 		end
 feature {NONE} -- Thread QUeues
 
+<<<<<<< HEAD
 	send_queue:MUTEX_LINKED_QUEUE
+=======
+feature {CONNECTION_MANAGER} -- Thread Control
+	send_thread_running:BOOLEAN
+
+	set_send_thread_running(v : BOOLEAN)
+	do
+		send_thread_running := v
+	end
+
+
+
+feature {NONE} --data
+	utils:UTILS
+
+>>>>>>> 41c7096bcb2421ed94b0da23442f580e63f32e1f
 end

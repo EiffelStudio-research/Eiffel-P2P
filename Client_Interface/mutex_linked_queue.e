@@ -48,7 +48,7 @@ feature -- ACCESS
 	item: PACKET
 	do
 		--mutex.lock
-			Result:=list.item
+			Result:= list.item
 			list.remove -- TODO: is that true ?
 		--mutex.unlock
 	end

@@ -31,12 +31,21 @@ feature --Execute
 	execute
 		do
 			from
+<<<<<<< HEAD
 			until not {utils}.receive_thread_running
 			loop
 				listen
 				current.sleep ({utils}.receive_thread_timeout)
-			end
+=======
 
+			until
+				not receive_thread_running
+			loop
+				listen
+				current.sleep (utils.receive_thread_interval)
+>>>>>>> 41c7096bcb2421ed94b0da23442f580e63f32e1f
+			end
+			print("Receive_Thread finished %N")
 		end
 
 	listen
@@ -45,24 +54,32 @@ feature --Execute
 
 		local
 			pac: PACKET
-			i: INTEGER
-			received_string: STRING
-			json_parser:JSON_PARSER
-			json_object:detachable JSON_OBJECT
 		do
 			if attached socket as soc then
-				soc.set_timeout (10)
-				--HOw to hansle size?
-				pac :=  soc.received (1024, 0)
-				--soc.read_stream (10)
-
-					--s := soc.laststring
+				pac :=  soc.received ({UTILS}.maximum_packet_size, 0)
 				print("Received Packet ")
+<<<<<<< HEAD
 				receive_queue.force (pac)
 
 			end
 		end
 feature {NONE} -- Thread QUeues
+=======
+				utils.receive_queue.force (pac)
+			end
+		end
+
+feature {CONNECTION_MANAGER} -- Thread Control
+	receive_thread_running:BOOLEAN
+
+	set_receive_thread_running(v:BOOLEAN)
+	do
+		receive_thread_running := v
+	end
+
+feature {NONE} --data
+	utils:UTILS
+>>>>>>> 41c7096bcb2421ed94b0da23442f580e63f32e1f
 
 	receive_queue:MUTEX_LINKED_QUEUE
 end
