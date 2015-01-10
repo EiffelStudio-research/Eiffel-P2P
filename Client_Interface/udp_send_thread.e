@@ -20,7 +20,7 @@ feature
 	socket: detachable NETWORK_DATAGRAM_SOCKET
 
 
-	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET; a_send_queue : MUTEX_LINKED_QUEUE)
+	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET; a_send_queue : MUTEX_LINKED_QUEUE[PACKET])
 
 		do
 			make
@@ -77,7 +77,7 @@ feature -- Execute
 		end
 feature {NONE} -- Thread QUeues
 
-	send_queue:MUTEX_LINKED_QUEUE
+	send_queue:MUTEX_LINKED_QUEUE[PACKET]
 
 feature {CONNECTION_MANAGER} -- Thread Control
 	send_thread_running:BOOLEAN

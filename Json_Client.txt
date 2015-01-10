@@ -52,7 +52,7 @@ application_packet_string
 	"data" : "Content":STRING
 }
 
-application_packet_string
+application_packet_json
 {
 	"type" : 6
 	"data" : {....}:JSON_OBJECT

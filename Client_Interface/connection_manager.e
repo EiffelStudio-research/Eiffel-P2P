@@ -6,7 +6,8 @@ note
 
 class
 	CONNECTION_MANAGER
-
+inherit
+	EXECUTION_ENVIRONMENT
 create
 	make
 
@@ -20,7 +21,7 @@ feature -- Extern
 			create send_queue.make
 			create receive_queue.make
 			create udp_sender.make_by_socket (socket, send_queue)
-			create udp_receiver.make_by_socket (socket, receive_queue)
+			create udp_receiver.make_by_socket (socket, current)
 
 		end
 
@@ -68,6 +69,43 @@ feature -- Actions
 			send_queue.extend (send_packet)
 		end
 
+	receive_non_blocking:STRING
+		local
+
+		do
+			result := Void
+			if receive_queue.something_to_send then
+				result := receive_queue.item.representation
+			end
+		end
+
+	receive_blocking:STRING
+		local
+		do
+			from
+
+			until
+				receive_queue.something_to_send
+			loop
+				sleep ({UTILS}.receive_client_interval)
+			end
+			result := receive_non_blocking
+		end
+
+	receive_timeout(sec_timeout : INTEGER_32):STRING
+		local
+			time: TIME
+		do
+			create time.make_now
+			time := time.plus (create {TIME_DURATION}.make_by_seconds (sec_timeout))
+			from
+			until
+				receive_queue.something_to_send or time.is_less_equal (create {TIME}.make_now)
+			loop
+				sleep ({UTILS}.receive_client_interval)
+			end
+			result := receive_non_blocking
+		end
 
 
 feature -- Thread control
@@ -123,7 +161,7 @@ feature -- Thread control
 			end
 
 		end
-feature {NONE} -- packet / message parsing TODO: call these two functions in receive, like in rendevouz_server listen
+feature -- packet / message parsing TODO: call these two functions in receive, like in rendevouz_server listen
 
 	parse_packet(packet: PACKET): detachable JSON_OBJECT
 	 	local
@@ -158,20 +196,39 @@ feature {NONE} -- packet / message parsing TODO: call these two functions in rec
  		local
  			key: JSON_STRING
  			value: detachable JSON_VALUE
+ 			data: detachable JSON_VALUE
+ 			data_key: JSON_STRING
  			type: INTEGER_64
+ 			json_parser : JSON_PARSER
  		do
  			create key.make_from_string ({UTILS}.message_type_key)
-
+			create data_key.make_from_string ({UTILS}.data_type_key)
  			value := json_object.item (key)
  			if attached {JSON_NUMBER} value as type_number then
  				type := type_number.integer_64_item
  			 	print("Message is of type: " + type.out + " which means ")
 
  			 	inspect type
-
+ 			 	when 1 then
+					print("Register Message should not come to Client %N")
  			 	when 2 then
  			 		print("query answer message %N")
 					handle_query_answer(json_object)
+				when 3 then
+					print("Unregister Message should not come to Client %N")
+				when 4 then
+					print("Keep alive message, ignore this %N")
+				when 5 then
+					print("Received application message string &N")
+					data := json_object.item (data_key)
+					receive_queue.force (create {JSON_STRING}.make_from_string (data.representation.substring (2,data.representation.count - 1)))
+
+				when 6 then
+					print("Received application message json &N")
+					create json_parser.make_with_string (json_object.item (data_key).representation)
+					json_parser.parse_content
+					receive_queue.force (json_parser.parsed_json_object)
+
  			 	else
  			 		print("invalid type %N")
 
@@ -197,7 +254,6 @@ feature {NONE} -- intern
 		local
 			query_packet: TARGET_PACKET
 			answer_pac: PACKET
-
 			i: INTEGER
 		do
 			set_query_success(False)
@@ -247,8 +303,8 @@ feature {NONE} -- intern
 
 		end
 
-	send_queue:MUTEX_LINKED_QUEUE
-	receive_queue:MUTEX_LINKED_QUEUE
+	send_queue:MUTEX_LINKED_QUEUE [PACKET]
+	receive_queue:MUTEX_LINKED_QUEUE [JSON_VALUE]
 
 
 

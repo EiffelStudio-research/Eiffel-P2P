@@ -19,7 +19,7 @@ feature
 	socket: detachable NETWORK_DATAGRAM_SOCKET
 
 
-	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET a_peer_address: NETWORK_SOCKET_ADDRESS a_send_queue:MUTEX_LINKED_QUEUE)
+	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET a_peer_address: NETWORK_SOCKET_ADDRESS a_send_queue:MUTEX_LINKED_QUEUE[PACKET])
 		do
 			make
 			send_queue:=a_send_queue
@@ -49,7 +49,7 @@ feature -- Execute
 feature {NONE}
 	peer_address: NETWORK_SOCKET_ADDRESS
 
-	send_queue: MUTEX_LINKED_QUEUE
+	send_queue: MUTEX_LINKED_QUEUE[PACKET]
 
 feature {CONNECTION_MANAGER} -- Thread Control
 	keep_alive_thread_running:BOOLEAN

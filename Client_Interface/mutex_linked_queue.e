@@ -5,7 +5,7 @@ note
 	revision: "$Revision$"
 
 class
-	MUTEX_LINKED_QUEUE
+	MUTEX_LINKED_QUEUE [G]
 
 
 
@@ -24,28 +24,28 @@ feature -- create
 	end
 
 feature -- ACCESS
-	put(v: PACKET)
+	put(v: G)
 	do
 		--mutex.lock
 		list.put(v)
 		--mutex.unlock
 	end
 
-	extend(v: PACKET)
+	extend(v: G)
 	do
 		--mutex.lock
 		list.extend(v)
 		--mutex.unlock
 	end
 
-	force(v: PACKET)
+	force(v: G)
 	do
 		--mutex.lock
 		list.force(v)
 		--mutex.unlock
 	end
 
-	item: PACKET
+	item: G
 	do
 		--mutex.lock
 			Result:= list.item
@@ -68,6 +68,6 @@ feature -- ACCESS
 feature {NONE} -- Mutex
 	mutex:MUTEX
 feature {NONE} -- List
-	list:LINKED_QUEUE [PACKET]
+	list:LINKED_QUEUE [G]
 
 end

@@ -14,6 +14,8 @@ feature -- sleep intervals in ns
 
 	keep_alive_thread_interval: INTEGER_64 = 10000000000
 
+	receive_client_interval: INTEGER_64 = 10000000
+
 feature --Timeouts in ms
 	thread_join_timeout: NATURAL = 10000
 

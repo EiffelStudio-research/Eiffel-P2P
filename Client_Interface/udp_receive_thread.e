@@ -18,12 +18,12 @@ feature
 	socket: detachable NETWORK_DATAGRAM_SOCKET
 
 
-	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET; a_receive_queue: MUTEX_LINKED_QUEUE)
+	make_by_socket(ref_socket: detachable NETWORK_DATAGRAM_SOCKET; a_connection_manager: CONNECTION_MANAGER)
 
 		do
 			make
 			socket := ref_socket
-			receive_queue := a_receive_queue
+			connection_manager := a_connection_manager
 		end
 
 feature --Execute
@@ -46,12 +46,15 @@ feature --Execute
 
 		local
 			pac: PACKET
+			receive_json : detachable JSON_OBJECT
 		do
 			if attached socket as soc then
 				pac :=  soc.received ({UTILS}.maximum_packet_size, 0)
 				print("Received Packet ")
-				receive_queue.force (pac)
-
+				receive_json := connection_manager.parse_packet (pac)
+				if attached receive_json as json then
+					connection_manager.process (json)
+				end
 			end
 		end
 
@@ -65,5 +68,5 @@ feature {CONNECTION_MANAGER} -- Thread Control
 
 feature {NONE} --data
 
-	receive_queue:MUTEX_LINKED_QUEUE
+	connection_manager:CONNECTION_MANAGER
 end
