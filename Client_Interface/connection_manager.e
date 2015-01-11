@@ -16,7 +16,6 @@ feature -- Extern
 	make
 		do
 			create socket.make_bound ({UTILS}.local_port)
-
 			create send_queue.make
 			create receive_queue.make
 			create udp_sender.make_by_socket (socket, send_queue)
@@ -34,7 +33,7 @@ feature -- Actions
 			send_queue.extend (t_pac)
 		end
 
-	connect(a_peer_name: STRING)
+	connect(a_peer_name: STRING): BOOLEAN
 		local
 			success: BOOLEAN
 		do
@@ -58,6 +57,7 @@ feature -- Actions
 				print("CONNECTION COULD NOT BE ESTABLISHED %N")
 			end
 
+			RESULT := success
 		end
 
 	send_json(a_json :JSON_OBJECT)

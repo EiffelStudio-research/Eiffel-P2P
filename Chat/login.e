@@ -39,7 +39,7 @@ feature --Implementation
 	require
 		not_empty: not aname.is_empty
 	do
-		-- TODO acces to
+		utils.login(aname)
 	end
 
 feature{NONE} --UTILS
