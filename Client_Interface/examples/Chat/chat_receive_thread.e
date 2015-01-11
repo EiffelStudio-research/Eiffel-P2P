@@ -26,16 +26,14 @@ feature --Execute
 	execute
 		local
 			peer_message: STRING
-			output: STRING
 		do
 			from
-				create output.make_empty
+
 			until
 				False -- TODO: Find proper termination condition
 			loop
 				peer_message := utils.conn_manager.receive_blocking
-				output.append (peer_message)
-				io.putstring (output)
+				io.putstring (peer_message)
 				io.new_line
 			end
 			print("Receive_Thread finished %N")
