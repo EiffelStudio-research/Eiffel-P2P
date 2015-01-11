@@ -216,37 +216,37 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
  			value := json_object.item (key)
  			if attached {JSON_NUMBER} value as type_number then
  				type := type_number.integer_64_item
- 			 	print("message is of type: " + type.out + " which means ")
+ 			 	output("message is of type: " + type.out + " which means ")
 
  			 	inspect type
  			 	when 1 then
-					print("register message should not come to Client %N")
+					output("register message should not come to Client %N")
  			 	when 2 then
- 			 		print("query answer message %N")
+ 			 		output("query answer message %N")
 					handle_query_answer(json_object)
 				when 3 then
-					print("unregister Message should not come to Client %N")
+					output("unregister Message should not come to Client %N")
 				when 4 then
-					print("keep alive message, ignore this %N")
+					output("keep alive message, ignore this %N")
 				when 5 then
-					print("application message string %N")
+					output("application message string %N")
 					data := json_object.item (data_key)
 					receive_queue.force (create {JSON_STRING}.make_from_string (data.representation.substring (2,data.representation.count - 1)))
 				when 6 then
-					print("application message json %N")
+					output("application message json %N")
 					create json_parser.make_with_string (json_object.item (data_key).representation)
 					json_parser.parse_content
 					receive_queue.force (json_parser.parsed_json_object)
 				when 7 then
-					print("hole punch message %N")
+					output("hole punch message %N")
 					set_hole_punch_success (True)
 
  			 	else
- 			 		print("invalid type %N")
+ 			 		output("invalid type %N")
 
  			 	end
  			else
- 				print("Message is invalid (no type) %N")
+ 				output("Message is invalid (no type) %N")
  			end
 
  		end
@@ -366,4 +366,13 @@ feature {NONE} -- THread
 	udp_sender: UDP_SEND_THREAD
 
 	keep_alive_sender: KEEP_ALIVE_THREAD
+
+feature --output
+
+	output(a_output: STRING)
+		do
+			if {UTILS}.debugging then
+				print(a_output)
+			end
+		end
 end

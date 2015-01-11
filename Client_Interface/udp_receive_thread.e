@@ -52,13 +52,13 @@ feature --Execute
 		do
 			if attached socket as soc then
 				pac :=  soc.received ({UTILS}.maximum_packet_size, 0)
-				print({UTILS}.line_break)
-				print("Received Packet ")
+				output({UTILS}.line_break)
+				output("Received Packet ")
 				receive_json := connection_manager.parse_packet (pac)
 				if attached receive_json as json then
 					connection_manager.process (json)
 				end
-				
+
 			end
 		end
 
@@ -73,4 +73,14 @@ feature {CONNECTION_MANAGER} -- Thread Control
 feature {NONE} --data
 
 	connection_manager:CONNECTION_MANAGER
+
+feature --output
+
+	output(a_output: STRING)
+		do
+			if {UTILS}.debugging then
+				print(a_output)
+			end
+		end
+
 end
