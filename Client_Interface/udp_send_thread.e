@@ -37,18 +37,18 @@ feature -- Execute
 			until
 				not send_thread_running
 			loop
-				print({UTILS}.line_break)
-				print("Send_Thread awake: ")
+				output({UTILS}.line_break)
+				output("Send_Thread awake: ")
 				if send_queue.something_in then
-					print("something to send ->  %N")
+					output("something to send ->  %N")
 					if  send_queue.readable then
 						send
 					end
 				else
-					print("nothing to send -> sleep %N")
+					output("nothing to send -> sleep %N")
 					current.sleep ({UTILS}.send_thread_interval)
 				end
-			
+
 
 			end
 			print("Send_Thread finished %N")
@@ -68,9 +68,9 @@ feature -- Execute
 					soc.set_peer_address (target_packet.peer_address) -- TODO: change to send_to
 					soc.send (target_packet, 0)
 
-					print("sent packet to " + target_packet.peer_address.host_address.host_address + ":" + target_packet.peer_address.port.out + " at "  + t.out + "%N")
+					output("sent packet to " + target_packet.peer_address.host_address.host_address + ":" + target_packet.peer_address.port.out + " at "  + t.out + "%N")
 				else
-					print("packet is void %N")
+					output("packet is void %N")
 				end
 
 			end
@@ -87,5 +87,13 @@ feature {CONNECTION_MANAGER} -- Thread Control
 		send_thread_running := v
 	end
 
+feature --output
+
+	output(a_output: STRING)
+		do
+			if {UTILS}.debugging then
+				print(a_output)
+			end
+		end
 
 end

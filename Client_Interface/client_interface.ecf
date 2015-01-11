@@ -30,7 +30,7 @@
 			<file_rule>
 				<exclude>^examples$</exclude>
 			</file_rule>
-			<cluster name="examples" location="C:\Users\Silvan\Documents\eiffel-p2p\Client_Interface\examples\">
+			<cluster name="examples" location=".\examples\">
 				<cluster name="chat" location="C:\Users\Silvan\Documents\eiffel-p2p\Chat\"/>
 			</cluster>
 		</cluster>

@@ -73,6 +73,6 @@ feature -- protocol must be the same as for rendevouz_server
 	hole_punch_message: INTEGER = 7
 
 feature -- output
-
+	debugging: BOOLEAN = False
 	line_break: STRING = "----------------------------------------------------------------- %N"
 end
