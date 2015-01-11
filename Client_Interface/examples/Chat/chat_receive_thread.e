@@ -34,7 +34,7 @@ feature --Execute
 				False -- TODO: Find proper termination condition
 			loop
 				peer_message := utils.conn_manager.receive_blocking
-				output.append (utils.peer_name + " says: " + peer_message)
+				output.append (peer_message)
 				io.putstring (output)
 				io.new_line
 			end

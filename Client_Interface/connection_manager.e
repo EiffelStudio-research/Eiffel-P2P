@@ -340,9 +340,9 @@ feature {NONE} -- intern
 			end
 
 			if hole_punch_success then
-				print("HOLE PUNCHING SUCCEEDED %N ")
+				print("HOLE PUNCHING SUCCEEDED %N")
 			else
-				print("HOLE PUNCHING FAILED %N ")
+				print("HOLE PUNCHING FAILED %N")
 			end
 
 			RESULT := hole_punch_success
