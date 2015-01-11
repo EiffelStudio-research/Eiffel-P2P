@@ -35,7 +35,6 @@ feature -- Execute
 		do
 			from
 				create keep_alive_packet.make_keep_alive_packet (peer_address)
-				set_keep_alive_thread_running(False)
 			until
 				not keep_alive_thread_running
 			loop
