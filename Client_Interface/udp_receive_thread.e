@@ -35,7 +35,9 @@ feature --Execute
 			until
 				not receive_thread_running
 			loop
+
 				listen
+
 			end
 			print("Receive_Thread finished %N")
 		end
@@ -50,11 +52,13 @@ feature --Execute
 		do
 			if attached socket as soc then
 				pac :=  soc.received ({UTILS}.maximum_packet_size, 0)
+				print({UTILS}.line_break)
 				print("Received Packet ")
 				receive_json := connection_manager.parse_packet (pac)
 				if attached receive_json as json then
 					connection_manager.process (json)
 				end
+				
 			end
 		end
 
