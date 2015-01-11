@@ -27,7 +27,7 @@ feature --Screen
 			from
 				create receiver.make_with_utils (utils)
 				receiver.launch
-				
+
 				io.put_string ("Enter a Text to chat, if you want exit enter :exit")
 				io.put_new_line
 				io.put_string ("*********************")
@@ -77,7 +77,7 @@ feature --Implementation
 
 	send(aText:STRING)
 	do
-		-- Send the text to the Client
+		utils.send (aText)
 	end
 
 feature {NONE} --UTILS

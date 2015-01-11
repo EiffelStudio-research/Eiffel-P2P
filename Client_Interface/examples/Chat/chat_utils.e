@@ -59,6 +59,11 @@ feature -- connection
 	 		conn_manager.stop
 	 	end
 
+	send(a_message: STRING)
+		do
+			conn_manager.send_string (a_message)
+		end
+
 feature {CHAT_RECEIVE_THREAD}-- connection manager
 	conn_manager: CONNECTION_MANAGER
 
