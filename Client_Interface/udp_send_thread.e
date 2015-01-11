@@ -38,7 +38,7 @@ feature -- Execute
 				not send_thread_running
 			loop
 				print("Send_Thread awake: ")
-				if send_queue.something_to_send then
+				if send_queue.something_in then
 					print("something to send -> send %N")
 					if  send_queue.readable then
 						send

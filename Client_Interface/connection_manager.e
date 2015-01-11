@@ -74,7 +74,7 @@ feature -- Actions
 
 		do
 			result := Void
-			if receive_queue.something_to_send then
+			if receive_queue.something_in then
 				result := receive_queue.item.representation
 			end
 		end
@@ -85,7 +85,7 @@ feature -- Actions
 			from
 
 			until
-				receive_queue.something_to_send
+				receive_queue.something_in
 			loop
 				sleep ({UTILS}.receive_client_interval)
 			end
@@ -100,7 +100,7 @@ feature -- Actions
 			time := time.plus (create {TIME_DURATION}.make_by_seconds (sec_timeout))
 			from
 			until
-				receive_queue.something_to_send or time.is_less_equal (create {TIME}.make_now)
+				receive_queue.something_in or time.is_less_equal (create {TIME}.make_now)
 			loop
 				sleep ({UTILS}.receive_client_interval)
 			end
