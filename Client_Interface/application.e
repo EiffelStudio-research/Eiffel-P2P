@@ -25,9 +25,9 @@ feature {NONE} -- Initialization
 			create con.make
 
 			con.start
-			con.register ("Bob")
-		--	con.connect ("Silvan")
-			con.sleep (4000000000)
+			con.register ("Silvan")
+			con.connect ("Bob")
+--			con.sleep (4000000000)
 			con.stop
 		end
 

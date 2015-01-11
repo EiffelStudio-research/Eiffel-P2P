@@ -40,12 +40,12 @@ feature -- Actions
 		do
 			success := query(a_peer_name)
 			if success then
-				print("queried address is: " + peer_address.host_address.host_address + ":" + peer_address.port.out + "%N")
+				print(" queried address is: " + peer_address.host_address.host_address + ":" + peer_address.port.out + "%N")
 
 				success := udp_hole_punch
 
 				if success then
-					print("connection established: -> ")
+					print("CONNECTION ESTABLISHED %N")
 					create keep_alive_sender.make_by_socket (socket, peer_address, send_queue)
 					keep_alive_sender.set_keep_alive_thread_running (True)
 					keep_alive_sender.launch
@@ -55,7 +55,7 @@ feature -- Actions
 			end
 
 			if not success then
-				print("connection could not be established %N")
+				print("CONNECTION COULD NOT BE ESTABLISHED %N")
 			end
 
 		end
@@ -134,6 +134,7 @@ feature -- Thread control
 			local_address: NETWORK_SOCKET_ADDRESS
 			terminate_packet: PACKET
 		do
+			print("stop connection manager %N")
 			-- set per default to true
 			not_sender_timed_out := True
 			not_receiver_timed_out := True
@@ -164,6 +165,9 @@ feature -- Thread control
 
 			if not_keep_alive_timed_out and not_receiver_timed_out and not_sender_timed_out then -- otherwise one thread is still running (but should not) and if we close the socket we get a runtime error
 				socket.cleanup
+				print("stop successfull %N")
+			else
+				print("stop not successfull %N")
 			end
 
 		end
@@ -212,18 +216,18 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
  			value := json_object.item (key)
  			if attached {JSON_NUMBER} value as type_number then
  				type := type_number.integer_64_item
- 			 	print("Message is of type: " + type.out + " which means ")
+ 			 	print("message is of type: " + type.out + " which means ")
 
  			 	inspect type
  			 	when 1 then
-					print("Register Message should not come to Client %N")
+					print("register message should not come to Client %N")
  			 	when 2 then
  			 		print("query answer message %N")
 					handle_query_answer(json_object)
 				when 3 then
-					print("Unregister Message should not come to Client %N")
+					print("unregister Message should not come to Client %N")
 				when 4 then
-					print("Keep alive message, ignore this %N")
+					print("keep alive message, ignore this %N")
 				when 5 then
 					print("application message string %N")
 					data := json_object.item (data_key)
@@ -288,7 +292,7 @@ feature {NONE} -- intern
 		do
 			set_query_success(False)
 			create query_packet.make_query_packet (peer_name)
-			print("querying active: ")
+			print("%NQUERYING ACTIVE: %N")
 			from
 				i:= 1
 			until
@@ -301,9 +305,9 @@ feature {NONE} -- intern
 			end
 
 			if query_success then
-				print(" succeeded %N")
+				print("QUERYING SUCEEDED -> ")
 			else
-				print(" failed %N")
+				print("QUERYING FAILED -> ")
 			end
 			RESULT:= query_success
 		end
@@ -323,7 +327,7 @@ feature {NONE} -- intern
 			end_time: TIME
 		do
 			create hole_punch_pac.make_hole_punch_packet (peer_address)
-			print("hole punching active: ")
+			print("%NHOLE PUNCHING ACTIVE: %N")
 			from
 				set_hole_punch_success(False)
 				create end_time.make_now
@@ -336,9 +340,9 @@ feature {NONE} -- intern
 			end
 
 			if hole_punch_success then
-				print(" succeeded %N")
+				print("HOLE PUNCHING SUCCEEDED %N ")
 			else
-				print(" failed %N")
+				print("HOLE PUNCHING FAILED %N ")
 			end
 
 			RESULT := hole_punch_success
