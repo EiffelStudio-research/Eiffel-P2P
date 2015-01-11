@@ -121,6 +121,7 @@ feature {NONE} --helpers
 	handle_register(json_object: JSON_OBJECT)
 		local
 			client_name: STRING
+			address: NETWORK_SOCKET_ADDRESS
 			success: BOOLEAN
 
 			key: JSON_STRING
@@ -133,8 +134,9 @@ feature {NONE} --helpers
 				client_name := name.item
 				print("register: " + client_name)
 				if attached socket.peer_address as client_address then
-
-					success := clients.register (client_name, client_address)
+					-- we must create a new object to insert into the database
+					create address.make_from_address_and_port (client_address.host_address, client_address.port)
+					success := clients.register (client_name, address)
 					if success then
 						print(" " + client_address.host_address.host_address + ":" + client_address.port.out + " succeeded")
 					else
@@ -157,7 +159,6 @@ feature {NONE} --helpers
 			key: JSON_STRING
 			value: JSON_VALUE
 			json_query_answer: JSON_OBJECT
-
 
 		do
 			if attached {JSON_STRING} json_object.item ({UTILS}.name__key) as name then
