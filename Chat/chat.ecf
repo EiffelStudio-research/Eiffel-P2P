@@ -16,6 +16,5 @@
 				<exclude>/.svn$</exclude>
 			</file_rule>
 		</cluster>
-		<cluster name="client_interface" location="C:\Users\Silvan\Desktop\eiffel-p2p\Client_Interface\"/>
 	</target>
 </system>
