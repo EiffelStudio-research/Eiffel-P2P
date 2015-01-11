@@ -33,6 +33,12 @@ feature -- access
 	query_address(client_name: STRING) : detachable NETWORK_SOCKET_ADDRESS
 		do
 			RESULT := database.at (client_name)
+			if
+				attached Result as address
+			then
+			print("queried ip: " + address.host_address.host_address + ":" + address.port.out + "%N")
+			end
+
 		end
 
 	is_client_registered(client_name: STRING) : BOOLEAN
