@@ -26,8 +26,8 @@ feature {NONE} -- Initialization
 
 			con.start
 			con.register ("Bob")
-		--	con.connect ("Silvan")
-			con.sleep (4000000000)
+			con.connect ("Silvan")
+--			con.sleep (4000000000)
 			con.stop
 		end
 
