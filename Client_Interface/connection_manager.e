@@ -15,8 +15,7 @@ feature -- Extern
 
 	make
 		do
-			print("Created UTILS %N")
-			create socket.make_bound ({utils}.local_port)
+			create socket.make_bound ({UTILS}.local_port)
 
 			create send_queue.make
 			create receive_queue.make

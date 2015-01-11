@@ -23,11 +23,10 @@ feature {NONE} -- Initialization
 
 			print ("Hello Eiffel World!%N")
 			create con.make
---			con.register ("Silvan")
---			con.connect ("Silvan")
---			con.wait_sender_timeout
 
 			con.start
+			con.register ("Silvan")
+			con.connect ("Bob")
 			con.stop
 		end
 
