@@ -184,6 +184,7 @@ feature {NONE} --helpers
 					-- generate packet and send back to sender
 
 					if attached socket.peer_address as address then
+						print("send answer to: " + address.host_address.host_address + ":" + address.port.out + "%N")
 						socket.send_to (generat_packet (json_query_answer), address, 0)
 					else
 						--TODO: probably nothing can be done

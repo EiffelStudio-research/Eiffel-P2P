@@ -225,16 +225,16 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
 				when 4 then
 					print("Keep alive message, ignore this %N")
 				when 5 then
-					print("Received application message string &N")
+					print("application message string %N")
 					data := json_object.item (data_key)
 					receive_queue.force (create {JSON_STRING}.make_from_string (data.representation.substring (2,data.representation.count - 1)))
 				when 6 then
-					print("Received application message json &N")
+					print("application message json %N")
 					create json_parser.make_with_string (json_object.item (data_key).representation)
 					json_parser.parse_content
 					receive_queue.force (json_parser.parsed_json_object)
 				when 7 then
-					print("Received hole punch message &N")
+					print("hole punch message %N")
 					set_hole_punch_success (True)
 
  			 	else
@@ -297,6 +297,7 @@ feature {NONE} -- intern
 				send_queue.extend (query_packet)
 				sleep({UTILS}.query_answer_interval)
 				i := i + 1
+
 			end
 
 			if query_success then
