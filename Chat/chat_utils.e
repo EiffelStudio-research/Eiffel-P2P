@@ -5,7 +5,7 @@ note
 	revision: "$Revision$"
 
 class
-	UTILS
+	CHAT_UTILS
 create
 	make
 

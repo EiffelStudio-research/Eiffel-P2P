@@ -10,7 +10,7 @@ create
 	make
 
 feature --Make clausel
-	make(aUtils: UTILS)
+	make(aUtils: CHAT_UTILS)
 
 	do
 		utils := aUtils
@@ -43,7 +43,7 @@ feature --Implementation
 	end
 
 feature{NONE} --UTILS
-	utils:UTILS
+	utils:CHAT_UTILS
 
 invariant
 	utils_not_void: not (utils = void)

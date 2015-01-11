@@ -44,7 +44,7 @@ feature {NONE} --Logic
 
 feature {NONE} --Fields
 
-	utils:UTILS
+	utils:CHAT_UTILS
 	login:LOGIN
 	mainmenue:MAINMENUE
 	chatroom:CHATROOM
