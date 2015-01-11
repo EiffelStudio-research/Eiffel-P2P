@@ -11,7 +11,8 @@ inherit
 	PACKET
 
 create
-	make_register_packet, make_query_packet, make_keep_alive_packet, make_unregister_packet, make_application_packet_json, make_application_packet_string
+	make_register_packet, make_query_packet, make_keep_alive_packet, make_unregister_packet,
+	make_application_packet_json, make_application_packet_string, make_hole_punch_packet
 
 feature -- INITALIZATION
 	make_register_packet(my_name: STRING)
@@ -170,6 +171,27 @@ feature -- INITALIZATION
 			-- set peer_address
 
 			create peer_address.make_from_address_and_port (a_peer_address.host_address, a_peer_address.port)
+		end
+
+	make_hole_punch_packet(a_peer_address: NETWORK_SOCKET_ADDRESS)
+		local
+			key: JSON_STRING
+			value: JSON_VALUE
+			json_object: JSON_OBJECT
+		do
+			create json_object.make
+
+			-- create message type
+			create key.make_from_string ({UTILS}.message_type_key)
+			value := create {JSON_NUMBER}.make_integer ({UTILS}.hole_punch_message)
+			json_object.put (value, key)
+
+			-- fill the packet
+			fill(json_object)
+
+			-- set peer_address
+			create peer_address.make_from_address_and_port (a_peer_address.host_address, a_peer_address.port)
+
 		end
 
 

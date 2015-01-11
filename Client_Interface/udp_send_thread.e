@@ -64,13 +64,13 @@ feature -- Execute
 				create t.make_now
 				if attached {TARGET_PACKET} send_queue.item as target_packet then
 
-					print("Picked up a Packet to send %N")
+					print("Picked up a Packet to send -> %N")
 
 					create t.make_now
-					soc.set_peer_address (target_packet.peer_address)
+					soc.set_peer_address (target_packet.peer_address) -- TODO: change to send_to
 					soc.send (target_packet, 0)
 
-					print("Sent packet to " + target_packet.peer_address.host_address.host_address + ":" + target_packet.peer_address.port.out + " at "  + t.out + "%N")
+					print("sent packet to " + target_packet.peer_address.host_address.host_address + ":" + target_packet.peer_address.port.out + " at "  + t.out + "%N")
 				end
 
 			end

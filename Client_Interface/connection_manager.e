@@ -43,14 +43,21 @@ feature -- Actions
 			if success then
 				print("queried address is: " + peer_address.host_address.host_address + ":" + peer_address.port.out + "%N")
 
-				--udp_hole_punch
+				success := udp_hole_punch
 
-				create keep_alive_sender.make_by_socket (socket, peer_address, send_queue)
-				keep_alive_sender.set_keep_alive_thread_running (True)
-				keep_alive_sender.launch
-				print("launched keep_alive_sender %N")
+				if success then
+					print("connection established: -> ")
+					create keep_alive_sender.make_by_socket (socket, peer_address, send_queue)
+					keep_alive_sender.set_keep_alive_thread_running (True)
+					keep_alive_sender.launch
+					print("launched keep_alive_sender %N")
+				end
+
 			end
 
+			if not success then
+				print("connection could not be established %N")
+			end
 
 		end
 
@@ -161,7 +168,7 @@ feature -- Thread control
 			end
 
 		end
-feature -- packet / message parsing TODO: call these two functions in receive, like in rendevouz_server listen
+feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UDP_RECEIVE_THREAD
 
 	parse_packet(packet: PACKET): detachable JSON_OBJECT
 	 	local
@@ -222,12 +229,14 @@ feature -- packet / message parsing TODO: call these two functions in receive, l
 					print("Received application message string &N")
 					data := json_object.item (data_key)
 					receive_queue.force (create {JSON_STRING}.make_from_string (data.representation.substring (2,data.representation.count - 1)))
-
 				when 6 then
 					print("Received application message json &N")
 					create json_parser.make_with_string (json_object.item (data_key).representation)
 					json_parser.parse_content
 					receive_queue.force (json_parser.parsed_json_object)
+				when 7 then
+					print("Received hole punch message &N")
+					set_hole_punch_success (True)
 
  			 	else
  			 		print("invalid type %N")
@@ -239,49 +248,8 @@ feature -- packet / message parsing TODO: call these two functions in receive, l
 
  		end
 
+feature {NONE} --  handlers
 
-feature {NONE} -- intern
-
-	query_success: BOOLEAN
-
-	set_query_success(received: BOOLEAN)
-		do
-			query_success := received
-		end
-
-
-	query(peer_name: STRING): BOOLEAN  -- ask server to hand out the public ip of peer_name, if succeeded it is stored in peer_address
-		local
-			query_packet: TARGET_PACKET
-			answer_pac: PACKET
-			i: INTEGER
-		do
-			set_query_success(False)
-			create query_packet.make_query_packet (peer_name)
-
-			from
-				i:= 1
-			until
-				i = {UTILS}.maximum_query_retries or query_success
-			loop
-				send_queue.extend (query_packet)
-
-				answer_pac:= socket.received ({UTILS}.maximum_packet_size, 0)	-- TODO: use our received with timeout
-
-				-- from rendevouz_server listen TODO: can be removed when later using our received
-				print("Received packet -> parsing to JSON_OBJECT: ")
-				if attached parse_packet(answer_pac) as json_object then
-					print("succeeded %N")
-					process(json_object) -- TODO: nicer if processing would be done in a worker_thread
-				else
-					print("failed %N")
-				end
-
-			end
-			RESULT:= query_success
-		end
-
-	-- TODO: to be used  in receive like in rendevouz server
 	handle_query_answer(json_object: JSON_OBJECT)
 		local
 			peer_ip_address: STRING
@@ -302,6 +270,81 @@ feature {NONE} -- intern
 			end
 
 		end
+
+
+feature {NONE} -- intern
+
+	query_success: BOOLEAN
+
+	set_query_success(received: BOOLEAN)
+		do
+			query_success := received
+		end
+
+	query(peer_name: STRING): BOOLEAN
+	-- ask server to hand out the public ip of peer_name, if succeeded it is stored in peer_address
+		local
+			query_packet: TARGET_PACKET
+			i: INTEGER
+		do
+			set_query_success(False)
+			create query_packet.make_query_packet (peer_name)
+			print("querying active: ")
+			from
+				i:= 1
+			until
+				i = {UTILS}.maximum_query_retries or query_success
+			loop
+				send_queue.extend (query_packet)
+				sleep({UTILS}.query_answer_interval)
+			end
+
+			if query_success then
+				print(" succeeded %N")
+			else
+				print(" failed %N")
+			end
+			RESULT:= query_success
+		end
+
+	hole_punch_success: BOOLEAN
+
+	set_hole_punch_success(received: BOOLEAN)
+		do
+			hole_punch_success := received
+		end
+
+	udp_hole_punch: BOOLEAN
+		require
+			peer_address_set: peer_address /= Void
+		local
+			hole_punch_pac: TARGET_PACKET
+			end_time: TIME
+		do
+			create hole_punch_pac.make_hole_punch_packet (peer_address)
+			print("hole punching active: ")
+			from
+				set_hole_punch_success(False)
+				create end_time.make_now
+				end_time := end_time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.hole_punch_duration))
+			until
+				end_time.is_less_equal (create {TIME}.make_now)
+			loop
+				send_queue.extend (hole_punch_pac)
+				sleep({UTILS}.hole_punch_interval)
+			end
+
+			if hole_punch_success then
+				print(" succeeded %N")
+			else
+				print(" failed %N")
+			end
+
+			RESULT := hole_punch_success
+
+		end
+
+feature {NONE} -- queues
 
 	send_queue:MUTEX_LINKED_QUEUE [PACKET]
 	receive_queue:MUTEX_LINKED_QUEUE [JSON_VALUE]

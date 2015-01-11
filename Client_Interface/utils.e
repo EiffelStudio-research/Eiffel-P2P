@@ -8,16 +8,21 @@ class
 	UTILS
 
 feature -- sleep intervals in ns
-	send_thread_interval:INTEGER_64 = 2000000000
-
-	receive_thread_interval:INTEGER_64 = 2000000000
+	send_thread_interval:INTEGER_64 = 2000000000 -- 2s  time send thread sleeps when nothing to send
 
 	keep_alive_thread_interval: INTEGER_64 = 10000000000
 
 	receive_client_interval: INTEGER_64 = 10000000
 
+	query_answer_interval: INTEGER_64 = 4000000000 -- 4s  time client maximal waits for query answer of server
+
+	hole_punch_interval: INTEGER_64 = 3000000000
+
 feature --Timeouts in ms
 	thread_join_timeout: NATURAL = 10000
+
+	hole_punch_duration: INTEGER_32 = 10
+	-- time hole punching is active in seconds
 
 
 
@@ -34,8 +39,7 @@ feature -- socket constants
 
 	local_port : INTEGER_32 = 40001
 
-	application_message_string: INTEGER = 5
-	application_message_json: INTEGER = 6
+
 
 feature -- protocol must be the same as for rendevouz_server
 
@@ -62,7 +66,11 @@ feature -- protocol must be the same as for rendevouz_server
 
 	keep_alive_message: INTEGER = 4
 
+	application_message_string: INTEGER = 5
 
+	application_message_json: INTEGER = 6
+
+	hole_punch_message: INTEGER = 7
 
 
 end
