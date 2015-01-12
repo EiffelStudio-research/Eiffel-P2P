@@ -61,7 +61,7 @@ feature -- connection
 
 	send(a_message: STRING)
 		do
-			conn_manager.send_string (a_message)
+			conn_manager.send (a_message)
 		end
 
 feature {CHAT_RECEIVE_THREAD}-- connection manager

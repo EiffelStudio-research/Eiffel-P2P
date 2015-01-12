@@ -68,9 +68,9 @@ feature -- protocol must be the same as for rendevouz_server
 
 	keep_alive_message: INTEGER = 4
 
-	application_message_string: INTEGER = 5
+	application_message: INTEGER = 5
 
-	application_message_json: INTEGER = 6
+	registered_users_message: INTEGER = 6
 
 	hole_punch_message: INTEGER = 7
 

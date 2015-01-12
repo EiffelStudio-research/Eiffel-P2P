@@ -8,8 +8,9 @@ action_ID : INTEGER
 	2 = query_message
 	3 = unregister_message
 	4 = keep_alive_message
-	5 = application_message_string
+	5 = application_message
 	6 = registered_users_message
+	7 = hole Punch message
 
 data : JSON_VALUE
 	Can be anything depending on the action ID
@@ -46,16 +47,21 @@ keep_alive_packet
 }
 
 
-application_packet_string
+application_packet
 {
 	"type" : 5
 	"data" : "Content":JSON_STRING
 }
 
-application_packet_json
+registered_users_message
 {
 	"type" : 6
-	"data" : {....}:JSON_OBJECT
+	"data" : ??? @Silvan, what are you giving back?
 }
 
+hole_punch_message
+{
+	"type" : 7
+	"data" : ???
+}
 For the user we give back the data section
