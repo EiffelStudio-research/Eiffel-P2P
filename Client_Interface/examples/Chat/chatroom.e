@@ -23,6 +23,7 @@ feature --Screen
 		receiver: CHAT_RECEIVE_THREAD
 	do
 		showIntro
+		print_users
 		if connect then
 			from
 				create receiver.make_with_utils (utils)
@@ -50,6 +51,12 @@ feature --Screen
 		utils.exit
 		utils.currentstate := 1
 	end
+
+	print_users
+		local
+		do
+
+		end
 
 	connect: BOOLEAN
 		local
