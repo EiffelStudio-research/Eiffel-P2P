@@ -43,6 +43,5 @@ feature -- protocol must be the same as for the client_interface
 
 	keep_alive_message: INTEGER = 4
 
-	registered_users_message: INTEGER = 7
-
+	registered_users_message: INTEGER = 6
 end
