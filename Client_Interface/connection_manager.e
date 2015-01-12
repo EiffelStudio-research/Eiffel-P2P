@@ -19,7 +19,7 @@ feature -- Extern
 			create send_queue.make
 			create receive_queue.make
 
-
+			manager_terminated := True
 		end
 
 feature -- Actions
@@ -90,7 +90,7 @@ feature -- Actions
 			from
 
 			until
-				receive_queue.something_in
+				receive_queue.something_in or manager_terminated
 			loop
 				sleep ({UTILS}.receive_client_interval)
 			end
@@ -105,7 +105,7 @@ feature -- Actions
 			time := time.plus (create {TIME_DURATION}.make_by_seconds (sec_timeout))
 			from
 			until
-				receive_queue.something_in or time.is_less_equal (create {TIME}.make_now)
+				receive_queue.something_in or time.is_less_equal (create {TIME}.make_now) or manager_terminated
 			loop
 				sleep ({UTILS}.receive_client_interval)
 			end
@@ -118,6 +118,8 @@ feature -- Thread control
 
 
 	start
+		require
+			manager_is_not_running: manager_terminated
 		do
 			create udp_sender.make_by_socket (socket, send_queue)
 			create udp_receiver.make_by_socket (socket, current)
@@ -128,6 +130,7 @@ feature -- Thread control
 			udp_receiver.set_receive_thread_running (True)
 			udp_receiver.launch
 			print("launched receiver %N")
+			manager_terminated := False
 		end
 
 	stop
@@ -172,7 +175,11 @@ feature -- Thread control
 				print("stop not successfull %N")
 			end
 
+			manager_terminated := True
 		end
+
+		manager_terminated: BOOLEAN
+
 feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UDP_RECEIVE_THREAD
 
 	parse_packet(packet: PACKET): detachable JSON_OBJECT

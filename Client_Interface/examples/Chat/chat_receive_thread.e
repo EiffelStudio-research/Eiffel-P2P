@@ -30,13 +30,15 @@ feature --Execute
 			from
 
 			until
-				False -- TODO: Find proper termination condition
+				utils.conn_manager.manager_terminated
 			loop
 				peer_message := utils.conn_manager.receive_blocking
-				io.putstring (peer_message)
-				io.new_line
+				if attached peer_message as message then
+					io.putstring (peer_message)
+					io.new_line
+				end
 			end
-			print("Receive_Thread finished %N")
+			print("chat_receive_thread finished %N")
 		end
 
 
