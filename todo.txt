@@ -1,6 +1,6 @@
 ﻿chat: login_page 0.0.0.0 -> Simon,done
 chat: doppelte anzeige..
-cm / server: registrierte user -> Simon(client_side) -> Silvan (server_side) 
+cm / server: registrierte user -> Simon(client_side) -> Silvan (server_side), done 
 : join message with agree -> Silvan
 cm: delete send_json -> Simon
 cm / server: server error answers, flags (handle register answer) -> Silvan
