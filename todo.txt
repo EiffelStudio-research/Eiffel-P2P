@@ -1,4 +1,4 @@
-﻿chat: login_page 0.0.0.0 -> Simon
+﻿chat: login_page 0.0.0.0 -> Simon,done
 chat: doppelte anzeige..
 cm / server: registrierte user -> Simon(client_side) -> Silvan (server_side) 
 : join message with agree -> Silvan

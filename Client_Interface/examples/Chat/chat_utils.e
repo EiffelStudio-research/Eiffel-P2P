@@ -17,7 +17,7 @@ feature -- make
 	end
 
 feature -- Data
-	serverIP:STRING = "0.0.0.0"
+	serverIP:STRING = "188.63.191.24"
 
 	playerName:STRING assign setPlayerName
 	currentState:INTEGER assign setCurrentState
