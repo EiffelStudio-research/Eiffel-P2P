@@ -310,7 +310,6 @@ feature {NONE} -- intern
 				send_queue.extend (query_packet)
 				sleep({UTILS}.query_answer_interval)
 				i := i + 1
-
 			end
 
 			if query_success then
