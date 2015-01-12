@@ -26,31 +26,31 @@ feature -- create
 feature -- ACCESS
 	put(v: G)
 	do
-		--mutex.lock
+		mutex.lock
 		list.put(v)
-		--mutex.unlock
+		mutex.unlock
 	end
 
 	extend(v: G)
 	do
-		--mutex.lock
+		mutex.lock
 		list.extend(v)
-		--mutex.unlock
+		mutex.unlock
 	end
 
 	force(v: G)
 	do
-		--mutex.lock
+		mutex.lock
 		list.force(v)
-		--mutex.unlock
+		mutex.unlock
 	end
 
 	item: G
 	do
-		--mutex.lock
+		mutex.lock
 			Result:= list.item
 			list.remove -- TODO: is that true ?
-		--mutex.unlock
+		mutex.unlock
 	end
 
 	readable:BOOLEAN
