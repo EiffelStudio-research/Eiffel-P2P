@@ -12,7 +12,7 @@ inherit
 
 create
 	make_register_packet, make_query_packet, make_keep_alive_packet, make_unregister_packet,
-	make_application_packet_json, make_application_packet_string, make_hole_punch_packet
+	make_application_packet,make_registered_users_packet , make_hole_punch_packet
 
 feature -- INITALIZATION
 	make_register_packet(my_name: STRING)
@@ -119,7 +119,7 @@ feature -- INITALIZATION
 		end
 
 
-	make_application_packet_string(a_peer_address: NETWORK_SOCKET_ADDRESS message: STRING)
+	make_application_packet(a_peer_address: NETWORK_SOCKET_ADDRESS message: STRING)
 		local
 			key: JSON_STRING
 			value: JSON_VALUE
@@ -129,7 +129,7 @@ feature -- INITALIZATION
 
 			-- create message type
 			create key.make_from_string ({UTILS}.message_type_key)
-			value := create {JSON_NUMBER}.make_integer ({UTILS}.application_message_string)
+			value := create {JSON_NUMBER}.make_integer ({UTILS}.application_message)
 			json_object.put (value, key)
 
 
@@ -146,7 +146,7 @@ feature -- INITALIZATION
 			create peer_address.make_from_address_and_port (a_peer_address.host_address, a_peer_address.port)
 		end
 
-	make_application_packet_json(a_peer_address: NETWORK_SOCKET_ADDRESS message: JSON_OBJECT)
+	make_registered_users_packet
 		local
 			key: JSON_STRING
 			value: JSON_VALUE
@@ -156,21 +156,19 @@ feature -- INITALIZATION
 
 			-- create message type
 			create key.make_from_string ({UTILS}.message_type_key)
-			value := create {JSON_NUMBER}.make_integer ({UTILS}.application_message_json)
+			value := create {JSON_NUMBER}.make_integer ({UTILS}.query_message)
 			json_object.put (value, key)
 
-
-			-- create client name
-			create key.make_from_string ({UTILS}.data_type_key)
-			value := message
-			json_object.put (value, key)
+			-- create peer_name to query
+			--TODO: add infos so that server knows to answer
 
 			-- fill the packet
 			fill(json_object)
 
 			-- set peer_address
 
-			create peer_address.make_from_address_and_port (a_peer_address.host_address, a_peer_address.port)
+			create peer_address.make_from_hostname_and_port ({UTILS}.server_ip, {UTILS}.server_port)
+
 		end
 
 	make_hole_punch_packet(a_peer_address: NETWORK_SOCKET_ADDRESS)

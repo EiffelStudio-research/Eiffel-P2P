@@ -18,6 +18,7 @@ feature -- Extern
 			create socket.make_bound ({UTILS}.local_port)
 			create send_queue.make
 			create receive_queue.make
+			create users_online.make
 
 			manager_terminated := True
 		end
@@ -59,20 +60,20 @@ feature -- Actions
 			RESULT := success
 		end
 
-	send_json(a_json :JSON_OBJECT)
-		local
-			send_packet:TARGET_PACKET
-		do
-			create send_packet.make_application_packet_json (peer_address, a_json)
-			send_queue.extend (send_packet)
-		end
-	send_string(a_string: STRING)
+
+	send(a_string: STRING)
 		local
 			send_packet : TARGET_PACKET
 		do
-			create send_packet.make_application_packet_string (peer_address,a_string)
+			create send_packet.make_application_packet (peer_address,a_string)
 			send_queue.extend (send_packet)
 		end
+
+	receive:STRING
+	--standart return value
+	do
+		result:=receive_blocking
+	end
 
 	receive_non_blocking:STRING
 		local
@@ -80,7 +81,7 @@ feature -- Actions
 		do
 			result := Void
 			if receive_queue.something_in then
-				result := receive_queue.item.representation
+				result := receive_queue.item
 			end
 		end
 
@@ -217,8 +218,10 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
  			value: detachable JSON_VALUE
  			data: detachable JSON_VALUE
  			data_key: JSON_STRING
+ 			data_array : JSON_ARRAY
  			type: INTEGER_64
  			json_parser : JSON_PARSER
+ 			i:INTEGER
  		do
  			create key.make_from_string ({UTILS}.message_type_key)
 			create data_key.make_from_string ({UTILS}.data_type_key)
@@ -240,12 +243,12 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
 				when 5 then
 					output("application message string %N")
 					data := json_object.item (data_key)
-					receive_queue.force (create {JSON_STRING}.make_from_string (data.representation.substring (2,data.representation.count - 1)))
+					receive_queue.force (data.representation.substring (2,data.representation.count - 1))
 				when 6 then
-					output("application message json %N")
-					create json_parser.make_with_string (json_object.item (data_key).representation)
-					json_parser.parse_content
-					receive_queue.force (json_parser.parsed_json_object)
+					output("registered_users_message")
+					received_users := true
+
+
 				when 7 then
 					output("hole punch message %N")
 					set_hole_punch_success (True)
@@ -259,8 +262,47 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
  			end
 
  		end
+feature -- Client list
+	users_online:LINKED_LIST[STRING]
+	received_users:BOOLEAN
+
+	get_users_online:LINKED_LIST[STRING]
+	local
+		temp:LINKED_LIST[STRING]
+		i:INTEGER
+	do
+		create temp.make
+		from
+			i:=1
+		until
+			i >temp.count
+		loop
+			temp.extend (temp.i_th (i))
+			i:=i+1
+		end
+		result := temp
+	end
 
 feature {NONE} --  handlers
+	handle_register_users(json_object: JSON_OBJECT)
+	local
+		json_parser:JSON_PARSER
+		data:JSON_VALUE
+		data_array:JSON_ARRAY
+		i:INTEGER
+ 		data_key: JSON_STRING
+	do
+		create data_key.make_from_string ({UTILS}.data_type_key)
+		data := json_object.item (data_key)
+		create json_parser.make_with_string (data.representation)
+		data_array := json_parser.parsed_json_array
+		from i:=1
+		until i>data_array.count
+		loop
+			users_online.extend (data_array.i_th (i).representation.substring (2, data_array.count-1))
+			i:=i+1
+		end
+	end
 
 	handle_query_answer(json_object: JSON_OBJECT)
 		local
@@ -360,7 +402,7 @@ feature {NONE} -- intern
 feature {NONE} -- queues
 
 	send_queue:MUTEX_LINKED_QUEUE [PACKET]
-	receive_queue:MUTEX_LINKED_QUEUE [JSON_VALUE]
+	receive_queue:MUTEX_LINKED_QUEUE [STRING]
 
 
 
@@ -374,6 +416,7 @@ feature {NONE} -- THread
 	udp_sender: UDP_SEND_THREAD
 
 	keep_alive_sender: KEEP_ALIVE_THREAD
+
 
 feature --output
 
