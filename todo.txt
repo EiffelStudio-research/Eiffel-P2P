@@ -1,6 +1,8 @@
-cm: register, query, udp_hole_punch cm_thread löschen -> Silvan
-cm: send_json, send_string, receive (3x) -> Simon
-cm: start, close -> Silvan
-cm: queues von utils nach cm und send/receive_thread anpassen -> Simon
+﻿chat: login_page 0.0.0.0 -> Simon
+chat: doppelte anzeige..
+cm / server: registrierte user -> Simon(client_side) -> Silvan (server_side) 
+: join message with agree -> Silvan
+cm: delete send_json -> Simon
+cm / server: server error answers, flags (handle register answer) -> Silvan
+mutex_linked_queue: -> Simon
 
-cm: update library ->Simon
