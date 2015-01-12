@@ -69,5 +69,5 @@ feature{NONE} --UTILS
 	utils:CHAT_UTILS
 
 invariant
-	utils_not_void: not (utils = void)
+	utils_not_void: utils /= void
 end
