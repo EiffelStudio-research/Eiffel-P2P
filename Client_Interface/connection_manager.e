@@ -18,8 +18,7 @@ feature -- Extern
 			create socket.make_bound ({UTILS}.local_port)
 			create send_queue.make
 			create receive_queue.make
-			create udp_sender.make_by_socket (socket, send_queue)
-			create udp_receiver.make_by_socket (socket, current)
+
 
 		end
 
@@ -120,6 +119,9 @@ feature -- Thread control
 
 	start
 		do
+			create udp_sender.make_by_socket (socket, send_queue)
+			create udp_receiver.make_by_socket (socket, current)
+
 			udp_sender.set_send_thread_running (True)
 			udp_sender.launch
 			print("launched sender %N")
