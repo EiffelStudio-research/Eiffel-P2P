@@ -36,6 +36,7 @@ feature -- Actions
 		local
 			success: BOOLEAN
 		do
+			print("%NCONNECTING ACTIVE: %N")
 			success := query(a_peer_name)
 			if success then
 				print(" queried address is: " + peer_address.host_address.host_address + ":" + peer_address.port.out + "%N")
@@ -43,7 +44,7 @@ feature -- Actions
 				success := udp_hole_punch
 
 				if success then
-					print("CONNECTION ESTABLISHED %N%N")
+					print("%NCONNECTION ESTABLISHED %N%N")
 					create keep_alive_sender.make_by_socket (socket, peer_address, send_queue)
 					keep_alive_sender.set_keep_alive_thread_running (True)
 					keep_alive_sender.launch
@@ -53,7 +54,7 @@ feature -- Actions
 			end
 
 			if not success then
-				print("CONNECTION COULD NOT BE ESTABLISHED %N%N")
+				print("%NCONNECTION COULD NOT BE ESTABLISHED %N%N")
 			end
 
 			RESULT := success
@@ -114,8 +115,6 @@ feature -- Actions
 
 
 feature -- Thread control
-
-
 
 	start
 		require
@@ -248,7 +247,7 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
 					receive_queue.force (json_parser.parsed_json_object)
 				when 7 then
 					output("hole punch message %N")
-					set_hole_punch_success (True)
+					set_hole_punch_success (True, {UTILS}.no_error)
 
  			 	else
  			 		output("invalid type %N")
@@ -267,31 +266,39 @@ feature {NONE} --  handlers
 			peer_ip_address: STRING
 			port_string: STRING
 			peer_port: INTEGER
+
+			error_type_key: JSON_STRING
+			error_type: INTEGER_64
 		do
-			set_query_success(False)
-			-- try to get peer_ip
-			if attached {JSON_STRING} json_object.item ({UTILS}.ip_key) as peer_ip then
-				peer_ip_address:= peer_ip.item
-				-- try to get peer_port
-				if attached {JSON_NUMBER} json_object.item ({UTILS}.port_key) as port then
-					port_string:= port.item -- TODO: kind of ugly, is there a way to cast INTEGER_64 to INTEGER_32 ?
-					peer_port:= port_string.to_integer_32
-					create peer_address.make_from_hostname_and_port (peer_ip_address, peer_port)
-					set_query_success(True)
+			set_query_success(False, {UTILS}.unknown_error)
+
+			-- check if there is an error
+			create error_type_key.make_from_string ({UTILS}.error_type_key)
+			if attached {JSON_NUMBER} json_object.item (error_type_key) as error_type_json then
+				error_type := error_type_json.integer_64_item
+				inspect error_type
+				when {UTILS}.no_error then -- no error
+					-- try to get peer_ip
+					if attached {JSON_STRING} json_object.item ({UTILS}.ip_key) as peer_ip then
+						peer_ip_address:= peer_ip.item
+						-- try to get peer_port
+						if attached {JSON_NUMBER} json_object.item ({UTILS}.port_key) as port then
+							port_string:= port.item -- TODO: kind of ugly, is there a way to cast INTEGER_64 to INTEGER_32 ?
+							peer_port:= port_string.to_integer_32
+							create peer_address.make_from_hostname_and_port (peer_ip_address, peer_port)
+							set_query_success(True, {UTILS}.no_error)
+						end
+					end
+				when {UTILS}.client_not_registered then
+					set_query_success (False, error_type)
+				else
+					-- unknown error set at beginning
 				end
 			end
-
 		end
 
 
 feature {NONE} -- intern
-
-	query_success: BOOLEAN
-
-	set_query_success(received: BOOLEAN)
-		do
-			query_success := received
-		end
 
 	query(peer_name: STRING): BOOLEAN
 	-- ask server to hand out the public ip of peer_name, if succeeded it is stored in peer_address
@@ -299,7 +306,7 @@ feature {NONE} -- intern
 			query_packet: TARGET_PACKET
 			i: INTEGER
 		do
-			set_query_success(False)
+			set_query_success(False, {UTILS}.unknown_error)
 			create query_packet.make_query_packet (peer_name)
 			print("%NQUERYING ACTIVE: %N")
 			from
@@ -320,12 +327,7 @@ feature {NONE} -- intern
 			RESULT:= query_success
 		end
 
-	hole_punch_success: BOOLEAN
 
-	set_hole_punch_success(received: BOOLEAN)
-		do
-			hole_punch_success := received
-		end
 
 	udp_hole_punch: BOOLEAN
 		require
@@ -337,9 +339,9 @@ feature {NONE} -- intern
 			create hole_punch_pac.make_hole_punch_packet (peer_address)
 			print("%NHOLE PUNCHING ACTIVE: %N")
 			from
-				set_hole_punch_success(False)
+				set_hole_punch_success(False, {UTILS}.no_error)
 				create end_time.make_now
-				end_time := end_time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.hole_punch_duration))
+				end_time := end_time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.connecting_duration))
 			until
 				end_time.is_less_equal (create {TIME}.make_now)
 			loop
@@ -355,6 +357,55 @@ feature {NONE} -- intern
 
 			RESULT := hole_punch_success
 
+		end
+
+feature -- public flags and error types
+	register_success: BOOLEAN
+	connect_success: BOOLEAN
+
+	register_error_type: INTEGER_64
+	connect_error_type: INTEGER_64
+
+
+feature {NONE} -- private flags and error types
+	query_success: BOOLEAN
+	hole_punch_success: BOOLEAN
+
+	query_error_type: INTEGER_64
+	hole_punch_error_type: INTEGER_64
+
+feature {NONE}	-- setters for flags
+	set_register_success(received: BOOLEAN error: INTEGER_64)
+		do
+			register_success := received
+			register_error_type := error
+		end
+
+	set_query_success(received: BOOLEAN error: INTEGER_64)
+		do
+			query_success := received
+			query_error_type := error
+		end
+
+	set_hole_punch_success(received: BOOLEAN error: INTEGER_64)
+		do
+			hole_punch_success := received
+			hole_punch_error_type := error
+		end
+
+	set_connect_success
+	-- depends on query_success and hole_punch_success
+		do
+			if query_success and hole_punch_success then
+				connect_success := True
+				connect_error_type := {UTILS}.no_error
+			elseif not query_success then
+				connect_success := query_success
+				connect_error_type := query_error_type
+			elseif not hole_punch_success then
+				connect_success := hole_punch_success
+				connect_error_type := hole_punch_error_type
+			end
 		end
 
 feature {NONE} -- queues

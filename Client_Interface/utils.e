@@ -21,7 +21,7 @@ feature -- sleep intervals in ns
 feature --Timeouts in ms
 	thread_join_timeout: NATURAL = 10000
 
-	hole_punch_duration: INTEGER_32 = 10
+	connecting_duration: INTEGER_32 = 10
 	-- time hole punching is active in seconds
 
 
@@ -29,7 +29,7 @@ feature --Timeouts in ms
 
 feature -- socket constants
 
-	server_ip : STRING_8 =  "188.63.191.24" -- ip of rendevouz server
+	server_ip : STRING_8 =  "188.63.191.24" -- ip of rendezvous server
 	server_port : INTEGER_32 = 8888 -- must be the same as rendevouz server
 
 	server_address : NETWORK_SOCKET_ADDRESS
@@ -57,6 +57,8 @@ feature -- protocol must be the same as for rendevouz_server
 	message_type_key: STRING = "type"
 	data_type_key: STRING = "data"
 
+	error_type_key: STRING = "error"
+
 	-- message types
 	register_message: INTEGER = 1
 
@@ -71,6 +73,27 @@ feature -- protocol must be the same as for rendevouz_server
 	application_message_json: INTEGER = 6
 
 	hole_punch_message: INTEGER = 7
+
+	-- error types
+	unknown_error: INTEGER_64 = -2
+
+	server_down: INTEGER_64 = -1
+	-- the server is not responding in time
+
+	no_error: INTEGER_64 = 0
+	-- no error occured
+
+	client_already_registered: INTEGER_64 = 1
+	-- you are already registered
+
+	client_not_registered: INTEGER_64 = 2
+	-- the client you tried to query for is not registered
+
+	client_not_responding: INTEGER_64 = 3
+	-- the client you tried to connect did not respond. he might not be ready yet. maybe increase connecting_duration
+
+
+
 
 feature -- output
 	debugging: BOOLEAN = False

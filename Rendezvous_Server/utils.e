@@ -33,6 +33,8 @@ feature -- protocol must be the same as for the client_interface
 
 	registered_users_key: STRING = "users"
 
+	error_type_key: STRING = "error"
+
 
 	-- message types
 	register_message: INTEGER = 1
@@ -44,4 +46,12 @@ feature -- protocol must be the same as for the client_interface
 	keep_alive_message: INTEGER = 4
 
 	registered_users_message: INTEGER = 6
+
+	-- error types
+	no_error: INTEGER = 1
+
+	client_already_registered: INTEGER = 1
+
+	client_not_registered: INTEGER = 2
+
 end
