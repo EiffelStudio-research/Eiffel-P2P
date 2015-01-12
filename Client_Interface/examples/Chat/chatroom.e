@@ -39,8 +39,8 @@ feature --Screen
 				input.starts_with (":exit")
 			loop
 				io.new_line
-				input.prepend (utils.playerName + " says: ")
-				io.put_string (input)
+				--input.prepend (utils.playerName + " says: ")
+				--io.put_string (input)
 				send(input)
 				io.new_line
 				io.read_line
