@@ -43,7 +43,7 @@ feature -- Actions
 				success := udp_hole_punch
 
 				if success then
-					print("CONNECTION ESTABLISHED %N")
+					print("CONNECTION ESTABLISHED %N%N")
 					create keep_alive_sender.make_by_socket (socket, peer_address, send_queue)
 					keep_alive_sender.set_keep_alive_thread_running (True)
 					keep_alive_sender.launch
@@ -53,7 +53,7 @@ feature -- Actions
 			end
 
 			if not success then
-				print("CONNECTION COULD NOT BE ESTABLISHED %N")
+				print("CONNECTION COULD NOT BE ESTABLISHED %N%N")
 			end
 
 			RESULT := success
