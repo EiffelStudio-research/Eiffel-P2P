@@ -97,15 +97,18 @@ feature -- message handling
  			 	print("Message is of type: " + type.out + " which means ")
 
  			 	inspect type
- 			 	when 1 then
+ 			 	when {UTILS}.register_message then
  			 		print("register message %N")
 					handle_register(json_object)
- 			 	when 2 then
+ 			 	when {UTILS}.query_message then
  			 		print("query message %N")
 					handle_query(json_object)
- 			 	when 3 then
+ 			 	when {UTILS}.unregister_message then
  			 		print("unregister message %N")
 					handle_unregister(json_object)
+				when {UTILS}.registered_users_message then
+					print("registered_users message %N")
+					handle_registered_users
  			 	else
  			 		print("invalid type %N")
 
@@ -154,12 +157,56 @@ feature {NONE} --helpers
 			print("%N")
 		end
 
+	handle_registered_users
+		local
+			key: JSON_STRING
+			value: JSON_VALUE
+
+			json_array: JSON_ARRAY
+			json_users_answer: JSON_OBJECT
+
+			reg_clients: ARRAY[STRING]
+		do
+			-- generate response
+			create json_users_answer.make
+
+			-- create message type
+			create key.make_from_string ({UTILS}.message_type_key)
+			value := create {JSON_NUMBER}.make_integer ({UTILS}.registered_users_message)
+			json_users_answer.put (value, key)
+
+			-- create json_array
+			create key.make_from_string ({UTILS}.registered_users_key)
+			create json_array.make_empty
+
+			reg_clients := clients.get_clients
+
+			across reg_clients as client
+			loop
+				value := create {JSON_STRING}.make_from_string (client.item)
+				json_array.extend (value)
+			end
+			-- array is filled
+
+			json_users_answer.put (json_array, key)
+
+
+			if attached socket.peer_address as address then
+				print("send answer to: " + address.host_address.host_address + ":" + address.port.out + "%N")
+				socket.send_to (generat_packet (json_users_answer), address, 0)
+			else
+				--TODO: probably nothing can be done
+			end
+
+
+
+		end
+
 	handle_query(json_object: JSON_OBJECT)
 		local
 			key: JSON_STRING
 			value: JSON_VALUE
 			json_query_answer: JSON_OBJECT
-
 		do
 			if attached {JSON_STRING} json_object.item ({UTILS}.name__key) as name then
 				if clients.is_client_registered (name.item) and then attached {NETWORK_SOCKET_ADDRESS} clients.query_address (name.item) as peer_address  then
@@ -205,6 +252,7 @@ feature {NONE} --helpers
 		do
 
 		end
+
 
 	generat_packet(json_object: JSON_OBJECT): PACKET
 		local

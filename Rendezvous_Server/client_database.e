@@ -46,9 +46,20 @@ feature -- access
 			RESULT := database.has (client_name)
 		end
 
+	count: INTEGER
+		do
+			RESULT := database.count
+		end
+
+	get_clients: ARRAY[STRING]
+		local
+			clients: ARRAY[STRING]
+		do
+			create clients.make_from_array (database.current_keys)
+			RESULT := clients
+		end
+
 feature {NONE}
 	database:  HASH_TABLE[NETWORK_SOCKET_ADDRESS, STRING]
-
-
 
 end

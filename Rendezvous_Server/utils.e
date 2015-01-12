@@ -31,6 +31,8 @@ feature -- protocol must be the same as for the client_interface
 
 	message_type_key: STRING = "type"
 
+	registered_users_key: STRING = "users"
+
 
 	-- message types
 	register_message: INTEGER = 1
@@ -40,5 +42,7 @@ feature -- protocol must be the same as for the client_interface
 	unregister_message: INTEGER = 3
 
 	keep_alive_message: INTEGER = 4
+
+	registered_users_message: INTEGER = 7
 
 end
