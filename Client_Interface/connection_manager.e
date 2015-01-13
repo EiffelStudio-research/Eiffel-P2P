@@ -30,10 +30,11 @@ feature -- Actions
 			t_pac: TARGET_PACKET
 			time: TIME
 		do
-			set_query_success(False, {UTILS}.server_down) -- set per default to server_down, as it will be set in handle_register_answer if we receive something
+			set_register_success(False, {UTILS}.server_down) -- set per default to server_down, as it will be set in handle_register_answer if we receive something
 			create t_pac.make_register_packet (a_name)
 			send_queue.extend (t_pac)
 
+			print("%NREGISTERING ACTIVE: %N")
 			from
 				create time.make_now
 				time := time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.server_timeout))
@@ -41,6 +42,12 @@ feature -- Actions
 				time.is_less_equal (create {TIME}.make_now) or register_success
 			loop
 				sleep ({UTILS}.server_answer_check_interval)
+			end
+
+			if register_success then
+				print("REGISTERING SUCEEDED %N")
+			else
+				print("REGISTERING FAILED -> ")
 			end
 
 			RESULT := register_success
@@ -189,13 +196,13 @@ feature -- Thread control
 			else
 				print("stop not successfull %N")
 			end
-			
+
 			manager_terminated := True
 		end
 
 		manager_terminated: BOOLEAN
 
-feature {NONE} -- intern
+feature {TEST} -- intern
 
 	query(peer_name: STRING): BOOLEAN
 	-- ask server to hand out the public ip of peer_name, if succeeded it is stored in peer_address: if fails due to server down it
@@ -208,8 +215,9 @@ feature {NONE} -- intern
 			from
 				set_query_success(False, {UTILS}.server_down) -- set per default to server_down, as it will be set in handle_query if we receive something
 				create query_packet.make_query_packet (peer_name)
+				send_queue.extend (query_packet) -- send the query
 				create end_time.make_now
-				end_time := end_time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.connecting_timeout))
+				end_time := end_time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.server_timeout))
 			until
 				end_time.is_less_equal (create {TIME}.make_now) or query_success
 			loop
@@ -449,7 +457,7 @@ feature -- public flags and error types
 	connect_error_type: INTEGER_64
 
 
-feature {NONE} -- private flags and error types
+feature {TEST} -- private flags and error types
 	query_success: BOOLEAN
 	hole_punch_success: BOOLEAN
 
@@ -497,7 +505,7 @@ feature {NONE} -- queues
 
 
 
-feature {NONE} -- THread
+feature {TEST} -- THread
 
 	peer_address: NETWORK_SOCKET_ADDRESS
 

@@ -30,7 +30,7 @@ feature --Timeouts
 	connecting_timeout: INTEGER_32 = 10
 	-- time hole punching is active in seconds
 
-	server_timeout: INTEGER_32 = 10000
+	server_timeout: INTEGER_32 = 4
 	-- time we maximal wait for a  answer of the sewrver in seconds
 
 
