@@ -20,8 +20,8 @@ feature -- sleep intervals in ns
 	hole_punch_interval: INTEGER_64 = 3000000000
 	-- 3s period we sleep between sending hole_punch messages
 
-	server_answer_check_interval: INTEGER_64 = 1000000000
-	-- 1s  period that we check if server responded (register, query, unregister)
+	server_answer_check_interval: INTEGER_64 = 100000000
+	-- 100ms  period that we check if server responded (register, query, unregister)
 
 feature --Timeouts
 	thread_join_timeout: NATURAL = 10000
@@ -30,7 +30,7 @@ feature --Timeouts
 	connecting_timeout: INTEGER_32 = 10
 	-- time hole punching is active in seconds
 
-	server_timeout: INTEGER_32 = 4
+	server_timeout: INTEGER_32 = 6
 	-- time we maximal wait for a  answer of the sewrver in seconds
 
 

@@ -131,7 +131,9 @@ feature {NONE} -- handlers
 
 			key: JSON_STRING
 			value: detachable JSON_VALUE
+			json_register_answer: JSON_OBJECT
 		do
+
 			-- get the name
 			create key.make_from_string (utils.name__key)
 			value := json_object.item (key)
@@ -211,15 +213,15 @@ feature {NONE} -- handlers
 			-- generate response
 			create json_query_answer.make
 
+			-- put the message type
+			put_type (json_query_answer, {UTILS}.query_message)
+
 			-- put unknown error, might be replaced
 			replace_error (json_query_answer, {UTILS}.unknown_error)
 
 			if attached {JSON_STRING} json_object.item (create {JSON_STRING}.make_from_string ({UTILS}.name__key)) as name then
 				if clients.is_client_registered (name.item) then
 					if attached {NETWORK_SOCKET_ADDRESS} clients.query_address (name.item) as peer_address  then
-						-- put the message type
-						put_type (json_query_answer, {UTILS}.query_message)
-
 						-- put the error type
 						replace_error (json_query_answer, {UTILS}.no_error)
 
