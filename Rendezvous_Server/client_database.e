@@ -20,13 +20,22 @@ feature -- initialization
 
 feature -- access
 
-	register(client_name: STRING address: NETWORK_SOCKET_ADDRESS) : BOOLEAN
+	register(client_name: STRING address: NETWORK_SOCKET_ADDRESS) : INTEGER_64
 		do
-			if database.has (client_name) then -- TODO maybe we can nevertheless insert a new client
-				RESULT := False
+			Result := {UTILS}.unknown_error
+			if database.has (client_name) and then attached database.at (client_name) as registered_address then
+
+				if address.is_equal (registered_address) then -- check if registered address equals the new one
+					print(" failed, client already registered")
+					RESULT := {UTILS}.client_already_registered
+				else
+					print(" failed, username already used")
+					RESULT := {UTILS}.client_name_already_used
+				end
 			else
 				database.put (address, client_name)
-				RESULT := TRUE
+				print(" " + address.host_address.host_address + ":" + address.port.out + " succeeded")
+				RESULT := {UTILS}.no_error
 			end
 		end
 

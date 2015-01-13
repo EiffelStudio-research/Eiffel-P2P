@@ -17,8 +17,7 @@ feature {NONE} -- Initialization
 	make
 			-- Run application.
 		do
-			create utils.make
-			create socket.make_bound (utils.local_server_port)
+			create socket.make_bound ({UTILS}.local_server_port)
 			create clients.make
 
 			listen
@@ -127,29 +126,34 @@ feature {NONE} -- handlers
 		local
 			client_name: STRING
 			address: NETWORK_SOCKET_ADDRESS
-			success: BOOLEAN
+			error: INTEGER_64
 
-			key: JSON_STRING
-			value: detachable JSON_VALUE
+			name_key: JSON_STRING
+			name_value: detachable JSON_VALUE
 			json_register_answer: JSON_OBJECT
 		do
 
+			-- generate response
+			create json_register_answer.make
+
+			-- put the message type
+			put_type (json_register_answer, {UTILS}.query_message)
+
+			-- put unknown error, might be replaced
+			replace_error (json_register_answer, {UTILS}.unknown_error)
+
 			-- get the name
-			create key.make_from_string (utils.name__key)
-			value := json_object.item (key)
-			if attached {JSON_STRING} value as name then
+			create name_key.make_from_string ({UTILS}.name__key)
+			name_value := json_object.item (name_key)
+			if attached {JSON_STRING}  name_value as name then
 				client_name := name.item
-				print("register: " + client_name)
+				print("register: " + client_name + " ")
 				if attached socket.peer_address as client_address then
 					-- we must create a new object to insert into the database
 					create address.make_from_address_and_port (client_address.host_address, client_address.port)
-					success := clients.register (client_name, address)
-					if success then
-						print(" " + client_address.host_address.host_address + ":" + client_address.port.out + " succeeded")
-					else
-						-- TODO: what to do here ? send back an error message ?!
-						print(" failed")
-					end
+					error := clients.register (client_name, address)
+					replace_error (json_register_answer, error)
+
 				else
 					print("no valid peer_address")
 				end
@@ -208,6 +212,8 @@ feature {NONE} -- handlers
 
 	handle_query(json_object: JSON_OBJECT)
 		local
+			name_key: JSON_STRING
+			name_value: detachable JSON_VALUE
 			json_query_answer: JSON_OBJECT
 		do
 			-- generate response
@@ -219,7 +225,10 @@ feature {NONE} -- handlers
 			-- put unknown error, might be replaced
 			replace_error (json_query_answer, {UTILS}.unknown_error)
 
-			if attached {JSON_STRING} json_object.item (create {JSON_STRING}.make_from_string ({UTILS}.name__key)) as name then
+			-- get the name
+			create name_key.make_from_string ({UTILS}.name__key)
+			name_value := json_object.item (name_key)
+			if attached {JSON_STRING}  name_value as name then
 				if clients.is_client_registered (name.item) then
 					if attached {NETWORK_SOCKET_ADDRESS} clients.query_address (name.item) as peer_address  then
 						-- put the error type
@@ -307,7 +316,7 @@ feature {NONE} -- helpers
 
 
 feature {NONE} --data
-	utils: UTILS
+
 	socket: NETWORK_DATAGRAM_SOCKET
 	clients: CLIENT_DATABASE
 
