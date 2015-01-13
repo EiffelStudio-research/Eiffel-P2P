@@ -16,75 +16,49 @@ create
 
 feature -- INITALIZATION
 	make_register_packet(my_name: STRING)
-		local
-			key: JSON_STRING
-			value: JSON_VALUE
-			json_object: JSON_OBJECT
 		do
 			create json_object.make
 
 			-- create message type
-			create key.make_from_string ({UTILS}.message_type_key)
-			value := create {JSON_NUMBER}.make_integer ({UTILS}.register_message)
-
-			json_object.put (value, key)
-
+			put_type ({UTILS}.register_message)
 
 			-- create client name
-			create key.make_from_string ({UTILS}.name__key)
-			value := create {JSON_STRING}.make_from_string (my_name)
-			json_object.put (value, key)
+			put_string ({UTILS}.name__key, my_name)
 
 			-- fill the packet
-			fill(json_object)
+			fill
 
 			-- set peer_address
-
 			create peer_address.make_from_hostname_and_port ({UTILS}.server_ip, {UTILS}.server_port)
 		end
 
 	make_query_packet(peer_name: STRING)
-		local
-			key: JSON_STRING
-			value: JSON_VALUE
-			json_object: JSON_OBJECT
 		do
 			create json_object.make
 
 			-- create message type
-			create key.make_from_string ({UTILS}.message_type_key)
-			value := create {JSON_NUMBER}.make_integer ({UTILS}.query_message)
-			json_object.put (value, key)
+			put_type ({UTILS}.query_message)
 
 			-- create peer_name to query
-			create key.make_from_string ({UTILS}.name__key)
-			value := create {JSON_STRING}.make_from_string (peer_name)
-			json_object.put (value, key)
+			put_string ({UTILS}.name__key, peer_name)
 
 			-- fill the packet
-			fill(json_object)
+			fill
 
 			-- set peer_address
-
 			create peer_address.make_from_hostname_and_port ({UTILS}.server_ip, {UTILS}.server_port)
 
 		end
 
 	make_keep_alive_packet(a_peer_address: NETWORK_SOCKET_ADDRESS)
-		local
-			key: JSON_STRING
-			value: JSON_VALUE
-			json_object: JSON_OBJECT
 		do
 			create json_object.make
 
 			-- create message type
-			create key.make_from_string ({UTILS}.message_type_key)
-			value := create {JSON_NUMBER}.make_integer ({UTILS}.keep_alive_message)
-			json_object.put (value, key)
+			put_type ({UTILS}.keep_alive_message)
 
 			-- fill the packet
-			fill(json_object)
+			fill
 
 			-- set peer_address
 			create peer_address.make_from_address_and_port (a_peer_address.host_address, a_peer_address.port)
@@ -95,25 +69,20 @@ feature -- INITALIZATION
 		local
 			key: JSON_STRING
 			value: JSON_VALUE
-			json_object: JSON_OBJECT
+
 		do
 			create json_object.make
 
 			-- create message type
-			create key.make_from_string ({UTILS}.message_type_key)
-			value := create {JSON_NUMBER}.make_integer ({UTILS}.unregister_message)
-			json_object.put (value, key)
+			put_type ({UTILS}.unregister_message)
 
 			-- create client name
-			create key.make_from_string ({UTILS}.name__key)
-			value := create {JSON_STRING}.make_from_string (my_name)
-			json_object.put (value, key)
+			put_string ({UTILS}.name__key, my_name)
 
 			-- fill the packet
-			fill(json_object)
+			fill
 
 			-- set peer_address
-
 			create peer_address.make_from_hostname_and_port ({UTILS}.server_ip, {UTILS}.server_port)
 
 		end
@@ -123,26 +92,20 @@ feature -- INITALIZATION
 		local
 			key: JSON_STRING
 			value: JSON_VALUE
-			json_object: JSON_OBJECT
+
 		do
 			create json_object.make
 
 			-- create message type
-			create key.make_from_string ({UTILS}.message_type_key)
-			value := create {JSON_NUMBER}.make_integer ({UTILS}.application_message)
-			json_object.put (value, key)
+			put_type ({UTILS}.application_message)
 
-
-			-- create client name
-			create key.make_from_string ({UTILS}.data_type_key)
-			value := create {JSON_STRING}.make_from_string (message)
-			json_object.put (value, key)
+			-- create message
+			put_string ({UTILS}.data_key, message)
 
 			-- fill the packet
-			fill(json_object)
+			fill
 
 			-- set peer_address
-
 			create peer_address.make_from_address_and_port (a_peer_address.host_address, a_peer_address.port)
 		end
 
@@ -150,42 +113,32 @@ feature -- INITALIZATION
 		local
 			key: JSON_STRING
 			value: JSON_VALUE
-			json_object: JSON_OBJECT
+
 		do
 			create json_object.make
 
-			-- create message type
-			create key.make_from_string ({UTILS}.message_type_key)
-			value := create {JSON_NUMBER}.make_integer ({UTILS}.query_message)
-			json_object.put (value, key)
-
-			-- create peer_name to query
-			--TODO: add infos so that server knows to answer
+			-- create message type	
+			put_type ({UTILS}.registered_users_message)
 
 			-- fill the packet
-			fill(json_object)
+			fill
 
 			-- set peer_address
-
 			create peer_address.make_from_hostname_and_port ({UTILS}.server_ip, {UTILS}.server_port)
-
 		end
 
 	make_hole_punch_packet(a_peer_address: NETWORK_SOCKET_ADDRESS)
 		local
 			key: JSON_STRING
 			value: JSON_VALUE
-			json_object: JSON_OBJECT
 		do
 			create json_object.make
 
 			-- create message type
-			create key.make_from_string ({UTILS}.message_type_key)
-			value := create {JSON_NUMBER}.make_integer ({UTILS}.hole_punch_message)
-			json_object.put (value, key)
+			put_type ({UTILS}.hole_punch_message)
 
 			-- fill the packet
-			fill(json_object)
+			fill
 
 			-- set peer_address
 			create peer_address.make_from_address_and_port (a_peer_address.host_address, a_peer_address.port)
@@ -195,7 +148,7 @@ feature -- INITALIZATION
 
 feature -- helpers
 
-	fill(json_object: JSON_OBJECT)
+	fill
 		local
 			string_rep:  STRING
 			i: INTEGER
@@ -209,6 +162,35 @@ feature -- helpers
 				i := i+1
 			end
 		end
+
+	put_string(key: STRING value: STRING)
+		local
+			j_key: JSON_STRING
+			j_value: JSON_STRING
+		do
+			create j_key.make_from_string (key)
+			create j_value.make_from_string (value)
+			json_object.put (j_value, j_key)
+		end
+
+	put_integer( key: STRING value: INTEGER_64)
+		local
+			j_key: JSON_STRING
+			j_value: JSON_NUMBER
+		do
+			create j_key.make_from_string (key)
+			create j_value.make_integer (value)
+			json_object.put (j_value, j_key)
+		end
+
+	put_type(type: INTEGER_64)
+		do
+			put_integer({UTILS}.message_type_key, type)
+		end
+
+feature -- DATA
+
+	json_object: JSON_OBJECT
 
 feature -- TARGET
 

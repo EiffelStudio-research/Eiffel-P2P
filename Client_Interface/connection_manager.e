@@ -307,7 +307,7 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
  			i:INTEGER
  		do
  			create key.make_from_string ({UTILS}.message_type_key)
-			create data_key.make_from_string ({UTILS}.data_type_key)
+			create data_key.make_from_string ({UTILS}.data_key)
  			value := json_object.item (key)
  			if attached {JSON_NUMBER} value as type_number then
  				type := type_number.integer_64_item
@@ -373,7 +373,7 @@ feature {NONE} --  handlers
 		i:INTEGER
  		data_key: JSON_STRING
 	do
-		create data_key.make_from_string ({UTILS}.data_type_key)
+		create data_key.make_from_string ({UTILS}.data_key)
 		data := json_object.item (data_key)
 		create json_parser.make_with_string (data.representation)
 		data_array := json_parser.parsed_json_array

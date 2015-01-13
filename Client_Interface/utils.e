@@ -21,7 +21,7 @@ feature -- sleep intervals in ns
 	-- 3s period we sleep between sending hole_punch messages
 
 	server_answer_check_interval: INTEGER_64 = 100000000
-	-- 10ms  period that we check if server responded (register, query, unregister)
+	-- 100ms  period that we check if server responded (register, query, unregister)
 
 feature --Timeouts
 	thread_join_timeout: NATURAL = 10000
@@ -60,7 +60,7 @@ feature -- protocol must be the same as for rendevouz_server
 	port_key: STRING = "port"
 
 	message_type_key: STRING = "type"
-	data_type_key: STRING = "data"
+	data_key: STRING = "data"
 
 	error_type_key: STRING = "error"
 
