@@ -275,6 +275,7 @@ feature {NONE} -- handlers
 				else
 					-- put error
 					replace_error (json_query_answer, {UTILS}.client_not_registered)
+					print(" query failed, no such registered user " + name.item + "%N")
 				end
 			end
 
