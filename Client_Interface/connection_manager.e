@@ -165,13 +165,13 @@ feature -- Actions
 				create time.make_now
 				time := time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.server_timeout))
 			until
-				time.is_less_equal (create {TIME}.make_now) or register_success
+				time.is_less_equal (create {TIME}.make_now) or registered_users_success
 			loop
 				sleep ({UTILS}.server_answer_check_interval)
 			end
 
 			if registered_users_success then
-				print("QUERYING REGISTERED USERS SUCEEDED %N")
+				print("QUERYING REGISTERED USERS SUCEEDED -> ")
 			else
 				print("QUERYING REGISTERED USERS FAILED -> ")
 			end
@@ -367,21 +367,27 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
  			 	when {UTILS}.register_message then
 					output("register message  %N")
 					handle_register_answer(json_object)
+
  			 	when {UTILS}.query_message then
  			 		output("query answer message %N")
 					handle_query_answer(json_object)
+
 				when {UTILS}.unregister_message then
 					output("unregister message %N")
 					handle_unregister_answer (json_object)
+
 				when {UTILS}.keep_alive_message then
 					output("keep alive message, ignore this %N")
+
 				when {UTILS}.application_message then
 					output("application message string %N")
 					data := json_object.item (data_key)
 					receive_queue.force (data.representation.substring (2,data.representation.count - 1))
+
 				when {UTILS}.registered_users_message then
 					output("registered_users_message")
 					handle_registered_users_answer(json_object)
+
 				when {UTILS}.hole_punch_message then
 					output("hole punch message %N")
 					set_hole_punch_success (True, {UTILS}.no_error)
@@ -418,14 +424,14 @@ feature {NONE} --  handlers
 					index := 1
 					size := json_array.count
 				until
-					index = size or error
+					index > size or error
 				loop
 					if attached {JSON_STRING} json_array.i_th (index) as json_user then
 						users_online.force (json_user.item, index)
 					else
 						error := True
 					end
-
+					index := index + 1
 				end
 			else
 				error := True
@@ -524,12 +530,7 @@ feature {NONE} --  handlers
 
 
 
-feature -- public flags and error types
-	register_success: BOOLEAN
-	unregister_success: BOOLEAN
-	connect_success: BOOLEAN
-	registered_users_success: BOOLEAN
-
+feature -- public error types
 	register_error_type: INTEGER_64
 	unregister_error_type: INTEGER_64
 	connect_error_type: INTEGER_64
@@ -537,6 +538,10 @@ feature -- public flags and error types
 
 
 feature {TEST} -- private flags and error types
+	register_success: BOOLEAN
+	unregister_success: BOOLEAN
+	connect_success: BOOLEAN
+	registered_users_success: BOOLEAN
 	query_success: BOOLEAN
 	hole_punch_success: BOOLEAN
 
