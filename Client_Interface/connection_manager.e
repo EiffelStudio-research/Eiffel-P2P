@@ -25,12 +25,25 @@ feature -- Extern
 
 feature -- Actions
 
-	register(a_name: STRING)
+	register(a_name: STRING): BOOLEAN
 		local
 			t_pac: TARGET_PACKET
+			time: TIME
 		do
+			set_query_success(False, {UTILS}.server_down) -- set per default to server_down, as it will be set in handle_register_answer if we receive something
 			create t_pac.make_register_packet (a_name)
 			send_queue.extend (t_pac)
+
+			from
+				create time.make_now
+				time := time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.server_timeout))
+			until
+				time.is_less_equal (create {TIME}.make_now) or register_success
+			loop
+				sleep ({UTILS}.server_answer_check_interval)
+			end
+
+			RESULT := register_success
 		end
 
 	connect(a_peer_name: STRING): BOOLEAN
@@ -57,6 +70,8 @@ feature -- Actions
 			if not success then
 				print("%NCONNECTION COULD NOT BE ESTABLISHED %N%N")
 			end
+
+			set_connect_success
 
 			RESULT := success
 		end
@@ -174,11 +189,72 @@ feature -- Thread control
 			else
 				print("stop not successfull %N")
 			end
-
+			
 			manager_terminated := True
 		end
 
 		manager_terminated: BOOLEAN
+
+feature {NONE} -- intern
+
+	query(peer_name: STRING): BOOLEAN
+	-- ask server to hand out the public ip of peer_name, if succeeded it is stored in peer_address: if fails due to server down it
+	-- can be repeated without any state changes on client and server side -> query is idempotent
+		local
+			query_packet: TARGET_PACKET
+			end_time: TIME
+		do
+			print("%NQUERYING ACTIVE: %N")
+			from
+				set_query_success(False, {UTILS}.server_down) -- set per default to server_down, as it will be set in handle_query if we receive something
+				create query_packet.make_query_packet (peer_name)
+				create end_time.make_now
+				end_time := end_time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.connecting_timeout))
+			until
+				end_time.is_less_equal (create {TIME}.make_now) or query_success
+			loop
+				sleep({UTILS}.server_answer_check_interval)
+			end
+
+			if query_success then
+				print("QUERYING SUCEEDED -> ")
+			else
+				print("QUERYING FAILED -> ")
+			end
+			RESULT:= query_success
+		end
+
+
+
+	udp_hole_punch: BOOLEAN
+		require
+			peer_address_set: peer_address /= Void
+		local
+			hole_punch_pac: TARGET_PACKET
+			end_time: TIME
+		do
+			create hole_punch_pac.make_hole_punch_packet (peer_address)
+			print("%NHOLE PUNCHING ACTIVE: %N")
+			from
+				set_hole_punch_success(False, {UTILS}.client_not_responding)
+				create end_time.make_now
+				end_time := end_time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.connecting_timeout))
+			until
+				end_time.is_less_equal (create {TIME}.make_now)
+			loop
+				send_queue.extend (hole_punch_pac)
+				sleep({UTILS}.hole_punch_interval)
+			end
+
+			if hole_punch_success then
+				print("HOLE PUNCHING SUCCEEDED %N")
+			else
+				print("HOLE PUNCHING FAILED %N")
+			end
+
+			RESULT := hole_punch_success
+
+		end
 
 feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UDP_RECEIVE_THREAD
 
@@ -232,6 +308,7 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
  			 	inspect type
  			 	when 1 then
 					output("register message should not come to Client %N")
+					handle_register_answer(json_object)
  			 	when 2 then
  			 		output("query answer message %N")
 					handle_query_answer(json_object)
@@ -246,12 +323,9 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
 				when 6 then
 					output("registered_users_message")
 					received_users := true
-
-
 				when 7 then
 					output("hole punch message %N")
 					set_hole_punch_success (True, {UTILS}.no_error)
-
  			 	else
  			 		output("invalid type %N")
 
@@ -303,6 +377,32 @@ feature {NONE} --  handlers
 		end
 	end
 
+	handle_register_answer(json_object: JSON_OBJECT)
+		local
+			error_type_key: JSON_STRING
+			error_type: INTEGER_64
+
+		do
+			set_register_success (False, {UTILS}.unknown_error)  -- we received a register answer and set per default success to unknown
+			-- check if there is an error
+			create error_type_key.make_from_string ({UTILS}.error_type_key)
+			if attached {JSON_NUMBER} json_object.item (error_type_key) as error_type_json then
+				error_type := error_type_json.integer_64_item
+				inspect error_type
+				when {UTILS}.no_error then -- no error
+					set_register_success (True, {UTILS}.no_error)
+
+				when {UTILS}.client_name_already_used then
+					set_register_success (False, error_type)
+
+				when {UTILS}.client_already_registered then
+					set_register_success (False, error_type)
+				else
+					set_register_success (False, {UTILS}.unknown_error)
+				end
+			end
+		end
+
 	handle_query_answer(json_object: JSON_OBJECT)
 		local
 			peer_ip_address: STRING
@@ -312,8 +412,7 @@ feature {NONE} --  handlers
 			error_type_key: JSON_STRING
 			error_type: INTEGER_64
 		do
-			set_query_success(False, {UTILS}.unknown_error)
-
+			set_query_success (False, {UTILS}.unknown_error) -- we received a query answer and set per default success to unknown
 			-- check if there is an error
 			create error_type_key.make_from_string ({UTILS}.error_type_key)
 			if attached {JSON_NUMBER} json_object.item (error_type_key) as error_type_json then
@@ -334,72 +433,13 @@ feature {NONE} --  handlers
 				when {UTILS}.client_not_registered then
 					set_query_success (False, error_type)
 				else
-					-- unknown error set at beginning
+					set_query_success (False, {UTILS}.unknown_error)
 				end
 			end
 		end
 
 
-feature {NONE} -- intern
 
-	query(peer_name: STRING): BOOLEAN
-	-- ask server to hand out the public ip of peer_name, if succeeded it is stored in peer_address
-		local
-			query_packet: TARGET_PACKET
-			i: INTEGER
-		do
-			set_query_success(False, {UTILS}.unknown_error)
-			create query_packet.make_query_packet (peer_name)
-			print("%NQUERYING ACTIVE: %N")
-			from
-				i:= 1
-			until
-				i = {UTILS}.maximum_query_retries or query_success
-			loop
-				send_queue.extend (query_packet)
-				sleep({UTILS}.query_answer_interval)
-				i := i + 1
-			end
-
-			if query_success then
-				print("QUERYING SUCEEDED -> ")
-			else
-				print("QUERYING FAILED -> ")
-			end
-			RESULT:= query_success
-		end
-
-
-
-	udp_hole_punch: BOOLEAN
-		require
-			peer_address_set: peer_address /= Void
-		local
-			hole_punch_pac: TARGET_PACKET
-			end_time: TIME
-		do
-			create hole_punch_pac.make_hole_punch_packet (peer_address)
-			print("%NHOLE PUNCHING ACTIVE: %N")
-			from
-				set_hole_punch_success(False, {UTILS}.no_error)
-				create end_time.make_now
-				end_time := end_time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.connecting_duration))
-			until
-				end_time.is_less_equal (create {TIME}.make_now)
-			loop
-				send_queue.extend (hole_punch_pac)
-				sleep({UTILS}.hole_punch_interval)
-			end
-
-			if hole_punch_success then
-				print("HOLE PUNCHING SUCCEEDED %N")
-			else
-				print("HOLE PUNCHING FAILED %N")
-			end
-
-			RESULT := hole_punch_success
-
-		end
 
 feature -- public flags and error types
 	register_success: BOOLEAN

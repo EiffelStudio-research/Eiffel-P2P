@@ -35,9 +35,7 @@ feature --Execute
 			until
 				not receive_thread_running
 			loop
-
 				listen
-
 			end
 			print("Receive_Thread finished %N")
 		end

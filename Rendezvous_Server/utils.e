@@ -43,15 +43,25 @@ feature -- protocol must be the same as for the client_interface
 
 	unregister_message: INTEGER = 3
 
-	keep_alive_message: INTEGER = 4
-
 	registered_users_message: INTEGER = 6
 
+
 	-- error types
-	no_error: INTEGER = 1
+	unknown_error: INTEGER_64 = -2
 
-	client_already_registered: INTEGER = 1
+	no_error: INTEGER_64 = 0
+	-- no error occured
 
-	client_not_registered: INTEGER = 2
+	client_already_registered: INTEGER_64 = 1
+	-- you are already registered
+
+	client_not_registered: INTEGER_64 = 2
+	-- the client you tried to query for is not registered
+
+	client_name_already_used: INTEGER_64 = 3
+	-- the client name for registering is already in use
+
+	client_not_responding: INTEGER_64 = 4
+	-- the client you tried to connect did not respond. he might not be ready yet. maybe increase connecting_duration
 
 end

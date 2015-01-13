@@ -43,10 +43,10 @@ feature -- Access
 
 feature -- connection
 
-	login(chat_name: STRING)
+	login(chat_name: STRING): BOOLEAN
 		do
 			conn_manager.start
-			conn_manager.register (chat_name)
+			RESULT := conn_manager.register (chat_name)
 		end
 
 	connect(a_peer_name: STRING): BOOLEAN

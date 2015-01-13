@@ -20,6 +20,7 @@ feature --Screen
 	show
 	local
 		input : STRING
+		login_success: BOOLEAN
 	do
 		io.put_string ("This is the login page for Server " + utils.serverIP)
 		io.put_new_line
@@ -30,16 +31,19 @@ feature --Screen
 		input.append (io.last_string)
 		utils.playername := input
 
-		loginserver (input)
-		utils.currentState := 1
+		login_success := loginserver (input)
+		if login_success then
+			utils.currentState := 1
+		end
+
 	end
 
 feature --Implementation
-	loginServer(aname:STRING)
+	loginServer(aname:STRING): BOOLEAN
 	require
 		not_empty: not aname.is_empty
 	do
-		utils.login(aname)
+		RESULT := utils.login(aname)
 	end
 
 feature{NONE} --UTILS

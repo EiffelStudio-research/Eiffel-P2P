@@ -119,7 +119,7 @@ feature -- message handling
 
  		end
 
-feature {NONE} --helpers
+feature {NONE} -- handlers
 
 	handle_register(json_object: JSON_OBJECT)
 		local
@@ -204,46 +204,41 @@ feature {NONE} --helpers
 
 	handle_query(json_object: JSON_OBJECT)
 		local
-			key: JSON_STRING
-			value: JSON_VALUE
 			json_query_answer: JSON_OBJECT
 		do
-			if attached {JSON_STRING} json_object.item ({UTILS}.name__key) as name then
-				if clients.is_client_registered (name.item) and then attached {NETWORK_SOCKET_ADDRESS} clients.query_address (name.item) as peer_address  then
+			-- generate response
+			create json_query_answer.make
 
-					-- generate response
-					create json_query_answer.make
+			-- put unknown error, might be replaced
+			replace_error (json_query_answer, {UTILS}.unknown_error)
 
-					-- create message type
-					create key.make_from_string ({UTILS}.message_type_key)
-					value := create {JSON_NUMBER}.make_integer ({UTILS}.query_message)
-					json_query_answer.put (value, key)
+			if attached {JSON_STRING} json_object.item (create {JSON_STRING}.make_from_string ({UTILS}.name__key)) as name then
+				if clients.is_client_registered (name.item) then
+					if attached {NETWORK_SOCKET_ADDRESS} clients.query_address (name.item) as peer_address  then
+						-- put the message type
+						put_type (json_query_answer, {UTILS}.query_message)
 
-					-- put the ip_address
-					create key.make_from_string ({UTILS}.ip_key)
-					value := create {JSON_STRING}.make_from_string (peer_address.host_address.host_address)
-					json_query_answer.put (value, key)
+						-- put the error type
+						replace_error (json_query_answer, {UTILS}.no_error)
 
-					--put the port
-					create key.make_from_string ({UTILS}.port_key)
-					value := create {JSON_NUMBER}.make_integer (peer_address.port)
-					json_query_answer.put (value, key)
+						-- put the ip_address
+						put_string (json_query_answer, {UTILS}.ip_key, peer_address.host_address.host_address)
 
-					-- generate packet and send back to sender
-
-					if attached socket.peer_address as address then
-						print("send answer to: " + address.host_address.host_address + ":" + address.port.out + "%N")
-						socket.send_to (generat_packet (json_query_answer), address, 0)
-					else
-						--TODO: probably nothing can be done
+						-- put the port
+						put_integer (json_query_answer, {UTILS}.port_key, peer_address.port)
 					end
-
 				else
-					-- TODO: maybe generate appropriate error message
+					-- put error
+					replace_error (json_query_answer, {UTILS}.client_not_registered)
 				end
+			end
 
+			-- generate packet and send back to sender
+			if attached socket.peer_address as address then
+				print("send answer to: " + address.host_address.host_address + ":" + address.port.out + "%N")
+				socket.send_to (generat_packet (json_query_answer), address, 0)
 			else
-				-- TODO: maybe generate appropriate error message
+				-- probably nothing can be done -> no response
 			end
 
 		end
@@ -253,6 +248,7 @@ feature {NONE} --helpers
 
 		end
 
+feature {NONE} -- helpers
 
 	generat_packet(json_object: JSON_OBJECT): PACKET
 		local
@@ -268,6 +264,43 @@ feature {NONE} --helpers
 				i := i+1
 			end
 		end
+
+	put_string(json_object: JSON_OBJECT key: STRING value: STRING)
+		local
+			j_key: JSON_STRING
+			j_value: JSON_STRING
+		do
+			create j_key.make_from_string (key)
+			create j_value.make_from_string (value)
+			json_object.put (j_value, j_key)
+		end
+
+	put_integer(json_object: JSON_OBJECT key: STRING value: INTEGER_64)
+		local
+			j_key: JSON_STRING
+			j_value: JSON_NUMBER
+		do
+			create j_key.make_from_string (key)
+			create j_value.make_integer (value)
+			json_object.put (j_value, j_key)
+		end
+
+	put_type(json_object: JSON_OBJECT type: INTEGER_64)
+		do
+			put_integer(json_object, {UTILS}.message_type_key, type)
+		end
+
+	replace_error(json_object: JSON_OBJECT error: INTEGER_64)
+	-- if not present it will be inserted
+		local
+			j_key: JSON_STRING
+		do
+			create j_key.make_from_string ({UTILS}.error_type_key)
+			json_object.replace_with_integer (error, j_key)
+		end
+
+
+
 
 feature {NONE} --data
 	utils: UTILS
