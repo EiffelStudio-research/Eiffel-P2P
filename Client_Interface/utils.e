@@ -21,7 +21,7 @@ feature -- sleep intervals in ns
 	-- 3s period we sleep between sending hole_punch messages
 
 	server_answer_check_interval: INTEGER_64 = 100000000
-	-- 100ms  period that we check if server responded (register, query, unregister)
+	-- 10ms  period that we check if server responded (register, query, unregister)
 
 feature --Timeouts
 	thread_join_timeout: NATURAL = 10000
@@ -104,6 +104,6 @@ feature -- protocol must be the same as for rendevouz_server
 
 
 feature -- output
-	debugging: BOOLEAN = True
+	debugging: BOOLEAN = False
 	line_break: STRING = "----------------------------------------------------------------- %N"
 end

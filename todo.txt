@@ -1,9 +1,9 @@
 ﻿chat: login_page 0.0.0.0 -> Simon,done
-chat: doppelte anzeige.., trivial solution just display one..
-cm / server: registrierte user -> Simon(client_side) waiting for json instructions -> Silvan (server_side), done 
+chat: doppelte anzeige..
+cm / server: registrierte user -> Simon(client_side) -> Silvan (server_side), done 
 : join message with agree -> Silvan
-cm: delete send_json -> Simon,done
-cm / server: server error answers, flags (handle register answer) -> Silvan
-mutex_linked_queue: -> Simon,done
+cm: delete send_json -> Simon
+cm / server: server error answers, flags (handle register answer) -> Silvan, done
+mutex_linked_queue: -> Simon
 tar_pac: unregister_packet -> Silvan
 
