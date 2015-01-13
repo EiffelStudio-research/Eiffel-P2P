@@ -137,7 +137,7 @@ feature {NONE} -- handlers
 			create json_register_answer.make
 
 			-- put the message type
-			put_type (json_register_answer, {UTILS}.query_message)
+			put_type (json_register_answer, {UTILS}.register_message)
 
 			-- put unknown error, might be replaced
 			replace_error (json_register_answer, {UTILS}.unknown_error)

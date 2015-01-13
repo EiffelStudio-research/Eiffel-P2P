@@ -104,6 +104,6 @@ feature -- protocol must be the same as for rendevouz_server
 
 
 feature -- output
-	debugging: BOOLEAN = False
+	debugging: BOOLEAN = True
 	line_break: STRING = "----------------------------------------------------------------- %N"
 end
