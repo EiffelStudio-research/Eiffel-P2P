@@ -34,6 +34,7 @@ feature -- networking
 
 		do
 			from
+				print("SERVER STARTED %N%N")
 			until
 				False
 			loop
@@ -45,8 +46,9 @@ feature -- networking
 				else
 					print("failed %N")
 				end
-
 			end
+
+			print("SERVER STOPED %N%N")
 		end
 
 
