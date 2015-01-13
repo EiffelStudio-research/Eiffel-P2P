@@ -62,6 +62,8 @@ feature -- protocol must be the same as for rendevouz_server
 	message_type_key: STRING = "type"
 	data_key: STRING = "data"
 
+	registered_users_key: STRING = "users"
+
 	error_type_key: STRING = "error"
 
 	-- message types

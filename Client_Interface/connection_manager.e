@@ -18,7 +18,7 @@ feature -- Extern
 			create socket.make_bound ({UTILS}.local_port)
 			create send_queue.make
 			create receive_queue.make
-			create users_online.make
+			create users_online.make_empty
 
 			manager_terminated := True
 		end
@@ -110,7 +110,7 @@ feature -- Actions
 
 			set_connect_success
 
-			RESULT := success
+			RESULT := connect_success
 		end
 
 
@@ -151,19 +151,37 @@ feature -- Actions
 			result := receive_non_blocking
 		end
 
-	receive_timeout(sec_timeout : INTEGER_32):STRING
+	get_registered_users: BOOLEAN
 		local
+			t_pac: TARGET_PACKET
 			time: TIME
 		do
-			create time.make_now
-			time := time.plus (create {TIME_DURATION}.make_by_seconds (sec_timeout))
+			set_registered_users_success(False, {UTILS}.server_down) -- set per default to server_down, as it will be set in handle_register_answer if we receive something
+			create t_pac.make_registered_users_packet
+			send_queue.extend (t_pac)
+
+			print("%NQUERYING REGISTERED USERS ACTIVE: %N")
 			from
+				create time.make_now
+				time := time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.server_timeout))
 			until
-				receive_queue.something_in or time.is_less_equal (create {TIME}.make_now) or manager_terminated
+				time.is_less_equal (create {TIME}.make_now) or register_success
 			loop
-				sleep ({UTILS}.receive_client_interval)
+				sleep ({UTILS}.server_answer_check_interval)
 			end
-			result := receive_non_blocking
+
+			if registered_users_success then
+				print("QUERYING REGISTERED USERS SUCEEDED %N")
+			else
+				print("QUERYING REGISTERED USERS FAILED -> ")
+			end
+
+			RESULT := registered_users_success
+		end
+
+	registered_users: ARRAY[STRING]
+		do
+			create RESULT.make_from_array (users_online)
 		end
 
 
@@ -176,6 +194,7 @@ feature -- Thread control
 			create udp_sender.make_by_socket (socket, send_queue)
 			create udp_receiver.make_by_socket (socket, current)
 
+			print("%NSTART connection manager %N")
 			udp_sender.set_send_thread_running (True)
 			udp_sender.launch
 			print("launched sender %N")
@@ -191,7 +210,7 @@ feature -- Thread control
 			local_address: NETWORK_SOCKET_ADDRESS
 			terminate_packet: PACKET
 		do
-			print("stop connection manager %N")
+			print("%NSTOP connection manager %N")
 			-- set per default to true
 			not_sender_timed_out := True
 			not_receiver_timed_out := True
@@ -242,10 +261,11 @@ feature {TEST} -- intern
 			end_time: TIME
 		do
 			print("%NQUERYING ACTIVE: %N")
+			set_query_success(False, {UTILS}.server_down) -- set per default to server_down, as it will be set in handle_query if we receive something
+			create query_packet.make_query_packet (peer_name)
+			send_queue.extend (query_packet) -- send the query
+
 			from
-				set_query_success(False, {UTILS}.server_down) -- set per default to server_down, as it will be set in handle_query if we receive something
-				create query_packet.make_query_packet (peer_name)
-				send_queue.extend (query_packet) -- send the query
 				create end_time.make_now
 				end_time := end_time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.server_timeout))
 			until
@@ -331,9 +351,9 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
  			value: detachable JSON_VALUE
  			data: detachable JSON_VALUE
  			data_key: JSON_STRING
- 			data_array : JSON_ARRAY
+
  			type: INTEGER_64
- 			json_parser : JSON_PARSER
+
  			i:INTEGER
  		do
  			create key.make_from_string ({UTILS}.message_type_key)
@@ -361,7 +381,7 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
 					receive_queue.force (data.representation.substring (2,data.representation.count - 1))
 				when {UTILS}.registered_users_message then
 					output("registered_users_message")
-					received_users := true
+					handle_registered_users_answer(json_object)
 				when {UTILS}.hole_punch_message then
 					output("hole punch message %N")
 					set_hole_punch_success (True, {UTILS}.no_error)
@@ -374,47 +394,47 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
  			end
 
  		end
-feature -- Client list
-	users_online:LINKED_LIST[STRING]
-	received_users:BOOLEAN
+feature {NONE} -- Client list
+	users_online: ARRAY[STRING]
 
-	get_users_online:LINKED_LIST[STRING]
-	local
-		temp:LINKED_LIST[STRING]
-		i:INTEGER
-	do
-		create temp.make
-		from
-			i:=1
-		until
-			i >temp.count
-		loop
-			temp.extend (temp.i_th (i))
-			i:=i+1
-		end
-		result := temp
-	end
 
 feature {NONE} --  handlers
-	handle_register_users(json_object: JSON_OBJECT)
-	local
-		json_parser:JSON_PARSER
-		data:JSON_VALUE
-		data_array:JSON_ARRAY
-		i:INTEGER
- 		data_key: JSON_STRING
-	do
-		create data_key.make_from_string ({UTILS}.data_key)
-		data := json_object.item (data_key)
-		create json_parser.make_with_string (data.representation)
-		data_array := json_parser.parsed_json_array
-		from i:=1
-		until i>data_array.count
-		loop
-			users_online.extend (data_array.i_th (i).representation.substring (2, data_array.count-1))
-			i:=i+1
+	handle_registered_users_answer(json_object: JSON_OBJECT)
+		local
+			array_key: JSON_STRING
+
+			error: BOOLEAN
+			index: INTEGER
+			size: INTEGER
+		do
+			set_registered_users_success (False, {UTILS}.unknown_error) -- we received a register_users answer and set per default success to unknown
+			create users_online.make_empty
+
+			error := False
+
+			create array_key.make_from_string ({UTILS}.registered_users_key)
+			if attached {JSON_ARRAY} json_object.item (array_key) as json_array then
+				from
+					index := 1
+					size := json_array.count
+				until
+					index = size or error
+				loop
+					if attached {JSON_STRING} json_array.i_th (index) as json_user then
+						users_online.force (json_user.item, index)
+					else
+						error := True
+					end
+
+				end
+			else
+				error := True
+			end
+
+			if not error then
+				set_registered_users_success (True, {UTILS}.no_error)
+			end
 		end
-	end
 
 	handle_register_answer(json_object: JSON_OBJECT)
 		local
@@ -508,10 +528,12 @@ feature -- public flags and error types
 	register_success: BOOLEAN
 	unregister_success: BOOLEAN
 	connect_success: BOOLEAN
+	registered_users_success: BOOLEAN
 
 	register_error_type: INTEGER_64
 	unregister_error_type: INTEGER_64
 	connect_error_type: INTEGER_64
+	registered_users_error_type: INTEGER_64
 
 
 feature {TEST} -- private flags and error types
@@ -532,6 +554,12 @@ feature {NONE}	-- setters for flags
 		do
 			unregister_success := received
 			unregister_error_type := error
+		end
+
+	set_registered_users_success(received: BOOLEAN error: INTEGER_64)
+		do
+			registered_users_success := received
+			registered_users_error_type := error
 		end
 
 	set_query_success(received: BOOLEAN error: INTEGER_64)

@@ -219,9 +219,7 @@ feature {NONE} -- handlers
 			create json_users_answer.make
 
 			-- create message type
-			create key.make_from_string ({UTILS}.message_type_key)
-			value := create {JSON_NUMBER}.make_integer ({UTILS}.registered_users_message)
-			json_users_answer.put (value, key)
+			put_type (json_users_answer, {UTILS}.registered_users_message)
 
 			-- create json_array
 			create key.make_from_string ({UTILS}.registered_users_key)

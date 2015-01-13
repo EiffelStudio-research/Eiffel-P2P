@@ -61,8 +61,7 @@ feature -- access
 		do
 			RESULT := database.at (client_name)
 			if	attached Result as address then
-				print(" queried ip of " + client_name + "is : " + address.host_address.host_address + ":" + address.port.out + "%N")
-
+				print("queried ip of " + client_name + " is : " + address.host_address.host_address + ":" + address.port.out + "%N")
 			end
 
 		end
