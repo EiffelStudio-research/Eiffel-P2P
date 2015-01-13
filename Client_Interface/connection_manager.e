@@ -58,7 +58,7 @@ feature -- Actions
 			t_pac: TARGET_PACKET
 			time: TIME
 		do
-			set_register_success(False, {UTILS}.server_down) -- set per default to server_down, as it will be set in handle_register_answer if we receive something
+			set_unregister_success(False, {UTILS}.server_down) -- set per default to server_down, as it will be set in handle_register_answer if we receive something
 			create t_pac.make_unregister_packet (a_name)
 			send_queue.extend (t_pac)
 
@@ -72,13 +72,13 @@ feature -- Actions
 				sleep ({UTILS}.server_answer_check_interval)
 			end
 
-			if register_success then
+			if unregister_success then
 				print("UNREGISTERING SUCEEDED %N")
 			else
 				print("UNREGISTERING FAILED -> ")
 			end
 
-			RESULT := register_success
+			RESULT := unregister_success
 		end
 
 
@@ -344,24 +344,25 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
  			 	output("message is of type: " + type.out + " which means ")
 
  			 	inspect type
- 			 	when 1 then
-					output("register message should not come to Client %N")
+ 			 	when {UTILS}.register_message then
+					output("register message  %N")
 					handle_register_answer(json_object)
- 			 	when 2 then
+ 			 	when {UTILS}.query_message then
  			 		output("query answer message %N")
 					handle_query_answer(json_object)
-				when 3 then
-					output("unregister Message should not come to Client %N")
-				when 4 then
+				when {UTILS}.unregister_message then
+					output("unregister message %N")
+					handle_unregister_answer (json_object)
+				when {UTILS}.keep_alive_message then
 					output("keep alive message, ignore this %N")
-				when 5 then
+				when {UTILS}.application_message then
 					output("application message string %N")
 					data := json_object.item (data_key)
 					receive_queue.force (data.representation.substring (2,data.representation.count - 1))
-				when 6 then
+				when {UTILS}.registered_users_message then
 					output("registered_users_message")
 					received_users := true
-				when 7 then
+				when {UTILS}.hole_punch_message then
 					output("hole punch message %N")
 					set_hole_punch_success (True, {UTILS}.no_error)
  			 	else

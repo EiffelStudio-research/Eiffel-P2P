@@ -38,7 +38,7 @@ feature -- networking
 				False
 			loop
 				pac :=  socket.received ({UTILS}.maximum_packet_size, 0)
-				print("Received packet -> parsing to JSON_OBJECT: ")
+				print("%NReceived packet -> parsing to JSON_OBJECT: ")
 				if attached parse_packet(pac) as json_object then
 					print("succeeded %N")
 					process(json_object) -- TODO: nicer if processing would be done in a worker_thread
