@@ -165,6 +165,46 @@ feature {NONE} -- handlers
 			send_answer (json_register_answer)
 		end
 
+	handle_unregister(json_object: JSON_OBJECT)
+		local
+			client_name: STRING
+			address: NETWORK_SOCKET_ADDRESS
+			error: INTEGER_64
+
+			name_key: JSON_STRING
+			name_value: detachable JSON_VALUE
+			json_unregister_answer: JSON_OBJECT
+		do
+			-- generate response
+			create json_unregister_answer.make
+
+			-- put the message type
+			put_type (json_unregister_answer, {UTILS}.unregister_message)
+
+			-- put unknown error, might be replaced
+			replace_error (json_unregister_answer, {UTILS}.unknown_error)
+
+			-- get the name
+			create name_key.make_from_string ({UTILS}.name__key)
+			name_value := json_object.item (name_key)
+			if attached {JSON_STRING}  name_value as name then
+				client_name := name.item
+				print("unregister: " + client_name + " ")
+				if attached socket.peer_address as client_address then
+					error := clients.unregister (client_name, client_address)
+					replace_error (json_unregister_answer, error)
+				else
+					print("no valid peer_address")
+				end
+
+			else
+				print("invalid name_key")
+			end
+			print("%N")
+
+			send_answer (json_unregister_answer)
+		end
+
 	handle_registered_users
 		local
 			key: JSON_STRING
@@ -242,10 +282,6 @@ feature {NONE} -- handlers
 
 		end
 
-	handle_unregister(json_object: JSON_OBJECT)
-		do
-
-		end
 
 feature {NONE} -- helpers
 

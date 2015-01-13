@@ -39,6 +39,24 @@ feature -- access
 			end
 		end
 
+	unregister(client_name: STRING address: NETWORK_SOCKET_ADDRESS) : INTEGER_64
+		do
+			Result := {UTILS}.unknown_error
+			if database.has (client_name) and then attached database.at (client_name) as registered_address then
+				if address.is_equal (registered_address) then -- check if registered address equals the new one
+					print(" success, name and ip match")
+					database.remove (client_name)
+					RESULT := {UTILS}.no_error
+				else
+					print(" failed, invalid unregister attempt (name and ip did not match)")
+					RESULT := {UTILS}.invalid_unregister_attempt
+				end
+			else
+				print(" failed, no such registered user")
+				RESULT := {UTILS}.client_not_registered
+			end
+		end
+
 	query_address(client_name: STRING) : detachable NETWORK_SOCKET_ADDRESS
 		do
 			RESULT := database.at (client_name)

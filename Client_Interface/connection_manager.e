@@ -53,6 +53,36 @@ feature -- Actions
 			RESULT := register_success
 		end
 
+	unregister(a_name: STRING): BOOLEAN
+		local
+			t_pac: TARGET_PACKET
+			time: TIME
+		do
+			set_register_success(False, {UTILS}.server_down) -- set per default to server_down, as it will be set in handle_register_answer if we receive something
+			create t_pac.make_unregister_packet (a_name)
+			send_queue.extend (t_pac)
+
+			print("%NUNREGISTERING ACTIVE: %N")
+			from
+				create time.make_now
+				time := time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.server_timeout))
+			until
+				time.is_less_equal (create {TIME}.make_now) or unregister_success
+			loop
+				sleep ({UTILS}.server_answer_check_interval)
+			end
+
+			if register_success then
+				print("UNREGISTERING SUCEEDED %N")
+			else
+				print("UNREGISTERING FAILED -> ")
+			end
+
+			RESULT := register_success
+		end
+
+
+
 	connect(a_peer_name: STRING): BOOLEAN
 		local
 			success: BOOLEAN
@@ -398,7 +428,7 @@ feature {NONE} --  handlers
 				error_type := error_type_json.integer_64_item
 				inspect error_type
 				when {UTILS}.no_error then -- no error
-					set_register_success (True, {UTILS}.no_error)
+					set_register_success (True, error_type)
 
 				when {UTILS}.client_name_already_used then
 					set_register_success (False, error_type)
@@ -407,6 +437,30 @@ feature {NONE} --  handlers
 					set_register_success (False, error_type)
 				else
 					set_register_success (False, {UTILS}.unknown_error)
+				end
+			end
+		end
+
+	handle_unregister_answer(json_object: JSON_OBJECT)
+		local
+			error_type_key: JSON_STRING
+			error_type: INTEGER_64
+
+		do
+			set_unregister_success (False, {UTILS}.unknown_error)  -- we received a unregister answer and set per default success to unknown
+			-- check if there is an error
+			create error_type_key.make_from_string ({UTILS}.error_type_key)
+			if attached {JSON_NUMBER} json_object.item (error_type_key) as error_type_json then
+				error_type := error_type_json.integer_64_item
+				inspect error_type
+				when {UTILS}.no_error then -- no error
+					set_unregister_success (True, error_type)
+				when {UTILS}.client_not_registered then
+					set_unregister_success (False, error_type)
+				when {UTILS}.invalid_unregister_attempt then
+					set_unregister_success (False, error_type)
+				else
+					set_unregister_success (False, {UTILS}.unknown_error)
 				end
 			end
 		end
@@ -435,7 +489,7 @@ feature {NONE} --  handlers
 							port_string:= port.item -- TODO: kind of ugly, is there a way to cast INTEGER_64 to INTEGER_32 ?
 							peer_port:= port_string.to_integer_32
 							create peer_address.make_from_hostname_and_port (peer_ip_address, peer_port)
-							set_query_success(True, {UTILS}.no_error)
+							set_query_success(True, error_type)
 						end
 					end
 				when {UTILS}.client_not_registered then
@@ -451,9 +505,11 @@ feature {NONE} --  handlers
 
 feature -- public flags and error types
 	register_success: BOOLEAN
+	unregister_success: BOOLEAN
 	connect_success: BOOLEAN
 
 	register_error_type: INTEGER_64
+	unregister_error_type: INTEGER_64
 	connect_error_type: INTEGER_64
 
 
@@ -469,6 +525,12 @@ feature {NONE}	-- setters for flags
 		do
 			register_success := received
 			register_error_type := error
+		end
+
+	set_unregister_success(received: BOOLEAN error: INTEGER_64)
+		do
+			unregister_success := received
+			unregister_error_type := error
 		end
 
 	set_query_success(received: BOOLEAN error: INTEGER_64)

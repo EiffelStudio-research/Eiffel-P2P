@@ -100,6 +100,9 @@ feature -- protocol must be the same as for rendevouz_server
 	client_not_responding: INTEGER_64 = 4
 	-- the client you tried to connect did not respond. he might not be ready yet. maybe increase connecting_duration
 
+	invalid_unregister_attempt: INTEGER_64 = 5
+	-- the client you tried to unregister was not registered by you (name and ip did not match)
+
 
 
 
