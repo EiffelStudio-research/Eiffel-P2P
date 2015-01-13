@@ -153,7 +153,6 @@ feature {NONE} -- handlers
 					create address.make_from_address_and_port (client_address.host_address, client_address.port)
 					error := clients.register (client_name, address)
 					replace_error (json_register_answer, error)
-
 				else
 					print("no valid peer_address")
 				end
@@ -161,8 +160,9 @@ feature {NONE} -- handlers
 			else
 				print("invalid name_key")
 			end
-
 			print("%N")
+
+			send_answer (json_register_answer)
 		end
 
 	handle_registered_users
@@ -198,15 +198,7 @@ feature {NONE} -- handlers
 
 			json_users_answer.put (json_array, key)
 
-
-			if attached socket.peer_address as address then
-				print("send answer to: " + address.host_address.host_address + ":" + address.port.out + "%N")
-				socket.send_to (generat_packet (json_users_answer), address, 0)
-			else
-				--TODO: probably nothing can be done
-			end
-
-
+			send_answer (json_users_answer)
 
 		end
 
@@ -246,13 +238,7 @@ feature {NONE} -- handlers
 				end
 			end
 
-			-- generate packet and send back to sender
-			if attached socket.peer_address as address then
-				print("send answer to: " + address.host_address.host_address + ":" + address.port.out + "%N")
-				socket.send_to (generat_packet (json_query_answer), address, 0)
-			else
-				-- probably nothing can be done -> no response
-			end
+			send_answer (json_query_answer)
 
 		end
 
@@ -275,6 +261,17 @@ feature {NONE} -- helpers
 			loop
 				RESULT.put_element (string_rep.item (i), i-1)
 				i := i+1
+			end
+		end
+
+	send_answer(json_object: JSON_OBJECT)
+		do
+			-- generate packet and send back to sender
+			if attached socket.peer_address as address then
+				print("send answer to: " + address.host_address.host_address + ":" + address.port.out + "%N")
+				socket.send_to (generat_packet (json_object), address, 0)
+			else
+				-- probably nothing can be done -> no response
 			end
 		end
 
