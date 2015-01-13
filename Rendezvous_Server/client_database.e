@@ -60,10 +60,10 @@ feature -- access
 	query_address(client_name: STRING) : detachable NETWORK_SOCKET_ADDRESS
 		do
 			RESULT := database.at (client_name)
-			if		attached Result as address then
-				print("queried ip: " + address.host_address.host_address + ":" + address.port.out + "%N")
+			if	attached Result as address then
+				print("queried ip of " + client_name + "is : " + address.host_address.host_address + ":" + address.port.out + "%N")
 			else
-				print("query failed, no such user " + client_name + "%N")
+				print("query failed, no such registered user " + client_name + "%N")
 			end
 
 		end
