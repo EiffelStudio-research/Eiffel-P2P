@@ -115,6 +115,9 @@ As format of the UDP packets JSON was chosen. Therefore the ejson library from
 https://github.com/eiffelhub/json was integrated and used in a separate cluster.
 The format of the different packets can be found in a separate file called Json_Client.txt
 
+The CONNECTION_MANAGER.connect feature must be called on both sides within the
+given connecting_timeout.
+
 
 4. Contents
 -----------
@@ -233,11 +236,24 @@ Classes of Client_Interface:
 For better understanding there is an implementation of a peer-to-peer chat which can be
 found in eiffel-p2p/Client_Interface/examples
 
-7. Future trends
+7. Future trends /issues 
 ----------------
 
---safety SSH
---tcp connection
+security:	Currently there is no authentication integrated an implementation with a user requiring a password to register or unregister 
+			would be nice
+TCP:		This implementation is fully based on UDP. We tried to use TCP (and TCP Hole Punch) but had a lot of problems.
+			A solution also supporting TCP would be nice regarding reliability, keep-alive overhead
+connect:	So far The CONNECTION_MANAGER.connect feature must be called on both sides within the
+			given connecting_timeout. A solution where one side waits for the other side to connect, likewise TCP listen/connect
+			would also be possible.
+Network Architecture:
+			For two devices sitting behind the same NAT device (being in the same network) a nice extension would be to also
+			check whether a connection with private IP/Port succeeds and if not going on with this code. Therefore also the private IP/Port 
+			would have to be stored on the server.
+NAT:		There are many different kinds of NAT and especially for Symetric NAT UDP Hole Punching can have problems.
+
+Platform: 	The system was tested for Linux and Windows Microsoft but not for Mac OS
+
 
 8. Sources
 ----------
