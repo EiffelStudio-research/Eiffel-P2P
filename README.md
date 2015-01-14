@@ -241,5 +241,6 @@ found in eiffel-p2p/Client_Interface/examples
 
 8. Sources
 ----------
+http://www.bford.info/pub/net/p2pnat/index.html
 
 

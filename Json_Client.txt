@@ -1,7 +1,7 @@
 @author: Silvan Egli, SImon Peyer
 
 
-Convention for the Json Objects we send by using the CLient Interface:
+Convention for the Json Objects we send by using the Client_Interface 
 
 action_ID : INTEGER
 	1 = register_message
@@ -10,10 +10,10 @@ action_ID : INTEGER
 	4 = keep_alive_message
 	5 = application_message
 	6 = registered_users_message
-	7 = hole Punch message
+	7 = hole_punch_message
 
-data : JSON_VALUE
-	Can be anything depending on the action ID
+action_ID: JSON_NUMBER
+data : JSON_VALUE Can be anything depending on the action ID
 
 
 {
@@ -26,19 +26,19 @@ In more detail:
 register_packet:
 {
 	"type" : 1
-	"name" : "content" :JSON_STRING
+	"name" : "my_name" :JSON_STRING
 }
 
 query_packet
 {
 	"type" : 2
-	"name" : "peer_name":JSON_STRING
+	"name" : "peer_name" :JSON_STRING
 }
 
 unregister_packer
 {
 	"type" : 3
-	"name" : "Name to be unregistered":JSON_STRING
+	"name" : "my_name" :JSON_STRING
 }
 
 keep_alive_packet
@@ -46,22 +46,50 @@ keep_alive_packet
 	"type" : 4
 }
 
-
 application_packet
 {
 	"type" : 5
-	"data" : "Content":JSON_STRING
+	"data" : "message" :JSON_STRING
 }
+The message is returned to the user
 
 registered_users_message
 {
 	"type" : 6
-	"data" : ??? @Silvan, what are you giving back?
 }
 
 hole_punch_message
 {
 	"type" : 7
-	"data" : ???
 }
-For the user we give back the data section
+
+
+The server sends back according packets but with an additional error (key/value) pair
+
+register_packet:
+{
+	"type" : 1
+	"error": JSON_NUMBER
+}
+
+query_packet
+{
+	"type" : 2
+	"error": JSON_NUMBER
+	"ip"   : "188.251.2.41" :JSON_STRING
+	"port" : JSON_NUMBER
+}
+
+unregister_packer
+{
+	"type" : 3
+	"error": JSON_NUMBER
+}
+
+
+registered_users_message
+{
+	"type" : 6
+	"error": JSON_NUMBER
+	"users": "Silvan, Simon, Bob" :JSON_ARRAY
+}
