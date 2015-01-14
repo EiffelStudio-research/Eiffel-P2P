@@ -55,7 +55,9 @@ feature -- ACCESS
 
 	readable:BOOLEAN
 	do
+		mutex.lock
 		Result:=list.readable
+		mutex.unlock
 	end
 
 	something_in: BOOLEAN
