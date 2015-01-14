@@ -134,3 +134,5 @@ found in eiffel-p2p/Client_Interface/examples
 --safety SSH
 --tcp connection
 
+TODO: Send stuff to Jocelyn
+

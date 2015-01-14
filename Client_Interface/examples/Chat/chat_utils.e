@@ -104,7 +104,10 @@ feature -- connection
 		end
 
 	exit
+	local
+		test:BOOLEAN
 	 	do
+	 		test:=logout(playername)
 	 		conn_manager.stop
 	 	end
 
