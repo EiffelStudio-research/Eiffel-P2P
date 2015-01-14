@@ -17,8 +17,8 @@ feature -- sleep intervals in ns
 	receive_client_interval: INTEGER_64 = 10000000
 	-- 10ms  time receive sleeps when nothing is in receive_queue
 
-	hole_punch_interval: INTEGER_64 = 3000000000
-	-- 3s period we sleep between sending hole_punch messages
+	hole_punch_interval: INTEGER_64 = 2000000000
+	-- 2s period we sleep between sending hole_punch messages
 
 	server_answer_check_interval: INTEGER_64 = 100000000
 	-- 100ms  period that we check if server responded (register, query, unregister)

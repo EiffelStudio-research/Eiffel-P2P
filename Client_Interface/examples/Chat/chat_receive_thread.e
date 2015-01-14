@@ -35,7 +35,7 @@ feature --Execute
 				peer_message := utils.conn_manager.receive_blocking
 				if attached peer_message as message then
 					io.putstring (peer_message)
-					io.new_line
+					print("%N%N")
 				end
 			end
 			print("chat_receive_thread finished %N")

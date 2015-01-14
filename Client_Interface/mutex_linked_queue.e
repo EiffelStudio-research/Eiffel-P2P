@@ -49,7 +49,7 @@ feature -- ACCESS
 	do
 		mutex.lock
 			Result:= list.item
-			list.remove 
+			list.remove
 		mutex.unlock
 	end
 
@@ -60,7 +60,9 @@ feature -- ACCESS
 
 	something_in: BOOLEAN
 	do
+		mutex.lock
 		RESULT := not list.is_empty
+		mutex.unlock
 	end
 
 
