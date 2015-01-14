@@ -1,5 +1,9 @@
 note
-	description : "rendezvous_server application root class"
+	description : "[
+						This is the root class. The server listens in an endless loop for incoming packets. When a packet
+						arrives it parses it to a JSON_OBJECT, detects the message type and passes the JSON_OBJECT to 
+						the corresponding handler.
+				  ]"
 	date        : "$Date$"
 	revision    : "$Revision$"
 

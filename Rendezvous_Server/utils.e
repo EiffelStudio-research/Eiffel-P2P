@@ -1,7 +1,10 @@
 
 
 note
-	description: "Summary description for {UTILS}."
+	description: "[
+						This static class provides the constant that are necessary for the p2p protocol to run. Therefore a lot must be 
+						equal to the UTILS class of the Client_Interface. For example the error_type constants.
+				 ]"
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"

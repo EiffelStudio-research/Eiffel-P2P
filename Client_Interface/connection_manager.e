@@ -1,5 +1,5 @@
 note
-	description: "Summary description for {CONNECTION_MANAGER}."
+	description: "This class is the interface for a project using Client_Interface"
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"

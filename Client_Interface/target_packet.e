@@ -1,5 +1,10 @@
 note
-	description: "Summary description for {TARGET_PACKET}."
+	description: "[
+						This class is basically a PACKET with an additional field peer_address which is used by the UDP_SENDER_THREAD
+						so that it knows who to send the message to. Furthermore it has some helper features that ease the creation of a packet
+						such as fill. For every message_type there exists an appropriate creation feature so that in the CONNECTION_MANAGER
+						only create packet.make_register_packet("Anna"); send_queue.extend(packet) has to be called.
+				 ]"
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"

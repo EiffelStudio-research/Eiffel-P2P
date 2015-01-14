@@ -204,9 +204,25 @@ Classes of Client_Interface:
 						such as fill. For every message_type there exists an appropriate creation feature so that in the CONNECTION_MANAGER
 						only create packet.make_register_packet("Anna"); send_queue.extend(packet) has to be called.
 	
-	MUTEX_LINKED_QUEUE:	
+	MUTEX_LINKED_QUEUE:	When sending a packet CONNECTION_MANAGER puts it in a MUTEX_LINKED_QUEUE called send_queue. On the other side UDP_RECEIVE_THREAD
+						periodically checks whether there is something in the queue and if so sends the packet. 
+						When receiving a packet in UDP_RECEIVE_THREAD and if the packet is for the user it is pushed into a MUTEX_LINKED_QUEUE 
+						from where a client can read it in CONNECTION_MANAGER receive. 
+						This architecture allows to separate the client application (main thread) from receiving and sending. As multiple Threads
+						access the queues the access is only given while holding a lock on a MUTEX.
+	
+	UDP_SEND_THREAD:	A Thread that periodically checks whether there is a TARGE_PACKET in the send_queue and if so sends it to the address given in the packet.
+	
+	UDP_RECEIVE_THREAD:	A Thread that listens on the socket for incoming packets. After having received a packet it uses the CONNECTION_MANAGER's parse_packet and
+						process. Therefore it is client of CONNECTION_MANAGER.
+	
+	KEEP_ALIVE_THREAD:	This Thread is launched when a connect in CONNECTION_MANAGER succeeded. It periodically sends keep-alive packets to the other peer.
 
-
+	UTILS:				This static class provides the constant that are necessary for the p2p protocol to run. Therefore a lot must be 
+						equal to the UTILS class of the Rendezvous_Server. For example the error_type constants. Additionally there are constants
+						like server_ip or server_port that must be adjusted according to the server. Also the different timeouts and intervals might be 
+						changed according to the given network architecture. When setting debugging to true, the outputs from UDP_SEND_THREAD and 
+						UDP_RECEIVE_THREAD are displayed
 
 5. Step-by-Step Guide
 ---------------------

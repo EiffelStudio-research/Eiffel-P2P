@@ -1,5 +1,9 @@
 note
-	description: "Summary description for {CLIENT_DATABASE}."
+	description: "[
+					This class provides an interface for the APPLICATION class. It is client of HASH_TABLE[NETWORK_SOCKET_ADDRESS, STRING]
+					which is the implementation of the database. The different features are the interface to this
+					HASH_TABLE where the public IP/Port for each user are stored.
+				 ]"
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"

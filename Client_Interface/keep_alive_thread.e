@@ -1,5 +1,5 @@
 note
-	description: "Summary description for {KEEP_ALIVE_THREAD}."
+	description: "This Thread is launched when a connect in CONNECTION_MANAGER succeeded. It periodically sends keep-alive packets to the other peer."
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"

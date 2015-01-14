@@ -1,5 +1,8 @@
 note
-	description: "Summary description for {UDP_RECEIVE_THREAD}."
+	description: "[
+					A Thread that listens on the socket for incoming packets. After having received a packet it uses the CONNECTION_MANAGER's parse_packet and
+					process. Therefore it is client of CONNECTION_MANAGER.
+				 ]"
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"

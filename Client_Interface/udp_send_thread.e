@@ -1,6 +1,6 @@
 
 note
-	description: "Summary description for {UDP_SEND_THREAD}."
+	description: "A Thread that periodically checks whether there is a TARGE_PACKET in the send_queue and if so sends it to the address given in the packet."
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"

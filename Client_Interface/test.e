@@ -1,5 +1,5 @@
 note
-	description : "chat application root class"
+	description : "When set as root class TEST was and can be used to test the Client_Interface. It is not necessary for the Client_Interface to run."
 	date        : "$Date$"
 	revision    : "$Revision$"
 

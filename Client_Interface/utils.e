@@ -1,5 +1,12 @@
 note
-	description: "This classs gives the basic values"
+	description: "[
+						This static class provides the constant that are necessary for the p2p protocol to run. Therefore a lot must be 
+						equal to the UTILS class of the Rendezvous_Server. For example the error_type constants. Additionally there are constants
+						like server_ip or server_port that must be adjusted according to the server. Also the different timeouts and intervals might be 
+						changed according to the given network architecture. When setting debugging to true, the outputs from UDP_SEND_THREAD and 
+						UDP_RECEIVE_THREAD are displayed
+
+				]"
 	author: ""
 	date: "$Date$"
 	revision: "$Revision$"
