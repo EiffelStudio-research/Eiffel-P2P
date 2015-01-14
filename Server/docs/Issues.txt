@@ -1,2 +1,0 @@
-1. After doing: array_a := array_b.sub_array(x,y), array_a.lower is equal to x,
-   which is kind of annoying. Is there a way to make array_a start from 1?
