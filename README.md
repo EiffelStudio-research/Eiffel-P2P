@@ -70,21 +70,28 @@ Client_2:	194.18.15.51/61442
 The Server has now public IP,PORT,User_name of Client_1 and Client_2 in its database.
 Therefore Client_1 can now ask for the userlist of the Rendezvous-Server, this will give him back 
 amongst others the username of the Client_2.
-With this username he can now ask the server for the pubil Ip-address and port of Client_2.
+With this username he can now ask the server for the public Ip-address and port of Client_2.
 So Client_1 has now IP,Port, username of client_2.
 Ans vice versa, Client_2 can do the same for Client_1.
 									
 
-In a second stage, the Client_1 and Client_2 connect to each other using UDP_HolePunch (Discussed later).
-Now they are able to connect to each other.
+In a second stage, the Client_1 and Client_2 connect to each other using UDP_HolePunch.
+This works the like the following:
+Now that both endpoints have public ip/port of the other they start sending UDP Packets
+to each other. They must both send because another issue of NAT devices is that they
+often won't let a packet pass from the internet to the private network without having 
+seen an outgoing packet with the same ip/port before. When a NAT device sees a packet
+going out to the internet it creates a rule. This means it remembers the mapping
+(in the Translation Table) and also the source and destination ip/port. By sending out
+a UDP packet we "punch a hole" in the NAT device such that packets from the other
+peer can come in. Therefore the name UDP Hole Punch
 
-	   _______
-	  |Rendez |
-	  |Server |
-	  |_______|
-        
-And finally they should be directly connected
-     
+Finally if both peers have received a UDP packet from the other one they are connected.
+		   _______
+		  |Rendez |
+		  |Server |
+		  |_______|
+	   
 Client_1 <--------> Client_2
 
 
