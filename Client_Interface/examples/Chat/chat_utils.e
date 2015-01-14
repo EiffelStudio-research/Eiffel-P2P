@@ -43,16 +43,30 @@ feature -- Access
 
 feature -- connection
 
+	start
+		do
+	 		conn_manager.start
+		end
+
 	login(chat_name: STRING): BOOLEAN
 		do
-			conn_manager.start
 			RESULT := conn_manager.register (chat_name)
+			error := conn_manager.register_error_type
+		end
+
+	logout(chat_name: STRING): BOOLEAN
+		do
+			RESULT := conn_manager.unregister (chat_name)
+			error := conn_manager.unregister_error_type
 		end
 
 	connect(a_peer_name: STRING): BOOLEAN
 		do
 			RESULT := conn_manager.connect (a_peer_name)
+			error := conn_manager.connect_error_type
 		end
+
+	error_type: INTEGER_64
 
 	exit
 	 	do

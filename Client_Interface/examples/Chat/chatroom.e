@@ -33,6 +33,7 @@ feature --Screen
 				io.put_new_line
 				io.put_string ("*********************")
 				io.put_new_line
+				io.put_string(utils.playerName + " says: ")
 				io.new_line
 				io.read_line
 				input:=io.last_string
@@ -48,7 +49,7 @@ feature --Screen
 				input:=io.last_string
 			end
 		end
-		utils.exit
+		
 		utils.currentstate := 1
 	end
 

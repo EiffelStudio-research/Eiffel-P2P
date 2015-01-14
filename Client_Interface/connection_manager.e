@@ -292,9 +292,9 @@ feature {TEST} -- intern
 			end_time: TIME
 		do
 			create hole_punch_pac.make_hole_punch_packet (peer_address)
+			set_hole_punch_success(False, {UTILS}.client_not_responding)
 			print("%NHOLE PUNCHING ACTIVE: %N")
 			from
-				set_hole_punch_success(False, {UTILS}.client_not_responding)
 				create end_time.make_now
 				end_time := end_time.plus (create {TIME_DURATION}.make_by_seconds ({UTILS}.connecting_timeout))
 			until

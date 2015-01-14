@@ -26,6 +26,7 @@ feature {NONE} -- Initialization
 feature {NONE} --Logic
 	start
 	do
+		utils.start
 		from  login.show
 		until utils.currentstate = -1
 		loop
@@ -40,6 +41,7 @@ feature {NONE} --Logic
 				chatroom.show
 			end
 		end
+		utils.exit
 	end
 
 feature {NONE} --Fields
