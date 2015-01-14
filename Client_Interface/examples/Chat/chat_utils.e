@@ -92,6 +92,16 @@ feature -- connection
 			end
 		end
 
+	get_users: BOOLEAN
+		do
+			RESULT := conn_manager.get_registered_users
+		end
+
+	users: ARRAY[STRING]
+		do
+			RESULT := conn_manager.registered_users
+		end
+
 	exit
 	 	do
 	 		conn_manager.stop

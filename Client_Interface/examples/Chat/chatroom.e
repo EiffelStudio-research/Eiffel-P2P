@@ -56,9 +56,17 @@ feature --Screen
 	end
 
 	print_users
-		local
 		do
-
+			if utils.get_users then
+				print("Registered users: |")
+				across utils.users as user
+				loop
+					print(" " + user.item + " |" )
+				end
+				print("%N")
+			else
+				print(utils.get_error_message  + "%N")
+			end
 		end
 
 	connect: BOOLEAN

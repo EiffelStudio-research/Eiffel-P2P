@@ -19,6 +19,7 @@ feature {NONE} -- Initialization
 		do
 			create utils.make
 			create login.make (utils)
+			create logout.make (utils)
 			create mainmenue.make (utils)
 			create chatroom.make (utils)
 			start
@@ -27,18 +28,22 @@ feature {NONE} --Logic
 	start
 	do
 		utils.start
-		from  login.show
+		from
+			utils.currentstate := 3
 		until utils.currentstate = -1
 		loop
 			if utils.currentstate = 0 then
-				print("****You are now logged out ****%N")
-				login.show
+				print("**** LOGOUT ****%N")
+				logout.show
 			elseif utils.currentstate = 1 then
 				print("****MAIN MENUE****")
 				mainmenue.show
 			elseif utils.currentstate = 2 then
 				print("****CHATROOM****")
 				chatroom.show
+			elseif utils.currentstate = 3 then
+				print("**** LOGIN ****%N")
+				login.show
 			end
 		end
 		utils.exit
@@ -48,6 +53,7 @@ feature {NONE} --Fields
 
 	utils:CHAT_UTILS
 	login:LOGIN
+	logout: LOGOUT
 	mainmenue:MAINMENUE
 	chatroom:CHATROOM
 
