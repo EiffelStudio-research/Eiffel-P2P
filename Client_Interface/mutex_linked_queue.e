@@ -49,7 +49,7 @@ feature -- ACCESS
 	do
 		mutex.lock
 			Result:= list.item
-			list.remove -- TODO: is that true ?
+			list.remove 
 		mutex.unlock
 	end
 

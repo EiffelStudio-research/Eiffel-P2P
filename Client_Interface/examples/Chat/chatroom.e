@@ -48,8 +48,10 @@ feature --Screen
 				io.read_line
 				input:=io.last_string
 			end
+		else
+			print(utils.get_error_message + "%N")
 		end
-		
+
 		utils.currentstate := 1
 	end
 
