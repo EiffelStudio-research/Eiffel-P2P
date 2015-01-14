@@ -26,6 +26,12 @@ feature -- Extern
 feature -- Actions
 
 	register(a_name: STRING): BOOLEAN
+	--	Sends a packet to the server indicating to register a user with username a_name.
+	--	It returns whether the registering succeeded or not. What can go wrong:
+	--	server_down : the server did not respond within the timeout
+	--	client_already_registered: there exists already an identical entry in the server database
+	--	client_name_already_used: there exists an entry with the same name but other public IP in the server database
+	--	unknown_error: an error that could not be handled occurred
 		local
 			t_pac: TARGET_PACKET
 			time: TIME
@@ -54,6 +60,11 @@ feature -- Actions
 		end
 
 	unregister(a_name: STRING): BOOLEAN
+	--	Like register. What can go wrong:
+	--	server_down : the server did not respond within the timeout
+	--	client_not_registered: there is no user with a_name in the database
+	--	invalid_unregister_attempt: the IP for a_name in the database did not match with the IP that tried to unregister a_name
+	--	unknown_error: an error that could not be handled occurred	
 		local
 			t_pac: TARGET_PACKET
 			time: TIME
@@ -84,6 +95,13 @@ feature -- Actions
 
 
 	connect(a_peer_name: STRING): BOOLEAN
+	--	Tries to connect to a_peer_name and returns whether the connection was established or not.
+	--	First it queries the server for the public IP/Port of a_peer_name and if that succeeded it goes on with the
+	--	hole punching. What can go wrong:
+	--	server_down : the server did not respond the IP/Port query within the timeout
+	--	client_not_registered: there is no user with a_peer_name in the database
+	--	client_not_responding: no udp_hole_punch message of the other peer was received
+	--	unknown_error: an error that could not be handled occurred
 		local
 			success: BOOLEAN
 		do
@@ -115,6 +133,8 @@ feature -- Actions
 
 
 	send(a_string: STRING)
+	--	After connect succeeded this feature can be used to send a string to the other peer. This is done by putting
+	--	the packet to send into a send_queue from where the UDP_SEND_THREAD takes it out and sends it to the other peer.
 		local
 			send_packet : TARGET_PACKET
 		do
@@ -123,12 +143,13 @@ feature -- Actions
 		end
 
 	receive:STRING
-	--standart return value
+	--	Like receive_blocking:STRING
 	do
 		result:=receive_blocking
 	end
 
 	receive_non_blocking:STRING
+	--	Returns the top of the receive_queue if there is something otherwise returns Void. But never waits (non_blocking)
 		local
 
 		do
@@ -139,6 +160,7 @@ feature -- Actions
 		end
 
 	receive_blocking:STRING
+	--	Waits until there is a string put into the receive_queue by the UDP_RECEIVE_THREAD and then returns the string
 		local
 		do
 			from
@@ -152,6 +174,10 @@ feature -- Actions
 		end
 
 	get_registered_users: BOOLEAN
+	--Asks the server to hand out the currently registered users. Returns whether it succeeded.
+	--If succeeded then the currently registered users can be found in registered_users as ARRAY of STRING. What can go wrong:
+	--server_down : the server did not respond within the timeout
+	--unknown_error: an error that could not be handled occurred	
 		local
 			t_pac: TARGET_PACKET
 			time: TIME
@@ -188,6 +214,7 @@ feature -- Actions
 feature -- Thread control
 
 	start
+	--	This feature launches the UDP_RECEIVE_THREAD and UDP_SEND_THREAD and should therefore be called before any other feature.
 		require
 			manager_is_not_running: manager_terminated
 		do
@@ -205,6 +232,8 @@ feature -- Thread control
 		end
 
 	stop
+	--	Forces UDP_RECEIVE_THREAD, UDP_SEND_THREAD and KEEP_ALIVE_THREAD to finish by setting a finish flag. To ensure the
+	--	application does not freeze a timeout is used.
 		local
 			not_sender_timed_out, not_receiver_timed_out, not_keep_alive_timed_out: BOOLEAN
 			local_address: NETWORK_SOCKET_ADDRESS
@@ -250,6 +279,7 @@ feature -- Thread control
 		end
 
 		manager_terminated: BOOLEAN
+		-- returns whether stop was called
 
 feature {TEST} -- intern
 
@@ -317,6 +347,8 @@ feature {TEST} -- intern
 feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UDP_RECEIVE_THREAD
 
 	parse_packet(packet: PACKET): detachable JSON_OBJECT
+	--	PACKET only provides access character by character. Therefore we loop over the packet and build the
+	--	string that represents the JSON_OBJECT. After that we parse the string to an object.
 	 	local
 	 		i: INTEGER
 			received_string: STRING
@@ -346,6 +378,9 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
 		end
 
  	process(json_object: JSON_OBJECT)
+	--	This method is also used exclusively in UDP_RECEIVE_THREAD after having successfully called parse_packet.
+	--	Likewise on the server side we first look at the type of the packet. According to the type a corresponding
+	--	handler is called.
  		local
  			key: JSON_STRING
  			value: detachable JSON_VALUE
@@ -354,7 +389,6 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
 
  			type: INTEGER_64
 
- 			i:INTEGER
  		do
  			create key.make_from_string ({UTILS}.message_type_key)
 			create data_key.make_from_string ({UTILS}.data_key)
@@ -530,7 +564,7 @@ feature {NONE} --  handlers
 
 
 
-feature -- public error types
+feature -- public error types. The following fields tell the type of error that occurred after having called the corresponding feature from above
 	register_error_type: INTEGER_64
 	unregister_error_type: INTEGER_64
 	connect_error_type: INTEGER_64

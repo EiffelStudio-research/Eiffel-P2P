@@ -99,23 +99,112 @@ don't know when a rule won't be used anymore. Therefore they have Idle Time-outs
 which the rule is deleted. To avoid this both endpoints have to send so called keep-alive
 packets to each other periodically.
 
-
-3. Contents
------------
-
---Explain QUeues
---Explain NATS???
-
-4. Requirements
+3. Requirements
 ---------------
 First there are needed two clients and one server which is running on public IP/port.
-Both the Rendezvous_Server and the Client_Interface make use of the Eiffel net, thread
-and time library. Furthermore for running multiple threads the Concurrency mode of
-the project must be set to EiffelThread in the project settings (or in the .ecf file).
+Both the Rendezvous_Server and the Client_Interface make use of the Eiffel net library.
+Furthermore the Client_Interface uses the Eiffel thread and time library.
+For running multiple threads the Concurrency mode of the Client_Interface project
+must be set to EiffelThread in the project settings (or in the .ecf file).
 Additionally the project must use a multithreaded precompiled library. This
 can also be changed in the project settings by setting the Location of the precompiled
 library to $ISE_PRECOMP\base-mt-safe.ecf or by setting the following entry in the .ecf file:
 <precompile name="base_pre" location="$ISE_PRECOMP\base-mt-safe.ecf"/>
+
+As format of the UDP packets JSON was chosen. Therefore the ejson library from
+https://github.com/eiffelhub/json was integrated and used in a separate cluster.
+The format of the different packets can be found in a separate file called Json_Client.txt
+
+
+4. Contents
+-----------
+Classes of Rendezvous_Server:
+
+	APPLICATION:		This is the root class. The server listens in an endless loop for incoming packets. When a packet
+						arrives it parses it to a JSON_OBJECT, detects the message type and passes the JSON_OBJECT to 
+						the corresponding handler.
+	
+	CLIENT_DATABASE:	This class provides an interface for the APPLICATION class. It is client of HASH_TABLE[NETWORK_SOCKET_ADDRESS, STRING]
+						which is the implementation of the database. The different features are the interface to this
+						HASH_TABLE where the public IP/Port for each user are stored.
+	
+	UTILS:				This static class provides the constant that are necessary for the p2p protocol to run. Therefore a lot must be 
+						equal to the UTILS class of the Client_Interface. For example the error_type constants.
+						
+Classes of Client_Interface:
+
+	TEST:				When set as root class TEST was and can be used to test the Client_Interface. It is not necessary for
+						the Client_Interface to run.
+	
+	CONNECTION_MANAGER:	This class is the interface for a project using Client_Interface. The following features can be used:
+	
+						register(a_name: STRING): BOOLEAN		
+								Sends a packet to the server indicating to register a user with username a_name.
+								It returns whether the registering succeeded or not. What can go wrong:
+								server_down : the server did not respond within the timeout
+								client_already_registered: there exists already an identical entry in the server database
+								client_name_already_used: there exists an entry with the same name but other public IP in the server database
+								unknown_error: an error that could not be handled occurred
+						unregister(a_name: STRING): BOOLEAN
+								Like register. What can go wrong:
+								server_down : the server did not respond within the timeout
+								client_not_registered: there is no user with a_name in the database
+								invalid_unregister_attempt: the IP for a_name in the database did not match with the IP that tried to unregister a_name
+								unknown_error: an error that could not be handled occurred	
+						get_registered_users: BOOLEAN
+								Asks the server to hand out the currently registered users. Returns whether it succeeded.
+								If succeeded then the currently registered users can be found in registered_users as ARRAY of STRING. What can go wrong:
+								server_down : the server did not respond within the timeout
+								unknown_error: an error that could not be handled occurred	
+						connect(a_peer_name: STRING): BOOLEAN
+								Tries to connect to a_peer_name and returns whether the connection was established or not.
+								First it queries the server for the public IP/Port of a_peer_name and if that succeeded it goes on with the 
+								hole punching. What can go wrong:
+								server_down : the server did not respond the IP/Port query within the timeout
+								client_not_registered: there is no user with a_peer_name in the database
+								client_not_responding: no udp_hole_punch message of the other peer was received
+								unknown_error: an error that could not be handled occurred	
+						start
+								This feature launches the UDP_RECEIVE_THREAD and UDP_SEND_THREAD and should therefore be called before any other feature.
+						stop
+								Forces UDP_RECEIVE_THREAD, UDP_SEND_THREAD and KEEP_ALIVE_THREAD to finish by setting a finish flag. To ensure the 
+								application does not freeze a timeout is used.
+						send(a_string: STRING)
+								After connect succeeded this feature can be used to send a string to the other peer. This is done by putting
+								the packet to send into a send_queue from where the UDP_SEND_THREAD takes it out and sends it to the other peer.
+						receive_blocking:STRING
+								Waits until there is a string put into the receive_queue by the UDP_RECEIVE_THREAD and then returns the string
+						receive:STRING
+								Like receive_blocking:STRING
+						receive_non_blocking:STRING
+								Returns the top of the receive_queue if there is something otherwise returns Void. But never waits (non_blocking)
+						manager_terminated: BOOLEAN
+								Returns whether stop was called.
+								
+						The following fields tell the type of error that occurred after having called the corresponding feature from above
+						
+						register_error_type: INTEGER_64
+						unregister_error_type: INTEGER_64
+						connect_error_type: INTEGER_64
+						registered_users_error_type: INTEGER_64	
+						
+						The following features are not public and should not be accessed
+						
+						parse_packet(packet: PACKET): detachable JSON_OBJECT
+								PACKET only provides access character by character. Therefore we loop over the packet and build the 
+								string that represents the JSON_OBJECT. After that we parse the string to an object.
+								This method is exclusively used in UDP_RECEIVE_THREAD after having received a packet.
+						process(json_object: JSON_OBJECT)	
+								This method is also used exclusively in UDP_RECEIVE_THREAD after having successfully called parse_packet.
+								Likewise on the server side we first look at the type of the packet. According to the type a corresponding
+								handler is called.
+
+	TARGET_PACKET:		This class is basically a PACKET with an additional field peer_address which is used by the UDP_SENDER_THREAD
+						so that it knows who to send the message to. Furthermore it has some helper features that ease the creation of a packet
+						such as fill. For every message_type there exists an appropriate creation feature so that in the CONNECTION_MANAGER
+						only create packet.make_register_packet("Anna"); send_queue.extend(packet) has to be called.
+	
+	MUTEX_LINKED_QUEUE:	
 
 
 
@@ -124,7 +213,7 @@ library to $ISE_PRECOMP\base-mt-safe.ecf or by setting the following entry in th
 --refer to 2, but using the concrete function name
 
 6. Example
----------------------
+----------
 For better understanding there is an implementation of a peer-to-peer chat which can be
 found in eiffel-p2p/Client_Interface/examples
 
@@ -134,5 +223,7 @@ found in eiffel-p2p/Client_Interface/examples
 --safety SSH
 --tcp connection
 
-TODO: Send stuff to Jocelyn
+8. Sources
+----------
+
 
