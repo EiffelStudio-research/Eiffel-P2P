@@ -80,7 +80,7 @@ feature -- connection
 			when {UTILS}.client_already_registered then
 				RESULT := " you are already registered"
 			when {UTILS}.client_not_registered then
-				RESULT := " the client you wanted to connect to is not registered"
+				RESULT := " the client you chose to connect to is not registered"
 			when {UTILS}.client_name_already_used then
 				RESULT := " there is already another client with the same name. Please choose another username"
 			when {UTILS}.client_not_responding then
@@ -95,6 +95,7 @@ feature -- connection
 	get_users: BOOLEAN
 		do
 			RESULT := conn_manager.get_registered_users
+			error_type := conn_manager.registered_users_error_type
 		end
 
 	users: ARRAY[STRING]

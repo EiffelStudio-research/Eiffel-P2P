@@ -33,16 +33,12 @@ feature --Screen
 				io.put_new_line
 				io.put_string ("*********************")
 				io.put_new_line
-				io.put_string(utils.playerName + " says: ")
-				io.new_line
 				io.read_line
 				input:=io.last_string
 			until
 				input.starts_with (":exit")
 			loop
-				io.new_line
-				--input.prepend (utils.playerName + " says: ")
-				--io.put_string (input)
+				input.prepend (utils.playerName + " says: ")
 				send(input)
 				io.new_line
 				io.read_line

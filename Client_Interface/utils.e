@@ -27,8 +27,8 @@ feature --Timeouts
 	thread_join_timeout: NATURAL = 10000
 	-- time we let each thread after setting the termination flag until it terminates in ms
 
-	connecting_timeout: INTEGER_32 = 10
-	-- time hole punching is active in seconds
+	connecting_timeout: INTEGER_32 = 20
+	-- time hole punching is active in seconds (time we let two clients connect)
 
 	server_timeout: INTEGER_32 = 6
 	-- time we maximal wait for a  answer of the sewrver in seconds
