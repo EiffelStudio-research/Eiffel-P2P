@@ -24,7 +24,7 @@ can assign arbitrary private ip-addresses to it.
 The avoiding technique used for NAT in this project is UDP Hole Punching and will be explained
 later in this document.
 
-This project is a interface that enables two clients to connect through a Rendezvous-Server.
+This project is an interface written in Eiffel that enables two clients to connect through a Rendezvous-Server.
 With this tool it is possible to establish a UDP connection between two clients.
 As a result the clients are able to send strings to each other.
 
@@ -37,7 +37,7 @@ a) Rendezvous-Server
 b) Client-Interface
 
 a)
-The Rendezvous server is in charge to store the public ip, port and username of a specific user.
+The Rendezvous server is in charge to store the public IP, port and username of a specific user.
 He always provides,a function to get a list of all users which are in the database of the server, as well 
 as a lookup function to get the IP address and Port of a specific user.
 The Rendezvous Server must be deployed in the public internet meaning it must have a well known 
@@ -70,52 +70,67 @@ Client_2:	194.18.15.51/61442
 The Server has now public IP,PORT,User_name of Client_1 and Client_2 in its database.
 Therefore Client_1 can now ask for the userlist of the Rendezvous-Server, this will give him back 
 amongst others the username of the Client_2.
-With this username he can now ask the server for the public Ip-address and port of Client_2.
+With this username he can now ask the server for the public IP-address and port of Client_2.
 So Client_1 has now IP,Port, username of client_2.
 Ans vice versa, Client_2 can do the same for Client_1.
 									
 
 In a second stage, the Client_1 and Client_2 connect to each other using UDP_HolePunch.
 This works the like the following:
-Now that both endpoints have public ip/port of the other they start sending UDP Packets
+Now that both endpoints have public IP/port of the other they start sending UDP Packets
 to each other. They must both send because another issue of NAT devices is that they
 often won't let a packet pass from the internet to the private network without having 
-seen an outgoing packet with the same ip/port before. When a NAT device sees a packet
+seen an outgoing packet with the same IP/port before. When a NAT device sees a packet
 going out to the internet it creates a rule. This means it remembers the mapping
-(in the Translation Table) and also the source and destination ip/port. By sending out
+(in the Translation Table) and also the source and destination IP/port. By sending out
 a UDP packet we "punch a hole" in the NAT device such that packets from the other
 peer can come in. Therefore the name UDP Hole Punch
 
 Finally if both peers have received a UDP packet from the other one they are connected.
-		   _______
-		  |Rendez |
-		  |Server |
-		  |_______|
+		   ___________
+		  |Rendezvous |
+		  |  Server   |
+		  |___________|
 	   
 Client_1 <--------> Client_2
+
+In UDP there is no explicit connection teardown like in TCP. So the NAT's generally
+don't know when a rule won't be used anymore. Therefore they have Idle Time-outs after
+which the rule is deleted. To avoid this both endpoints have to send so called keep-alive
+packets to each other periodically.
 
 
 3. Contents
 -----------
 
 --Explain QUeues
---Explain Keep alive
---Explain UDP_HOLEPUNCH
 --Explain NATS???
 
 4. Requirements
 ---------------
--two clients
--one server which is online somewhere in the INTERNET
+First there are needed two clients and one server which is running on public IP/port.
+Both the Rendezvous_Server and the Client_Interface make use of the Eiffel net, thread
+and time library. Furthermore for running multiple threads the Concurrency mode of
+the project must be set to EiffelThread in the project settings (or in the .ecf file).
+Additionally the project must use a multithreaded precompiled library. This
+can also be changed in the project settings by setting the Location of the precompiled
+library to $ISE_PRECOMP\base-mt-safe.ecf or by setting the following entry in the .ecf file:
+<precompile name="base_pre" location="$ISE_PRECOMP\base-mt-safe.ecf"/>
+
+
 
 5. Step-by-Step Guide
 ---------------------
 --refer to 2, but using the concrete function name
 
+6. Example
+---------------------
+For better understanding there is an implementation of a peer-to-peer chat which can be
+found in eiffel-p2p/Client_Interface/examples
 
-6. Future trends
+7. Future trends
 ----------------
 
---saefty SSH
+--safety SSH
 --tcp connection
 
