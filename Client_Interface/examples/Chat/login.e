@@ -34,6 +34,11 @@ feature --Screen
 		login_success := loginserver (input)
 		if login_success then
 			utils.currentState := 1
+		else
+			print(utils.get_error_message + "%N")
+			if utils.error_type = {UTILS}.client_already_registered then -- we are already registered
+				utils.currentstate := 1
+			end
 		end
 
 	end
