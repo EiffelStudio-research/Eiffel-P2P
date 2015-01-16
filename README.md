@@ -231,6 +231,7 @@ Classes of Client_Interface:
 5. Step-by-Step Guide
 ---------------------
 1) As a first step you need to download the resources from our bitbucket side:
+
 	Using git: git clone git@bitbucket.org:peyers/eiffel-p2p.git
 There are two folders: "Client_Interface" and "Rendezvous_Server"
 
@@ -250,6 +251,7 @@ The Client Interface should now appear in your project structure.
 
 3.1) Setting up UTILS.e
 Open UTILS.e which will be found in the root of Client_Interface.
+
 	There change "server_ip" to your server ip from step (2).
 
 If you need you can change the timeouts, intervals or the maximum_packet size.
@@ -259,6 +261,7 @@ Now save the project.
 
 3.2) Initialize connection
 In your project you first have to initialize an object of type CONNECTION_MANAGER(see (4) for more details).
+
 	local
 		man:CONNECTION_MANAGER
 		...
@@ -268,21 +271,29 @@ In your project you first have to initialize an object of type CONNECTION_MANAGE
 		...
 
 Now initialy you have to register yourself on the server, with a ID. (The Server will link this ID to your computer)
+
 	success := man.register(id)
+
 This function returns a boolean success. If success is true, then the connection is estblished.
 Now your successfully connected to the server
 
 3.3) Find another client
 To connect to an other client you have to get the peer's ID on the server.
 You can get a list of all logged in clients with this feature:
+
 	success := get_registered_users
+
 If success is true then you'll find the registeres users in:
+
 	array := registered_users	
+
 Choose the client a_peer to connect to from the array list.
 
 3.4) Connect to another client
 Assuming you want to connect to a_peer choosed in 3.3), you have to enter:
+
 	success := man.connect(a_peer)
+
 If connect returns true, then you are successfully connected to the remote client.
 
 IMPORTANT: The client on the other side, has to do this quite at the same time (10 sec), in order to successfuly connect to each other.
@@ -290,8 +301,11 @@ This is because of the UDP_hole Punch. This is left to the USER to garantue this
 
 3.5) Sending/Receiving stuff
 Now you're able to send stuff through the internet. To send stuff use:
+
 	man.send(a:STRING)
+
 You may call the Receive function in a seperate Thread. For Receive:
+
 	a_String := man.receive			// Equal to a_String := man.receive_blocking
 	a_String := man.receive_non_blocking	// Is non blocking, if there is nothing to receive it returns Void
 	a_String := man.receive_blocking	// BLocking, blocks until it can return the latest value.
