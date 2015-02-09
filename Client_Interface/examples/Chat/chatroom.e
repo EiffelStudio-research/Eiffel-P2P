@@ -6,62 +6,64 @@ note
 
 class
 	CHATROOM
+
 create
 	make
 
-feature --Make clausel
-	make(aUtils: CHAT_UTILS)
+feature -- Initialization
 
-	do
-		utils := aUtils
-	end
-
-feature --Screen
-	show
-	local
-		input:STRING
-		receiver: CHAT_RECEIVE_THREAD
-	do
-		showIntro
-		print_users
-		if connect then
-			from
-				create receiver.make_with_utils (utils)
-				receiver.launch
-
-				io.put_string ("Enter a Text to chat, if you want exit enter :exit")
-				io.put_new_line
-				io.put_string ("*********************")
-				io.put_new_line
-				io.read_line
-				input:=io.last_string
-			until
-				input.starts_with (":exit")
-			loop
-				input.prepend (utils.playerName + " says: ")
-				send(input)
-				io.new_line
-				io.read_line
-				input:=io.last_string
-			end
-		else
-			print(utils.get_error_message + "%N")
+	make (a_chat: CHAT_CLIENT)
+		do
+			chat := a_chat
 		end
 
-		utils.currentstate := 1
-	end
+feature -- Screen
+
+	show
+		local
+			input: STRING
+			receiver: CHAT_RECEIVE_THREAD
+		do
+			show_intro
+			print_users
+			if connect then
+				from
+					create receiver.make_with_chat (chat)
+					receiver.launch
+
+					io.put_string ("Enter a Text to chat, if you want exit enter :exit")
+					io.put_new_line
+					io.put_string ("*********************")
+					io.put_new_line
+					io.read_line
+					input := io.last_string
+				until
+					input.starts_with (":exit")
+				loop
+					input.prepend (chat.playerName + " says: ")
+					send(input)
+					io.new_line
+					io.read_line
+					input := io.last_string
+				end
+			else
+				print(chat.get_error_message + "%N")
+			end
+
+			chat.currentstate := 1
+		end
 
 	print_users
 		do
-			if utils.get_users then
+			if chat.get_users then
 				print("Registered users: |")
-				across utils.users as user
+				across chat.users as user
 				loop
 					print(" " + user.item + " |" )
 				end
 				print("%N")
 			else
-				print(utils.get_error_message  + "%N")
+				print(chat.get_error_message  + "%N")
 			end
 		end
 
@@ -72,31 +74,33 @@ feature --Screen
 			io.put_string ("Enter the name of the peer you want to chat with: ")
 			io.read_line
 			remote_name := io.last_string
-			utils.set_peer_name (remote_name)
+			chat.set_peer_name (remote_name)
 			io.put_new_line
-			RESULT := utils.connect (remote_name)
+			Result := chat.connect (remote_name)
 		end
 
-	showIntro
-	do
-		io.put_new_line
-		io.put_string ("*********************")
-		io.put_new_line
-		io.put_string ("You are logged in as: " + utils.playerName)
-		io.put_new_line
+	show_intro
+		do
+			io.put_new_line
+			io.put_string ("*********************")
+			io.put_new_line
+			io.put_string ("You are logged in as: " + chat.playerName)
+			io.put_new_line
 
-	end
+		end
 
 feature --Implementation
 
-	send(aText:STRING)
-	do
-		utils.send (aText)
-	end
+	send (a_text: STRING)
+		do
+			chat.send (a_text)
+		end
 
-feature {NONE} --UTILS
-	utils:CHAT_UTILS
+feature {NONE} -- Implementation
+
+	chat: CHAT_CLIENT
 
 invariant
-	utils_not_void: not (utils = void)
+	chat_not_void: not (chat = void)
+
 end

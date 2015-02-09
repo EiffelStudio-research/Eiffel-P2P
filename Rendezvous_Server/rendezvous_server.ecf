@@ -1,20 +1,20 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+﻿<?xml version="1.0" encoding="ISO-8859-1"?>
 <system xmlns="http://www.eiffel.com/developers/xml/configuration-1-13-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-13-0 http://www.eiffel.com/developers/xml/configuration-1-13-0.xsd" name="rendezvous_server" uuid="D1DD7C12-31BD-4E9B-BF62-8B4A575EF826">
 	<target name="rendezvous_server">
-		<root class="APPLICATION" feature="make"/>
+		<root class="P2P_RENDEZVOUS_SERVER" feature="make"/>
+		<file_rule>
+			<exclude>/EIFGENs$</exclude>
+			<exclude>/CVS$</exclude>
+			<exclude>/.svn$</exclude>
+		</file_rule>
 		<option warning="true">
 			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
 		</option>
 		<setting name="console_application" value="true"/>
-		<precompile name="base_pre" location="$ISE_PRECOMP\base-safe.ecf"/>
 		<library name="base" location="$ISE_LIBRARY\library\base\base-safe.ecf"/>
+		<library name="json" location="$ISE_LIBRARY\contrib\library\text\parser\json\library\json-safe.ecf"/>
 		<library name="net" location="$ISE_LIBRARY\library\net\net-safe.ecf"/>
-		<cluster name="rendezvous_server" location=".\" recursive="true">
-			<file_rule>
-				<exclude>/EIFGENs$</exclude>
-				<exclude>/CVS$</exclude>
-				<exclude>/.svn$</exclude>
-			</file_rule>
-		</cluster>
+		<cluster name="common" location="..\common\" recursive="true"/>
+		<cluster name="rendezvous_server" location=".\" recursive="true"/>
 	</target>
 </system>

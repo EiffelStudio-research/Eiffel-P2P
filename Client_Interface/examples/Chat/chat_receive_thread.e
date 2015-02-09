@@ -11,38 +11,35 @@ inherit
 	THREAD
 
 create
-	make_with_utils
+	make_with_chat
 
-feature --Make clausel
-	make_with_utils(aUtils: CHAT_UTILS)
+feature -- Initialization
 
-	do
-		make -- create thread
-		utils := aUtils
-	end
+	make_with_chat (a_chat: CHAT_CLIENT)
+
+		do
+			make -- create thread
+			chat := a_chat
+		end
 
 feature --Execute
 
 	execute
-		local
-			peer_message: STRING
 		do
 			from
-
 			until
-				utils.conn_manager.manager_terminated
+				chat.conn_manager.manager_terminated
 			loop
-				peer_message := utils.conn_manager.receive_blocking
-				if attached peer_message as message then
-					io.putstring (peer_message)
+				if attached chat.conn_manager.receive_blocking as message then
+					io.put_string (message)
 					print("%N%N")
 				end
 			end
 			print("chat_receive_thread finished %N")
 		end
 
+feature {NONE} -- Implementation
 
+	chat: CHAT_CLIENT
 
-feature {NONE} --UTILS
-	utils:CHAT_UTILS
 end

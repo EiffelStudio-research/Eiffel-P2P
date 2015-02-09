@@ -236,9 +236,9 @@ Classes of Client_Interface:
 There are two folders: "Client_Interface" and "Rendezvous_Server"
 
 2) Setting up the Server:
-It's important to make shure that the server is available from everywhere you want to acces it.
-If you want to access the server from the internet, but you install the Server in your LAN, you may have to change some stuff in the Router.
-So make shure that your server is avaiable.
+It's important to make sure that the server is available from everywhere you want to acces it.
+If you want to access the server from the internet, but you install the Server in your LAN, you may have to configure your router.
+So make sure that your server is available.
 	
 	Open the Project "Rendezvous_Server" in Eiffel Studio, you may finalize and run the project.
 Now it's important to get the Server's IP, this can either be done by terminal ("ipconfig" windows, "ifconfig" linux) or if you using a cloud server, then the provider should give you the address.
