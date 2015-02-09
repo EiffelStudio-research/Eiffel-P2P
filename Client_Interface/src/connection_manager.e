@@ -384,7 +384,6 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
 	 		i: INTEGER
 			received_string: STRING
 			json_parser:JSON_PARSER
-			json_object:detachable JSON_OBJECT
 	 	do
 			Result:= Void
 				--Parse packet to string
@@ -400,9 +399,8 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
 					create json_parser.make_with_string (received_string)
 					json_parser.parse_content
 
-					if json_parser.is_parsed then
-						json_object := json_parser.parsed_json_object
-						Result:= json_object
+					if json_parser.is_valid then
+						Result:= json_parser.parsed_json_object
 					end
 				end
 			end
@@ -413,17 +411,9 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
 			--	Likewise on the server side we first look at the type of the packet. According to the type a corresponding
 			--	handler is called.
  		local
- 			key: JSON_STRING
- 			value: detachable JSON_VALUE
- 			data_key: JSON_STRING
-
  			type: INTEGER_64
-
  		do
- 			create key.make_from_string ({P2P_PROTOCOL_CONSTANTS}.message_type_key)
-			create data_key.make_from_string ({P2P_PROTOCOL_CONSTANTS}.data_key)
- 			value := json_object.item (key)
- 			if attached {JSON_NUMBER} value as type_number then
+ 			if attached {JSON_NUMBER} json_object.item ({P2P_PROTOCOL_CONSTANTS}.message_type_key) as type_number then
  				type := type_number.integer_64_item
  			 	output ("message is of type: " + type.out + " which means ")
 
@@ -445,7 +435,7 @@ feature {UDP_RECEIVE_THREAD} -- packet / message parsing exlusively called in UD
 
 				when {P2P_PROTOCOL_CONSTANTS}.application_message then
 					output ("application message string %N")
-					if attached json_object.item (data_key) as data then
+					if attached json_object.item ({P2P_PROTOCOL_CONSTANTS}.data_key) as data then
 						receive_queue.force (data.representation.substring (2,data.representation.count - 1))
 					else
 						-- FIXME: check void-safety here !

@@ -111,6 +111,7 @@ feature {NONE} -- Logic
 
 	start
 		do
+			print ("Local port: " + chat_client.local_port.out + "%N")
 			chat_client.start
 			from
 				chat_client.currentstate := 3

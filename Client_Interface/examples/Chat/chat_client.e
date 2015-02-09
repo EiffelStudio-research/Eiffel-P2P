@@ -7,6 +7,9 @@ note
 class
 	CHAT_CLIENT
 
+inherit
+	P2P_CLIENT_ACCESS
+
 create
 	make
 
@@ -16,6 +19,7 @@ feature -- make
 		do
 			p2p_setup := a_p2p_setup
 			create conn_manager.make (p2p_setup)
+			local_port := conn_manager.local_port
 			playerName := ""
 		end
 
@@ -23,6 +27,9 @@ feature -- make
 			-- Setup related to P2P connection.
 
 feature -- Data
+
+	local_port: INTEGER
+			-- Local port.
 
 	serverIP: STRING
 		once

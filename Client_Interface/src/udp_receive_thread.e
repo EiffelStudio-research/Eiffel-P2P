@@ -48,14 +48,12 @@ feature --Execute
 			socket_not_void: socket /= Void
 		local
 			pac: PACKET
-			receive_json : detachable JSON_OBJECT
 		do
 			if attached socket as soc then
 				pac :=  soc.received ({P2P_SETUP}.maximum_packet_size, 0)
 				output ({P2P_SETUP}.line_break)
 				output ("Received Packet ")
-				receive_json := connection_manager.parse_packet (pac)
-				if attached receive_json as json then
+				if attached connection_manager.parse_packet (pac) as json then
 					connection_manager.process (json)
 				end
 			end
