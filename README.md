@@ -11,7 +11,7 @@ date: "2015-jan-14"
 NAT stands for Network Address Translation was introduced to solve the problem of the
 internet running out of addresses. It can for example be implemented on a router in
 a home network. The router has a public ip-address, lets assume 190.52.187.2. Now it 
-can assign new (private )ip-addresses to devices in it's network.  Assume a laptop gets assigned
+can assign new (private )ip-addresses to devices in its network.  Assume a laptop gets assigned
 10.0.0.1. When the laptop sends a packet from port 4111 out of the home network the 
 router replaces the source address and source port (10.0.0.1/4111) with it's public ip
 and a new port e.g (190.52.187.2/60344) it remembers this mapping (10.0.0.1/4111 -> 190.52.187.2/60344)
@@ -39,14 +39,14 @@ b) Client-Interface
 
 a)
 The Rendezvous server is in charge to store the public IP, port and username of a specific user.
-He always provides,a function to get a list of all users which are in the database of the server, as well 
-as a lookup function to get the IP address and Port of a specific user.
+It always provides, a function to get a list of all users which are in the database of the server, as well 
+as a lookup function to get the IP address and Port for a specific user.
 The Rendezvous Server must be deployed in the public internet meaning it must have a well known 
 public ip and a port and must be accessible on that.
 
 b)
 The Client is interested to establish a connection to another Client.
-In this example Client_1 tries to connect to CLient_2.
+In this example Client_1 tries to connect to Client_2.
 We assume such a connection:
 
 (private: 193.0.0.2/40001) 		(public: 188.4.51.191)		(public	201.2.68.74/8888)		(public: 194.18.15.51)		(private: 10.0.0.1/40001)
@@ -55,26 +55,25 @@ We assume such a connection:
 								
 								NAT_1 Translation Table				 Database				NAT_2 Translation Table
 
-In a first stage, the Client_1 and CLient_2 will register themselves to the Rendezvous server.
-After registering the entries of the tables and the database look the following
+In a first stage, the Client_1 and Client_2 will register themselves to the Rendezvous server.
+After registering the entries of the tables and the database looks as following
 
-NAT_1 Translation Table:						
-193.0.0.2/40001	<-> 188.4.51.191/ 50057	
-
-NAT_2 Translation Table
-10.0.0.1/40001 <-> 194.18.15.51/61442
-
-Database:
-Client_1:	188.4.51.191/ 50057	
-Client_2:	194.18.15.51/61442
+	NAT_1 Translation Table:						
+	193.0.0.2/40001	<-> 188.4.51.191/ 50057	
+	
+	NAT_2 Translation Table
+	10.0.0.1/40001 <-> 194.18.15.51/61442
+	
+	Database:
+	Client_1:	188.4.51.191/ 50057	
+	Client_2:	194.18.15.51/61442
 
 The Server has now public IP,PORT,User_name of Client_1 and Client_2 in its database.
 Therefore Client_1 can now ask for the userlist of the Rendezvous-Server, this will give him back 
 amongst others the username of the Client_2.
 With this username he can now ask the server for the public IP-address and port of Client_2.
 So Client_1 has now IP,Port, username of client_2.
-Ans vice versa, Client_2 can do the same for Client_1.
-									
+And vice versa, Client_2 can do the same for Client_1.									
 
 In a second stage, the Client_1 and Client_2 connect to each other using UDP_HolePunch.
 This works the like the following:
@@ -93,7 +92,7 @@ Finally if both peers have received a UDP packet from the other one they are con
 		  |  Server   |
 		  |___________|
 	   
-Client_1 <--------> Client_2
+	Client_1 <--------> Client_2
 
 In UDP there is no explicit connection teardown like in TCP. So the NAT's generally
 don't know when a rule won't be used anymore. Therefore they have Idle Time-outs after
@@ -232,27 +231,29 @@ Classes of Client_Interface:
 ---------------------
 1) As a first step you need to download the resources from our bitbucket side:
 
-	Using git: git clone git@bitbucket.org:peyers/eiffel-p2p.git
+Using git: git clone git@bitbucket.org:peyers/eiffel-p2p.git
 There are two folders: "Client_Interface" and "Rendezvous_Server"
 
 2) Setting up the Server:
+
 It's important to make sure that the server is available from everywhere you want to acces it.
 If you want to access the server from the internet, but you install the Server in your LAN, you may have to configure your router.
 So make sure that your server is available.
-	
-	Open the Project "Rendezvous_Server" in Eiffel Studio, you may finalize and run the project.
+  
+Open the Project "Rendezvous_Server" in Eiffel Studio, you may finalize and run the project.
 Now it's important to get the Server's IP, this can either be done by terminal ("ipconfig" windows, "ifconfig" linux) or if you using a cloud server, then the provider should give you the address.
 
 3) Setting up the Client:
+
 I assume that you will use this Interface in a program.
 As a first step, you have to copy the Client_Interface folder into the root of your eiffel project.
 Then restart Eiffel, clean and compile your project.
 The Client Interface should now appear in your project structure.
 
 3.1) Setting up UTILS.e
-Open UTILS.e which will be found in the root of Client_Interface.
 
-	There change "server_ip" to your server ip from step (2).
+Open UTILS.e which will be found in the root of Client_Interface.
+There change "server_ip" to your server ip from step (2).
 
 If you need you can change the timeouts, intervals or the maximum_packet size.
 This will depend on the use of your program.
@@ -260,24 +261,26 @@ This will depend on the use of your program.
 Now save the project.
 
 3.2) Initialize connection
+
 In your project you first have to initialize an object of type CONNECTION_MANAGER(see (4) for more details).
 
 	local
-		man:CONNECTION_MANAGER
+		man: CONNECTION_MANAGER
 		...
 	do
 		...	
 		create man.make
 		...
 
-Now initialy you have to register yourself on the server, with a ID. (The Server will link this ID to your computer)
+Now initially you have to register yourself on the server, with a ID. (The Server will link this ID to your computer)
 
 	success := man.register(id)
 
-This function returns a boolean success. If success is true, then the connection is estblished.
-Now your successfully connected to the server
+This function returns a boolean success. If success is true, then the connection is established.
+Now you are successfully connected to the server
 
 3.3) Find another client
+
 To connect to an other client you have to get the peer's ID on the server.
 You can get a list of all logged in clients with this feature:
 
@@ -290,6 +293,7 @@ If success is true then you'll find the registeres users in:
 Choose the client a_peer to connect to from the array list.
 
 3.4) Connect to another client
+
 Assuming you want to connect to a_peer choosed in 3.3), you have to enter:
 
 	success := man.connect(a_peer)
@@ -297,23 +301,25 @@ Assuming you want to connect to a_peer choosed in 3.3), you have to enter:
 If connect returns true, then you are successfully connected to the remote client.
 
 IMPORTANT: The client on the other side, has to do this quite at the same time (10 sec), in order to successfuly connect to each other.
-This is because of the UDP_hole Punch. This is left to the USER to garantue this.
+This is because of the UDP_hole Punch. This is left to the USER to garantie this.
 
 3.5) Sending/Receiving stuff
-Now you're able to send stuff through the internet. To send stuff use:
 
-	man.send(a:STRING)
+Now you're able to send data through the internet. To send data use:
 
-You may call the Receive function in a seperate Thread. For Receive:
+	man.send (a:STRING)
 
-	a_String := man.receive			// Equal to a_String := man.receive_blocking
-	a_String := man.receive_non_blocking	// Is non blocking, if there is nothing to receive it returns Void
-	a_String := man.receive_blocking	// BLocking, blocks until it can return the latest value.
+You may call the Receive function in a separate Thread. For Receive:
 
-4) Now you may start the project.
+	a_string := man.receive			// Equal to a_String := man.receive_blocking
+	a_string := man.receive_non_blocking	// Is non blocking, if there is nothing to receive it returns Void
+	a_string := man.receive_blocking	// BLocking, blocks until it can return the latest value.
+
+4) Now you may run the project system.
 
 6. Example
 ----------
+
 For better understanding there is an implementation of a peer-to-peer chat which can be
 found in eiffel-p2p/Client_Interface/examples
 
@@ -338,6 +344,7 @@ Platform: 	The system was tested for Linux and Windows Microsoft but not for Mac
 
 8. Sources
 ----------
+
 http://www.bford.info/pub/net/p2pnat/index.html
 
 

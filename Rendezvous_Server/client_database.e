@@ -19,6 +19,7 @@ feature -- initialization
 	make
 		do
 			create peers.make (30)
+			reset_error
 		end
 
 feature -- access
@@ -26,9 +27,6 @@ feature -- access
 	peer_address (client_name: STRING): detachable NETWORK_SOCKET_ADDRESS
 		do
 			Result := peers [client_name]
-			if	attached Result as address then
-				print("queried ip of " + client_name + " is : " + address.host_address.host_address + ":" + address.port.out + "%N")
-			end
 		end
 
 	is_client_registered (client_name: STRING) : BOOLEAN
@@ -41,50 +39,77 @@ feature -- access
 			Result := peers.count
 		end
 
-	peers:  HASH_TABLE [NETWORK_SOCKET_ADDRESS, STRING]
+	peers: HASH_TABLE [NETWORK_SOCKET_ADDRESS, STRING]
 			-- Peers address by client name.
+
+feature -- Error handling
+
+	reset_error
+			-- Reset error info.
+		do
+			last_error_message := Void
+			last_error_code := {P2P_PROTOCOL_CONSTANTS}.no_error
+		end
+
+	has_error: BOOLEAN
+			-- Has error info.
+			-- i.e: previous operation reported an error,
+			-- For detail, check `last_error_code' and `last_error_message'.
+		do
+			Result := last_error_code /= {P2P_PROTOCOL_CONSTANTS}.no_error
+		end
+
+	report_error (a_code: like last_error_code; m: detachable READABLE_STRING_8)
+			-- Report error with `a_code' and an optional message `m'.
+		require
+			a_code_valid: a_code /= {P2P_PROTOCOL_CONSTANTS}.no_error
+		do
+			last_error_message := m
+			last_error_code := a_code
+		ensure
+			has_error: has_error
+		end
+
+	last_error_message: detachable READABLE_STRING_8
+			-- Last error message if any.
+
+	last_error_code: INTEGER_64
+			-- Last error code, otherwise default `{P2P_PROTOCOL_CONSTANTS}.no_error'.
 
 feature -- Change
 
-	register (client_name: STRING; address: NETWORK_SOCKET_ADDRESS): INTEGER_64
+	register (client_name: STRING; address: NETWORK_SOCKET_ADDRESS)
 		do
-			Result := {P2P_PROTOCOL_CONSTANTS}.unknown_error
+			reset_error
 			if
 				peers.has (client_name) and then
 				attached peers [client_name] as registered_address
 			then
 				if address.is_equal (registered_address) then -- check if registered address equals the new one
-					print(" failed, client already registered")
-					Result := {P2P_PROTOCOL_CONSTANTS}.client_already_registered
+					report_error ({P2P_PROTOCOL_CONSTANTS}.client_already_registered, "failed, client already registered")
 				else
-					print(" failed, username already used")
-					Result := {P2P_PROTOCOL_CONSTANTS}.client_name_already_used
+					report_error ({P2P_PROTOCOL_CONSTANTS}.client_name_already_used, "failed, username already used")
 				end
 			else
 				peers.put (address, client_name)
-				print (" " + address.host_address.host_address + ":" + address.port.out + " succeeded")
-				Result := {P2P_PROTOCOL_CONSTANTS}.no_error
 			end
 		end
 
-	unregister (client_name: STRING; address: NETWORK_SOCKET_ADDRESS) : INTEGER_64
+	unregister (client_name: STRING; address: NETWORK_SOCKET_ADDRESS)
 		do
-			Result := {P2P_PROTOCOL_CONSTANTS}.unknown_error
+			reset_error
 			if
 				peers.has (client_name) and then
 				attached peers [client_name] as registered_address
 			then
-				if address.is_equal (registered_address) then -- check if registered address equals the new one
-					print(" success, name and ip match")
+				if address.is_equal (registered_address) then
+						-- check if registered address equals the new one
 					peers.remove (client_name)
-					Result := {P2P_PROTOCOL_CONSTANTS}.no_error
 				else
-					print(" failed, invalid unregister attempt (name and ip did not match)")
-					Result := {P2P_PROTOCOL_CONSTANTS}.invalid_unregister_attempt
+					report_error ({P2P_PROTOCOL_CONSTANTS}.invalid_unregister_attempt, "failed, invalid unregister attempt (name and ip did not match)")
 				end
 			else
-				print(" failed, no such registered user")
-				Result := {P2P_PROTOCOL_CONSTANTS}.client_not_registered
+				report_error ({P2P_PROTOCOL_CONSTANTS}.client_not_registered, "failed, no such registered user")
 			end
 		end
 
