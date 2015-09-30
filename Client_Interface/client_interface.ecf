@@ -1,38 +1,21 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-13-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-13-0 http://www.eiffel.com/developers/xml/configuration-1-13-0.xsd" name="client_interface" uuid="7494E9AE-5555-4CC4-88FA-A892AC2AE530">
-	<target name="client_interface">
-		<root class="APPLICATION" feature="make"/>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-13-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-13-0 http://www.eiffel.com/developers/xml/configuration-1-13-0.xsd" name="p2p_client" uuid="7494E9AE-5555-4CC4-88FA-A892AC2AE530" library_target="p2p_client">
+	<target name="p2p_client">
+		<root all_classes="true"/>
+		<file_rule>
+			<exclude>/EIFGENs$</exclude>
+			<exclude>/CVS$</exclude>
+			<exclude>/.svn$</exclude>
+		</file_rule>
 		<option warning="true">
 			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
 		</option>
-		<setting name="console_application" value="true"/>
-		<setting name="concurrency" value="thread"/>
-		<precompile name="base_pre" location="$ISE_PRECOMP\base-mt-safe.ecf"/>
 		<library name="base" location="$ISE_LIBRARY\library\base\base-safe.ecf"/>
-		<library name="base_extension-tests" location="$ISE_LIBRARY\library\base_extension\tests\tests.ecf"/>
+		<library name="json" location="$ISE_LIBRARY\contrib\library\text\parser\json\library\json-safe.ecf"/>
 		<library name="net" location="$ISE_LIBRARY\library\net\net-safe.ecf"/>
 		<library name="thread" location="$ISE_LIBRARY\library\thread\thread-safe.ecf"/>
 		<library name="time" location="$ISE_LIBRARY\library\time\time-safe.ecf"/>
-		<cluster name="client_interface" location=".\" recursive="true">
-			<option void_safety="none">
-			</option>
-			<file_rule>
-				<exclude>/EIFGENs$</exclude>
-				<exclude>/CVS$</exclude>
-				<exclude>/.svn$</exclude>
-			</file_rule>
-			<file_rule>
-				<exclude>^library$</exclude>
-			</file_rule>
-			<file_rule>
-				<exclude>^examples$</exclude>
-			</file_rule>
-			<file_rule>
-				<exclude>^examples$</exclude>
-			</file_rule>
-			<file_rule>
-				<exclude>^examples$</exclude>
-			</file_rule>
-		</cluster>
+		<cluster name="client" location=".\src" recursive="true"/>
+		<cluster name="common" location="..\common" recursive="true"/>
 	</target>
 </system>
